@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dev Tyagi - Research | Innovation | Leadership</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -13,25 +14,32 @@
         }
 
         :root {
-            --primary-bg: #0e0d13;
-            --secondary-bg: #1a1625;
-            --card-bg: #211e2b;
-            --accent-purple: #8b5cf6;
-            --accent-blue: #3b82f6;
-            --accent-green: #10b981;
-            --accent-cyan: #06b6d4;
-            --text-primary: #f1f5f9;
-            --text-secondary: #cbd5e1;
-            --text-muted: #94a3b8;
-            --border-color: #334155;
-            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --gradient-accent: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            --gradient-tech: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --primary-bg: #faf8f3;
+            --secondary-bg: #f5f1e8;
+            --card-bg: #ffffff;
+            --accent-primary: #d4a574;
+            --accent-secondary: #c89b7b;
+            --accent-dark: #8b7355;
+            --text-primary: #3d3d3d;
+            --text-secondary: #5a5a5a;
+            --text-muted: #8a8a8a;
+            --border-color: #e8dfd0;
+            --gradient-primary: linear-gradient(135deg, #d4a574 0%, #c89b7b 100%);
+            --gradient-accent: linear-gradient(135deg, #e8c5a0 0%, #d4a574 100%);
+        }
+
+        /* Custom Cursor */
+        * {
+            cursor: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="6" fill="%23d4a574"/><circle cx="16" cy="16" r="12" fill="none" stroke="%23d4a574" stroke-width="1" opacity="0.5"/></svg>') 16 16, auto;
+        }
+
+        a, button {
+            cursor: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="8" fill="%23d4a574"/></svg>') 16 16, pointer;
         }
 
         * {
             scrollbar-width: thin;
-            scrollbar-color: var(--accent-purple) var(--primary-bg);
+            scrollbar-color: var(--accent-primary) var(--secondary-bg);
         }
 
         *::-webkit-scrollbar {
@@ -39,11 +47,11 @@
         }
 
         *::-webkit-scrollbar-track {
-            background: var(--primary-bg);
+            background: var(--secondary-bg);
         }
 
         *::-webkit-scrollbar-thumb {
-            background: var(--accent-purple);
+            background: var(--accent-primary);
             border-radius: 4px;
         }
 
@@ -66,11 +74,12 @@
             left: 0;
             width: 100%;
             padding: 20px 50px;
-            background: rgba(14, 13, 19, 0.95);
+            background: rgba(250, 248, 243, 0.95);
             backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+            border-bottom: 1px solid var(--border-color);
             z-index: 1000;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 10px rgba(212, 165, 116, 0.05);
         }
 
         .nav-container {
@@ -85,10 +94,11 @@
             font-family: 'Playfair Display', serif;
             font-size: 28px;
             font-weight: 700;
-            background: var(--gradient-tech);
+            background: var(--gradient-primary);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            letter-spacing: 1px;
         }
 
         .nav-links {
@@ -107,7 +117,7 @@
         }
 
         .nav-links a:hover {
-            color: var(--accent-purple);
+            color: var(--accent-primary);
         }
 
         .nav-links a::after {
@@ -117,7 +127,7 @@
             left: 0;
             width: 0;
             height: 2px;
-            background: var(--gradient-tech);
+            background: var(--gradient-primary);
             transition: width 0.3s ease;
         }
 
@@ -134,19 +144,36 @@
             background: var(--primary-bg);
             position: relative;
             overflow: hidden;
+            margin-top: 80px;
         }
 
         .hero::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(circle at 25% 25%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 75% 75%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
-            pointer-events: none;
+            top: -50%;
+            right: -50%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(212, 165, 116, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -20%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(200, 155, 123, 0.06) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 8s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(20px); }
         }
 
         .hero-container {
@@ -166,30 +193,50 @@
             font-weight: 800;
             line-height: 1.1;
             margin-bottom: 24px;
+            color: var(--text-primary);
+            animation: slideInDown 0.8s ease-out;
         }
 
         .hero-content .name {
-            background: var(--gradient-tech);
+            background: var(--gradient-primary);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         .hero-tagline {
             font-size: 1.25rem;
-            color: var(--accent-purple);
+            color: var(--accent-primary);
             margin-bottom: 20px;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 2px;
+            animation: fadeIn 0.8s ease-out 0.2s both;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .hero-description {
-            font-size: 1.25rem;
+            font-size: 1.1rem;
             color: var(--text-secondary);
             margin-bottom: 40px;
-            line-height: 1.7;
+            line-height: 1.8;
             max-width: 600px;
+            animation: fadeIn 0.8s ease-out 0.4s both;
         }
 
         .hero-badges {
@@ -204,7 +251,7 @@
             align-items: center;
             gap: 8px;
             background: var(--card-bg);
-            border: 1px solid var(--border-color);
+            border: 2px solid var(--border-color);
             padding: 12px 20px;
             border-radius: 50px;
             font-weight: 500;
@@ -212,7 +259,13 @@
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            animation: fadeIn 0.8s ease-out both;
         }
+
+        .badge:nth-child(1) { animation-delay: 0.5s; }
+        .badge:nth-child(2) { animation-delay: 0.6s; }
+        .badge:nth-child(3) { animation-delay: 0.7s; }
+        .badge:nth-child(4) { animation-delay: 0.8s; }
 
         .badge::before {
             content: '';
@@ -222,6 +275,7 @@
             width: 100%;
             height: 100%;
             background: var(--gradient-primary);
+            opacity: 0.1;
             transition: left 0.3s ease;
             z-index: -1;
         }
@@ -231,9 +285,10 @@
         }
 
         .badge:hover {
-            color: white;
-            border-color: transparent;
-            transform: translateY(-2px);
+            color: var(--accent-dark);
+            border-color: var(--accent-primary);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(212, 165, 116, 0.2);
         }
 
         .hero-image {
@@ -241,6 +296,18 @@
             justify-content: center;
             align-items: center;
             position: relative;
+            animation: slideInRight 0.8s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
         .profile-image {
@@ -248,19 +315,15 @@
             height: 500px;
             border-radius: 20px;
             object-fit: cover;
-            border: 3px solid var(--border-color);
+            border: 3px solid var(--accent-primary);
             transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 
-                0 25px 50px -12px rgba(139, 92, 246, 0.3),
-                0 0 0 1px rgba(139, 92, 246, 0.1);
+            box-shadow: 0 25px 50px rgba(212, 165, 116, 0.2);
         }
 
         .profile-image:hover {
-            transform: translateY(-8px) scale(1.02);
-            border-color: var(--accent-purple);
-            box-shadow: 
-                0 35px 80px -12px rgba(139, 92, 246, 0.5),
-                0 0 0 1px rgba(139, 92, 246, 0.3);
+            transform: translateY(-12px) scale(1.02);
+            border-color: var(--accent-dark);
+            box-shadow: 0 35px 70px rgba(212, 165, 116, 0.3);
         }
 
         /* Sections */
@@ -286,13 +349,13 @@
             left: 0;
             width: 80px;
             height: 4px;
-            background: var(--gradient-tech);
+            background: var(--gradient-primary);
             border-radius: 2px;
         }
 
         .section-subtitle {
-            font-size: 1.25rem;
-            color: var(--text-muted);
+            font-size: 1.1rem;
+            color: var(--text-secondary);
             margin-bottom: 60px;
             max-width: 600px;
         }
@@ -316,17 +379,19 @@
         }
 
         .highlight {
-            color: var(--accent-purple);
-            font-weight: 600;
+            color: var(--accent-primary);
+            font-weight: 700;
         }
 
         .leadership-card {
             background: var(--card-bg);
-            border: 1px solid var(--border-color);
+            border: 2px solid var(--border-color);
             padding: 40px;
             border-radius: 16px;
             position: relative;
             overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(212, 165, 116, 0.1);
         }
 
         .leadership-card::before {
@@ -339,8 +404,14 @@
             background: var(--gradient-accent);
         }
 
+        .leadership-card:hover {
+            border-color: var(--accent-primary);
+            box-shadow: 0 15px 40px rgba(212, 165, 116, 0.2);
+            transform: translateY(-4px);
+        }
+
         .leadership-card h3 {
-            color: var(--accent-purple);
+            color: var(--accent-primary);
             margin-bottom: 24px;
             font-size: 1.5rem;
             font-weight: 700;
@@ -355,7 +426,7 @@
 
         .achievement-item::before {
             content: '▸';
-            color: var(--accent-green);
+            color: var(--accent-primary);
             position: absolute;
             left: 0;
             font-weight: bold;
@@ -363,12 +434,13 @@
 
         /* Research & Patents Section */
         .research-section {
-            background: var(--secondary-bg);
+            background: var(--card-bg);
             border-radius: 20px;
             padding: 60px;
             margin: 80px 0;
-            border: 1px solid var(--border-color);
+            border: 2px solid var(--border-color);
             position: relative;
+            box-shadow: 0 10px 30px rgba(212, 165, 116, 0.1);
         }
 
         .research-section::before {
@@ -399,8 +471,8 @@
         }
 
         .patent-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
+            background: var(--primary-bg);
+            border: 2px solid var(--border-color);
             padding: 32px;
             border-radius: 16px;
             transition: all 0.3s ease;
@@ -408,15 +480,15 @@
         }
 
         .patent-card:hover {
-            border-color: var(--accent-purple);
+            border-color: var(--accent-primary);
             transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(139, 92, 246, 0.2);
+            box-shadow: 0 20px 40px rgba(212, 165, 116, 0.15);
         }
 
         .patent-status {
             display: inline-block;
-            background: rgba(139, 92, 246, 0.2);
-            color: var(--accent-purple);
+            background: rgba(212, 165, 116, 0.15);
+            color: var(--accent-primary);
             padding: 6px 16px;
             border-radius: 20px;
             font-size: 0.8rem;
@@ -429,17 +501,18 @@
         .patent-card h4 {
             color: var(--text-primary);
             font-size: 1.25rem;
-            font-weight: 600;
+            font-weight: 700;
             margin-bottom: 12px;
         }
 
         .govt-project {
-            background: var(--card-bg);
-            border: 2px solid var(--accent-green);
+            background: var(--primary-bg);
+            border: 3px solid var(--accent-primary);
             padding: 40px;
             border-radius: 16px;
             position: relative;
             overflow: hidden;
+            transition: all 0.3s ease;
         }
 
         .govt-project::before {
@@ -449,18 +522,24 @@
             left: 0;
             width: 100%;
             height: 4px;
-            background: var(--accent-green);
+            background: var(--accent-primary);
+        }
+
+        .govt-project:hover {
+            box-shadow: 0 15px 40px rgba(212, 165, 116, 0.2);
+            transform: translateY(-4px);
         }
 
         .govt-badge {
             display: inline-block;
-            background: var(--accent-green);
+            background: var(--accent-primary);
             color: white;
-            padding: 8px 20px;
+            padding: 10px 24px;
             border-radius: 25px;
-            font-size: 0.9rem;
-            font-weight: 600;
+            font-size: 0.95rem;
+            font-weight: 700;
             margin-bottom: 20px;
+            letter-spacing: 1px;
         }
 
         /* Skills Section */
@@ -472,12 +551,13 @@
 
         .skill-category {
             background: var(--card-bg);
-            border: 1px solid var(--border-color);
+            border: 2px solid var(--border-color);
             padding: 32px;
             border-radius: 16px;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
+            box-shadow: 0 5px 15px rgba(212, 165, 116, 0.05);
         }
 
         .skill-category::before {
@@ -497,12 +577,13 @@
         }
 
         .skill-category:hover {
-            border-color: var(--accent-purple);
+            border-color: var(--accent-primary);
             transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(212, 165, 116, 0.15);
         }
 
         .skill-category h3 {
-            color: var(--accent-purple);
+            color: var(--accent-primary);
             margin-bottom: 24px;
             font-size: 1.25rem;
             font-weight: 700;
@@ -527,7 +608,7 @@
 
         .skill-list li::before {
             content: '▸';
-            color: var(--accent-cyan);
+            color: var(--accent-secondary);
             position: absolute;
             left: 0;
             font-weight: bold;
@@ -542,17 +623,18 @@
 
         .project-card {
             background: var(--card-bg);
-            border: 1px solid var(--border-color);
+            border: 2px solid var(--border-color);
             border-radius: 16px;
             overflow: hidden;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
+            box-shadow: 0 5px 15px rgba(212, 165, 116, 0.05);
         }
 
         .project-card:hover {
             transform: translateY(-12px);
-            border-color: var(--accent-purple);
-            box-shadow: 0 25px 50px rgba(139, 92, 246, 0.2);
+            border-color: var(--accent-primary);
+            box-shadow: 0 25px 50px rgba(212, 165, 116, 0.2);
         }
 
         .project-image {
@@ -591,75 +673,13 @@
         }
 
         .tech-tag {
-            background: rgba(59, 130, 246, 0.1);
-            color: var(--accent-blue);
-            border: 1px solid rgba(59, 130, 246, 0.2);
+            background: rgba(212, 165, 116, 0.1);
+            color: var(--accent-primary);
+            border: 1px solid rgba(212, 165, 116, 0.3);
             padding: 6px 12px;
             border-radius: 20px;
             font-size: 0.75rem;
-            font-weight: 500;
-        }
-
-        /* Services Section */
-        .services-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 32px;
-        }
-
-        .service-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            padding: 40px 32px;
-            border-radius: 16px;
-            text-align: center;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .service-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--gradient-primary);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .service-card:hover::before {
-            opacity: 0.05;
-        }
-
-        .service-card:hover {
-            border-color: var(--accent-purple);
-            transform: translateY(-8px);
-        }
-
-        .service-icon {
-            font-size: 3.5rem;
-            margin-bottom: 24px;
-            background: var(--gradient-tech);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .service-card h3 {
-            color: var(--text-primary);
-            margin-bottom: 16px;
-            font-size: 1.25rem;
-            font-weight: 700;
-            position: relative;
-        }
-
-        .service-card p {
-            color: var(--text-secondary);
-            line-height: 1.6;
-            position: relative;
+            font-weight: 600;
         }
 
         /* Contact Section */
@@ -671,10 +691,11 @@
 
         .contact-form {
             background: var(--card-bg);
-            border: 1px solid var(--border-color);
+            border: 2px solid var(--border-color);
             padding: 48px;
             border-radius: 20px;
             position: relative;
+            box-shadow: 0 10px 30px rgba(212, 165, 116, 0.1);
         }
 
         .contact-form::before {
@@ -684,7 +705,7 @@
             left: 0;
             width: 100%;
             height: 4px;
-            background: var(--gradient-tech);
+            background: var(--gradient-primary);
             border-radius: 20px 20px 0 0;
         }
 
@@ -703,7 +724,7 @@
             display: block;
             margin-bottom: 8px;
             color: var(--text-primary);
-            font-weight: 500;
+            font-weight: 600;
         }
 
         .form-group input,
@@ -722,8 +743,8 @@
         .form-group input:focus,
         .form-group textarea:focus {
             outline: none;
-            border-color: var(--accent-purple);
-            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.15);
         }
 
         .form-group textarea {
@@ -732,24 +753,25 @@
         }
 
         .cta-button {
-            background: var(--gradient-tech);
+            background: var(--gradient-primary);
             color: white;
             padding: 16px 32px;
             border: none;
             border-radius: 10px;
             font-weight: 600;
             font-size: 1rem;
-            cursor: pointer;
             transition: all 0.3s ease;
             text-decoration: none;
             display: inline-block;
             position: relative;
             overflow: hidden;
+            width: 100%;
+            cursor: pointer;
         }
 
         .cta-button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 15px 35px rgba(59, 130, 246, 0.3);
+            box-shadow: 0 15px 35px rgba(212, 165, 116, 0.3);
         }
 
         .contact-info h3 {
@@ -762,39 +784,75 @@
         .contact-item {
             margin-bottom: 28px;
             padding: 24px;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
+            background: var(--primary-bg);
+            border: 2px solid var(--border-color);
             border-radius: 12px;
             transition: all 0.3s ease;
         }
 
         .contact-item:hover {
-            border-color: var(--accent-purple);
-            transform: translateY(-2px);
+            border-color: var(--accent-primary);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(212, 165, 116, 0.1);
         }
 
         .contact-item h4 {
-            color: var(--accent-purple);
-            margin-bottom: 8px;
-            font-weight: 600;
+            color: var(--accent-primary);
+            margin-bottom: 12px;
+            font-weight: 700;
+            font-size: 1.1rem;
         }
 
         .contact-item p, .contact-item a {
             color: var(--text-secondary);
             text-decoration: none;
+            font-weight: 500;
+        }
+
+        .contact-item a {
+            display: inline-block;
+            transition: all 0.3s ease;
         }
 
         .contact-item a:hover {
-            color: var(--accent-purple);
+            color: var(--accent-primary);
+            transform: translateX(4px);
+        }
+
+        .social-links {
+            display: flex;
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .social-icon {
+            width: 48px;
+            height: 48px;
+            border: 2px solid var(--accent-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-primary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .social-icon:hover {
+            background: var(--gradient-primary);
+            color: white;
+            border-color: transparent;
+            transform: translateY(-4px);
         }
 
         /* Footer */
         footer {
             background: var(--secondary-bg);
-            border-top: 1px solid var(--border-color);
+            border-top: 2px solid var(--border-color);
             text-align: center;
             padding: 48px 50px;
-            color: var(--text-muted);
+            color: var(--text-secondary);
         }
 
         /* Responsive Design */
@@ -823,6 +881,7 @@
 
             .nav-links {
                 gap: 20px;
+                font-size: 0.9rem;
             }
 
             .section {
@@ -845,37 +904,31 @@
 
             .patents-grid,
             .skills-grid,
-            .services-grid,
             .projects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .contact-container {
                 grid-template-columns: 1fr;
             }
         }
 
         /* Animation classes */
         .fade-in {
-            opacity: 0;
-            transform: translateY(30px);
             animation: fadeInUp 0.8s ease-out forwards;
         }
 
         @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
-
-        .stagger-1 { animation-delay: 0.1s; }
-        .stagger-2 { animation-delay: 0.2s; }
-        .stagger-3 { animation-delay: 0.3s; }
-        .stagger-4 { animation-delay: 0.4s; }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@2.4.1/dist/email.min.js"></script>
-    <script>
-        (function() {
-            emailjs.init("LTvTae7qB5PCTPVQ5");
-        })();
-    </script>
 </head>
 <body>
     <!-- Navigation -->
@@ -888,7 +941,6 @@
                 <li><a href="#research">Research</a></li>
                 <li><a href="#skills">Skills</a></li>
                 <li><a href="#projects">Projects</a></li>
-                <li><a href="#services">Services</a></li>
                 <li><a href="#contact">Contact</a></li>
             </ul>
         </div>
@@ -897,11 +949,11 @@
     <!-- Hero Section -->
     <section id="home" class="hero">
         <div class="hero-container">
-            <div class="hero-content fade-in">
+            <div class="hero-content">
                 <p class="hero-tagline">Research | Innovation | AI | Blockchain | Networking | Leadership</p>
                 <h1>I'm <span class="name">Dev Tyagi</span></h1>
                 <p class="hero-description">
-                    Third-year Electronics & Computer Engineering student at VIT Chennai, driving innovation through research patents, leading the largest robotics club, and building solutions that bridge the gap between cutting-edge technology and real-world impact.
+                    Third-year Electronics & Computer Engineering student at VIT Chennai, driving innovation through research patents, leading the largest robotics club, and building solutions that create real-world impact.
                 </p>
                 
                 <div class="hero-badges">
@@ -920,7 +972,7 @@
                 </div>
             </div>
             
-            <div class="hero-image fade-in">
+            <div class="hero-image">
                 <img src="https://i.postimg.cc/KvfHGY7P/IMG-7598-2.jpg" alt="Dev Tyagi" class="profile-image">
             </div>
         </div>
@@ -936,22 +988,22 @@
         <div class="about-grid">
             <div class="about-text">
                 <p>
-                    My journey started with a simple belief: <span class="highlight">do what's right and give your 100%</span>. This philosophy has guided me through three years of intensive research, leadership challenges, and technological innovation at VIT Chennai.
+                    My journey started with a simple belief: <span class="highlight">do what's right and give your 100%</span>. This philosophy has guided me through three years of intensive research and innovation across emerging technologies.
                 </p>
                 
                 <p>
-                    As the <span class="highlight">Head of the Robotics Club</span> — the largest technical society in our college — I've had the privilege of shaping the technical ecosystem for hundreds of students. From organizing major conferences to leading breakthrough research projects, every day brings new opportunities to push boundaries.
+                    As the <span class="highlight">Head of the Robotics Club</span> — the largest technical society in our college — I've had the privilege of shaping the technical ecosystem, mentoring hundreds of students, and organizing India's biggest inter-college robotics competition.
                 </p>
                 
                 <p>
-                    My research spans multiple cutting-edge domains: developing <span class="highlight">WiFi 7 load balancing algorithms</span>, advancing <span class="highlight">VLSI FinFET technology</span>, and creating efficient ML implementations for IoT devices. Each project represents a step toward solving real-world challenges through innovative technology.
+                    My research spans multiple cutting-edge domains: developing <span class="highlight">WiFi 7 load balancing algorithms</span>, advancing <span class="highlight">VLSI FinFET technology</span>, and building <span class="highlight">blockchain solutions for agricultural supply chains</span>.
                 </p>
             </div>
             
             <div class="leadership-card">
                 <h3>🚀 Leadership Impact</h3>
                 <div class="achievement-item">Spearheaded the largest student technical society in college</div>
-                <div class="achievement-item">Organized "React 2023" - biggest inter-college technical conference</div>
+                <div class="achievement-item">Organized React 2023 - biggest inter-college technical conference</div>
                 <div class="achievement-item">Led Solvathon and Pitchathon events for practical problem-solving</div>
                 <div class="achievement-item">Built mentorship ecosystem training hundreds in electronics & AI</div>
                 <div class="achievement-item">Directed Robo Wars competitions and drone development projects</div>
@@ -965,19 +1017,19 @@
         <h2 class="research-title">🔬 Research & Patents</h2>
         
         <div class="patents-grid">
-            <div class="patent-card stagger-1">
+            <div class="patent-card">
                 <span class="patent-status">Patent Pending</span>
                 <h4>WiFi 7 Load Balancing Algorithm</h4>
                 <p>Advanced NS3 simulation research developing next-generation wireless communication protocols with enhanced bandwidth efficiency and reduced latency for modern IoT ecosystems.</p>
             </div>
             
-            <div class="patent-card stagger-2">
+            <div class="patent-card">
                 <span class="patent-status">Under Review</span>
                 <h4>VLSI FinFET Research</h4>
                 <p>Breakthrough semiconductor research exploring novel FinFET architectures for improved power efficiency and performance scaling in sub-7nm fabrication processes.</p>
             </div>
             
-            <div class="patent-card stagger-3">
+            <div class="patent-card">
                 <span class="patent-status">Filing Soon</span>
                 <h4>ML Model Reconfiguration for FPGA</h4>
                 <p>Revolutionary approach to deploying and dynamically reconfiguring machine learning models on FPGA hardware for resource-constrained edge IoT devices.</p>
@@ -987,8 +1039,8 @@
         <div class="govt-project">
             <span class="govt-badge">🏛️ Government of Tamil Nadu Project</span>
             <h3>Blockchain-based GI Traceability System</h3>
-            <p class="project-subtitle">Smart Contract Development | Full-Stack Implementation | Agricultural Innovation</p>
-            <p>Leading the development of a comprehensive blockchain solution for Geographic Indication (GI) traceability of crops in Tamil Nadu. This project implements smart contracts in Solidity for transparent supply chain management, complete with frontend and backend systems. Currently in the publication and funding pipeline, this initiative aims to revolutionize agricultural product authentication and traceability across the state.</p>
+            <p style="margin-top: 16px; font-size: 0.95rem; color: var(--text-secondary);">Smart Contract Development | Full-Stack Implementation | Agricultural Innovation</p>
+            <p>Leading the development of a comprehensive blockchain solution for Geographic Indication (GI) traceability of crops in Tamil Nadu. This project implements smart contracts in Solidity for transparent, immutable tracking of agricultural products from farm to table.</p>
             
             <div class="tech-stack" style="margin-top: 20px;">
                 <span class="tech-tag">Solidity</span>
@@ -1002,75 +1054,75 @@
 
     <!-- Skills Section -->
     <section id="skills" class="section fade-in">
-        <h2 class="section-title">Technical Arsenal</h2>
+        <h2 class="section-title">Skills & Expertise</h2>
         <p class="section-subtitle">
-            A comprehensive toolkit spanning multiple domains of modern technology and research.
+            A comprehensive toolkit built through hands-on experience and continuous learning.
         </p>
         
         <div class="skills-grid">
-            <div class="skill-category stagger-1">
-                <h3>Programming & Development</h3>
+            <div class="skill-category">
+                <h3>🤖 AI & Machine Learning</h3>
                 <ul class="skill-list">
-                    <li>Java - Advanced OOP & Enterprise Applications</li>
-                    <li>Python - ML, Data Science & Automation</li>
-                    <li>Solidity - Smart Contract Development</li>
-                    <li>JavaScript - Web Development & Frameworks</li>
-                    <li>HTML/CSS - Modern Web Technologies</li>
+                    <li>Deep Learning & Neural Networks</li>
+                    <li>Computer Vision (OpenCV)</li>
+                    <li>Natural Language Processing</li>
+                    <li>TensorFlow & PyTorch</li>
+                    <li>Model Optimization & Deployment</li>
                 </ul>
             </div>
-            
-            <div class="skill-category stagger-2">
-                <h3>Blockchain & Web3</h3>
+
+            <div class="skill-category">
+                <h3>⛓️ Blockchain & Web3</h3>
                 <ul class="skill-list">
-                    <li>Smart Contract Architecture</li>
-                    <li>Cryptocurrency Wallet Development</li>
-                    <li>DeFi Protocol Implementation</li>
-                    <li>Blockchain Integration (Frontend/Backend)</li>
-                    <li>Web3 Security Best Practices</li>
+                    <li>Smart Contracts (Solidity)</li>
+                    <li>Ethereum & Web3.js</li>
+                    <li>DeFi Protocols</li>
+                    <li>Cryptography & Security</li>
+                    <li>Full-Stack Web3 Development</li>
                 </ul>
             </div>
-            
-            <div class="skill-category stagger-3">
-                <h3>Networking & Simulation</h3>
+
+            <div class="skill-category">
+                <h3>💻 Programming Languages</h3>
                 <ul class="skill-list">
-                    <li>NS3 Network Simulation</li>
-                    <li>Computer Network Architecture</li>
-                    <li>WiFi 7 Protocol Development</li>
-                    <li>Load Balancing Algorithms</li>
-                    <li>Network Performance Optimization</li>
+                    <li>Python & C++</li>
+                    <li>JavaScript & TypeScript</li>
+                    <li>Java & SQL</li>
+                    <li>VHDL & Verilog (Hardware)</li>
+                    <li>Shell Scripting</li>
                 </ul>
             </div>
-            
-            <div class="skill-category stagger-4">
-                <h3>Hardware & Design</h3>
+
+            <div class="skill-category">
+                <h3>🔧 Hardware & Embedded</h3>
                 <ul class="skill-list">
-                    <li>AutoCAD - 3D Design & Modeling</li>
-                    <li>VLSI Design & FinFET Research</li>
-                    <li>IoT Device Development</li>
-                    <li>Drone Engineering & Robotics</li>
-                    <li>Embedded Systems Programming</li>
+                    <li>Arduino & Raspberry Pi</li>
+                    <li>FPGA Design & Implementation</li>
+                    <li>Circuit Design & Simulation</li>
+                    <li>IoT Systems</li>
+                    <li>Robotics & Automation</li>
                 </ul>
             </div>
-            
-            <div class="skill-category stagger-1">
-                <h3>Research & Analysis</h3>
+
+            <div class="skill-category">
+                <h3>📡 Wireless & Networking</h3>
                 <ul class="skill-list">
-                    <li>Algorithm Design & Optimization</li>
-                    <li>Data Modeling & Analysis</li>
-                    <li>Machine Learning Implementation</li>
-                    <li>Edge AI Development</li>
-                    <li>Research Publication & Patents</li>
+                    <li>WiFi 7 & 5G Technologies</li>
+                    <li>Network Protocol Design</li>
+                    <li>NS3 Simulation</li>
+                    <li>Signal Processing</li>
+                    <li>Telecommunication Systems</li>
                 </ul>
             </div>
-            
-            <div class="skill-category stagger-2">
-                <h3>Leadership & Mentoring</h3>
+
+            <div class="skill-category">
+                <h3>🎨 Web Development</h3>
                 <ul class="skill-list">
-                    <li>Technical Team Management</li>
-                    <li>Workshop Design & Delivery</li>
-                    <li>Event Organization (500+ participants)</li>
-                    <li>Community Building & Engagement</li>
-                    <li>Cross-functional Project Coordination</li>
+                    <li>React & Next.js</li>
+                    <li>Node.js & Express</li>
+                    <li>UI/UX Design</li>
+                    <li>Responsive Web Design</li>
+                    <li>Frontend Optimization</li>
                 </ul>
             </div>
         </div>
@@ -1078,188 +1130,87 @@
 
     <!-- Projects Section -->
     <section id="projects" class="section fade-in">
-        <h2 class="section-title">Featured Projects</h2>
+        <h2 class="section-title">Projects</h2>
         <p class="section-subtitle">
-            A showcase of innovative solutions spanning blockchain, web development, and robotics.
+            Innovative solutions bringing ideas to life through code and creativity.
         </p>
         
         <div class="projects-grid">
-            <div class="project-card stagger-1">
-                <div class="project-image">🌾</div>
-                <div class="project-content">
-                    <h3>GI Traceability Platform</h3>
-                    <p>Government-backed blockchain solution for agricultural product traceability in Tamil Nadu. Complete full-stack implementation with smart contracts, user-friendly interface, and comprehensive backend systems.</p>
-                    <div class="tech-stack">
-                        <span class="tech-tag">Solidity</span>
-                        <span class="tech-tag">Smart Contracts</span>
-                        <span class="tech-tag">React</span>
-                        <span class="tech-tag">Node.js</span>
-                        <span class="tech-tag">Web3.js</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="project-card stagger-2">
-                <div class="project-image">💰</div>
-                <div class="project-content">
-                    <h3>Cryptocurrency Wallet</h3>
-                    <p>Secure cryptocurrency wallet with advanced transaction capabilities, multi-currency support, and robust security features. Built with modern web technologies and blockchain integration.</p>
-                    <div class="tech-stack">
-                        <span class="tech-tag">JavaScript</span>
-                        <span class="tech-tag">Web3</span>
-                        <span class="tech-tag">Cryptocurrency</span>
-                        <span class="tech-tag">Security</span>
-                        <span class="tech-tag">UI/UX</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="project-card stagger-3">
+            <div class="project-card">
                 <div class="project-image">🤖</div>
                 <div class="project-content">
-                    <h3>Robotics Club Website</h3>
-                    <p>Comprehensive digital platform for VIT's largest technical society. Features event management, member portals, project showcases, and resource sharing for 500+ active members.</p>
+                    <h3>Autonomous Robotics Platform</h3>
+                    <p>Developed a fully autonomous drone system with real-time computer vision processing, obstacle avoidance, and AI-powered navigation algorithms.</p>
                     <div class="tech-stack">
-                        <span class="tech-tag">HTML</span>
-                        <span class="tech-tag">CSS</span>
-                        <span class="tech-tag">JavaScript</span>
-                        <span class="tech-tag">Responsive Design</span>
-                        <span class="tech-tag">Community Platform</span>
+                        <span class="tech-tag">Python</span>
+                        <span class="tech-tag">OpenCV</span>
+                        <span class="tech-tag">Arduino</span>
+                        <span class="tech-tag">Robotics</span>
                     </div>
                 </div>
             </div>
-            
-            <div class="project-card stagger-4">
+
+            <div class="project-card">
+                <div class="project-image">⛓️</div>
+                <div class="project-content">
+                    <h3>GI Supply Chain Tracker</h3>
+                    <p>Smart contract-based traceability system for agricultural products with government collaboration on blockchain implementation and real-time tracking.</p>
+                    <div class="tech-stack">
+                        <span class="tech-tag">Solidity</span>
+                        <span class="tech-tag">Ethereum</span>
+                        <span class="tech-tag">Web3</span>
+                        <span class="tech-tag">Full-Stack</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="project-card">
                 <div class="project-image">📡</div>
                 <div class="project-content">
                     <h3>WiFi 7 Load Balancer</h3>
-                    <p>Advanced network simulation using NS3 to develop efficient load balancing algorithms for next-generation wireless communication protocols, optimizing bandwidth and reducing latency.</p>
+                    <p>Next-generation wireless load balancing algorithm optimizing bandwidth distribution using advanced NS3 simulations and machine learning predictions.</p>
                     <div class="tech-stack">
                         <span class="tech-tag">NS3</span>
-                        <span class="tech-tag">Network Simulation</span>
-                        <span class="tech-tag">Algorithm Design</span>
-                        <span class="tech-tag">WiFi 7</span>
-                        <span class="tech-tag">Performance Optimization</span>
+                        <span class="tech-tag">Python</span>
+                        <span class="tech-tag">ML</span>
+                        <span class="tech-tag">Wireless</span>
                     </div>
                 </div>
-            </div>
-            
-            <div class="project-card stagger-1">
-                <div class="project-image">🔧</div>
-                <div class="project-content">
-                    <h3>IoT Robotics Ecosystem</h3>
-                    <p>Integrated robotics platform featuring autonomous drones, robotic arms, and IoT devices. Developed for competitions and real-world applications with advanced sensor integration.</p>
-                    <div class="tech-stack">
-                        <span class="tech-tag">IoT</span>
-                        <span class="tech-tag">Embedded Systems</span>
-                        <span class="tech-tag">Robotics</span>
-                        <span class="tech-tag">Sensor Integration</span>
-                        <span class="tech-tag">Autonomous Systems</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="project-card stagger-2">
-                <div class="project-image">💻</div>
-                <div class="project-content">
-                    <h3>Portfolio & Web Solutions</h3>
-                    <p>Custom portfolio websites and web applications featuring modern design principles, responsive layouts, and optimized performance. Built for various clients and personal projects.</p>
-                    <div class="tech-stack">
-                        <span class="tech-tag">Modern Web Design</span>
-                        <span class="tech-tag">Responsive Layout</span>
-                        <span class="tech-tag">Performance Optimization</span>
-                        <span class="tech-tag">User Experience</span>
-                        <span class="tech-tag">Custom Solutions</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Services Section -->
-    <section id="services" class="section fade-in">
-        <h2 class="section-title">Services & Expertise</h2>
-        <p class="section-subtitle">
-            Leveraging deep technical knowledge and leadership experience to deliver exceptional results.
-        </p>
-        
-        <div class="services-grid">
-            <div class="service-card stagger-1">
-                <div class="service-icon">🎓</div>
-                <h3>Technical Workshops & Training</h3>
-                <p>Comprehensive workshops on electronics, computer networks, AI, and robotics for students and professionals. Proven track record of training hundreds of participants with hands-on, practical learning experiences.</p>
-            </div>
-            
-            <div class="service-card stagger-2">
-                <div class="service-icon">🔗</div>
-                <h3>Blockchain Development</h3>
-                <p>End-to-end blockchain application development including smart contract architecture, frontend integration, and backend systems. Expertise in Solidity, Web3 technologies, and decentralized applications.</p>
-            </div>
-            
-            <div class="service-card stagger-3">
-                <div class="service-icon">💻</div>
-                <h3>Full-Stack Web Development</h3>
-                <p>Modern web application development with responsive design, optimized performance, and user-centric experiences. From concept to deployment, delivering scalable and maintainable solutions.</p>
-            </div>
-            
-            <div class="service-card stagger-4">
-                <div class="service-icon">🔬</div>
-                <h3>Research Consulting</h3>
-                <p>Technical consulting on networking algorithms, embedded systems, IoT solutions, and VLSI design. Assistance with research projects, patent applications, and academic publications.</p>
-            </div>
-            
-            <div class="service-card stagger-1">
-                <div class="service-icon">🤖</div>
-                <h3>Robotics & IoT Solutions</h3>
-                <p>Custom robotics development, IoT device design, and embedded systems programming. From prototyping to production-ready solutions for various industrial and research applications.</p>
-            </div>
-            
-            <div class="service-card stagger-2">
-                <div class="service-icon">👥</div>
-                <h3>Community Building & Leadership</h3>
-                <p>Technical community development, event organization, and mentorship programs. Experience in building and managing large technical societies and organizing major conferences.</p>
             </div>
         </div>
     </section>
 
     <!-- Contact Section -->
     <section id="contact" class="section fade-in">
-        <h2 class="section-title">Let's Connect</h2>
+        <h2 class="section-title">Get In Touch</h2>
         <p class="section-subtitle">
-            Ready to collaborate on cutting-edge projects, research initiatives, or innovative solutions.
+            Let's collaborate and create something extraordinary together.
         </p>
         
         <div class="contact-container">
-            <div class="contact-form">
-                <h3>Send me a message</h3>
-                <form id="contact-form">
-                    <div class="form-group">
-                        <label for="name">Your Name</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="subject">Subject</label>
-                        <input type="text" id="subject" name="subject" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="message">Message</label>
-                        <textarea id="message" name="message" rows="5" required></textarea>
-                    </div>
-                    <button type="submit" class="cta-button">Send Message</button>
-                </form>
-            </div>
-            
-            <div class="contact-info">
-                <h3>Get in Touch</h3>
+            <form class="contact-form" id="contactForm">
+                <h3>Send Message</h3>
                 
-                <div class="contact-item">
-                    <h4>📧 Email</h4>
-                    <p><a href="mailto:devtyagi3909@gmail.com">devtyagi3909@gmail.com</a></p>
+                <div class="form-group">
+                    <label for="name">Your Name</label>
+                    <input type="text" id="name" name="name" required>
                 </div>
+                
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="message">Message</label>
+                    <textarea id="message" name="message" required></textarea>
+                </div>
+                
+                <button type="submit" class="cta-button">Send Message</button>
+            </form>
+
+            <div class="contact-info">
+                <h3>Contact Information</h3>
                 
                 <div class="contact-item">
                     <h4>📱 Phone</h4>
@@ -1267,25 +1218,28 @@
                 </div>
                 
                 <div class="contact-item">
-                    <h4>🐙 GitHub</h4>
-                    <p><a href="https://github.com/devtyagi3909" target="_blank">github.com/devtyagi3909</a></p>
+                    <h4>📧 Email</h4>
+                    <p><a href="mailto:devtyagi3909@gmail.com">devtyagi3909@gmail.com</a></p>
                 </div>
                 
                 <div class="contact-item">
-                    <h4>💼 LinkedIn</h4>
-                    <p><a href="https://www.linkedin.com/in/dev-tyagi3909" target="_blank">linkedin.com/in/dev-tyagi3909</a></p>
+                    <h4>🌐 Social Links</h4>
+                    <div class="social-links">
+                        <a href="https://linkedin.com/in/devtyagi3909" class="social-icon" title="LinkedIn" target="_blank">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="https://github.com/devtyagi3909" class="social-icon" title="GitHub" target="_blank">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="https://twitter.com/devtyagi3909" class="social-icon" title="Twitter" target="_blank">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                    </div>
                 </div>
-                
+
                 <div class="contact-item">
                     <h4>📍 Location</h4>
-                    <p>Vellore Institute of Technology<br>Chennai, Tamil Nadu, India</p>
-                </div>
-                
-                <div style="margin-top: 40px; padding: 24px; background: var(--card-bg); border: 1px solid var(--accent-green); border-radius: 12px;">
-                    <h4 style="color: var(--accent-green); margin-bottom: 12px;">🤝 Open for Collaboration</h4>
-                    <p style="color: var(--text-secondary); font-size: 0.95rem;">
-                        Research partnerships • Internship opportunities • Technical consultations • Speaking engagements • Open source contributions
-                    </p>
+                    <p>VIT Chennai, Tamil Nadu, India</p>
                 </div>
             </div>
         </div>
@@ -1293,25 +1247,12 @@
 
     <!-- Footer -->
     <footer>
-        <p>&copy; 2024 Dev Tyagi. Designed with passion for innovation and research excellence.</p>
-        <p style="margin-top: 8px; font-size: 0.9rem;">Building the future, one patent at a time.</p>
+        <p>&copy; 2024 Dev Tyagi. All rights reserved. Built with passion and innovation.</p>
     </footer>
 
     <script>
-        // Smooth scrolling for navigation links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
-
+        // Smooth scroll behavior is already in CSS
+        
         // Intersection Observer for fade-in animations
         const observerOptions = {
             threshold: 0.1,
@@ -1321,52 +1262,24 @@
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    entry.target.style.animationPlayState = 'running';
+                    entry.target.style.animation = 'fadeInUp 0.8s ease-out forwards';
                 }
             });
         }, observerOptions);
 
-        // Observe all elements with fade-in class
         document.querySelectorAll('.fade-in').forEach(el => {
-            el.style.animationPlayState = 'paused';
             observer.observe(el);
         });
 
-        // Contact form submission
-        document.getElementById('contact-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            // Show loading state
-            const submitButton = this.querySelector('.cta-button');
-            const originalText = submitButton.textContent;
-            submitButton.textContent = 'Sending...';
-            submitButton.disabled = true;
-
-            emailjs.sendForm('service_5fw1qdx', 'template_jcghunk', this)
-                .then(function() {
-                    alert('✅ Message sent successfully! I\'ll get back to you soon.');
-                    document.getElementById('contact-form').reset();
-                }, function(error) {
-                    alert('❌ Failed to send message. Please try again or contact me directly via email.');
-                    console.log('EmailJS error:', error);
-                })
-                .finally(function() {
-                    submitButton.textContent = originalText;
-                    submitButton.disabled = false;
-                });
-        });
-
-        // Add dynamic navbar background on scroll
-        window.addEventListener('scroll', () => {
-            const nav = document.querySelector('nav');
-            if (window.scrollY > 100) {
-                nav.style.background = 'rgba(14, 13, 19, 0.98)';
-                nav.style.borderBottomColor = 'rgba(139, 92, 246, 0.3)';
-            } else {
-                nav.style.background = 'rgba(14, 13, 19, 0.95)';
-                nav.style.borderBottomColor = 'rgba(139, 92, 246, 0.1)';
-            }
-        });
+        // Form handling
+        const contactForm = document.getElementById('contactForm');
+        if (contactForm) {
+            contactForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                alert('Thank you for your message! I will get back to you soon.');
+                contactForm.reset();
+            });
+        }
     </script>
 </body>
 </html>
