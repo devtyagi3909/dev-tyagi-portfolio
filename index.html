@@ -1004,8 +1004,8 @@ renderer.setClearColor(0x050505, 1); // Dark bg for post-processing
 // Post Processing Stack
 const renderScene = new THREE.RenderPass(scene, camera);
 const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
-bloomPass.threshold = 0.95; // Only glow extremely bright emissive objects (LEDs, Data Flow)
-bloomPass.strength = 1.2;
+bloomPass.threshold = 1.2; // Absolute lockout for non-emissive materials
+bloomPass.strength = 1.0;
 bloomPass.radius = 0.5;
 
 const bokehPass = new THREE.BokehPass(scene, camera, {
@@ -1248,17 +1248,17 @@ for(let i=0; i<12; i++) {
 }
 
 // Lighting setup (dramatic, high contrast)
-scene.add(new THREE.AmbientLight(0xffffff, 1.0));
-const dirLight = new THREE.DirectionalLight(0xffffff, 2.5);
+scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
 dirLight.position.set(8, 20, 10);
 scene.add(dirLight);
 
 // Dual tone rim lighting (Apple/Awwwards style)
-const blueLight = new THREE.PointLight(0x1e4db7, 20, 40);
+const blueLight = new THREE.PointLight(0x1e4db7, 8, 40);
 blueLight.position.set(-8, 3, -6);
 scene.add(blueLight);
 
-const redLight = new THREE.PointLight(0xcc3d10, 20, 40);
+const redLight = new THREE.PointLight(0xcc3d10, 8, 40);
 redLight.position.set(8, 3, 6);
 scene.add(redLight);
 
