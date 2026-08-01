@@ -805,7 +805,7 @@ function curLoop() {
   oscCtx.lineWidth = 1.5;
   
   let yHigh = 4, yLow = 20;
-  let wavelength = hoverEl ? cw : Math.max(8, 24 - vel * 0.4);
+  let wavelength = hoverEl ? cw : Math.max(4, 24 - (vel + (typeof glitchVel!=="undefined"?glitchVel:0)*2 + (typeof scrollVel!=="undefined"?Math.abs(scrollVel)*0.1:0)) * 0.5);
   oscOffset += hoverEl ? 0 : (1 + vel * 0.2);
   
   let x = 0;
@@ -1004,7 +1004,7 @@ renderer.setClearColor(0x050505, 1); // Dark bg for post-processing
 // Post Processing Stack
 const renderScene = new THREE.RenderPass(scene, camera);
 const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
-bloomPass.threshold = 1.2; // Absolute lockout for non-emissive materials
+bloomPass.threshold = 1.05; // Absolute lockout for non-emissive materials
 bloomPass.strength = 1.0;
 bloomPass.radius = 0.5;
 
@@ -1025,6 +1025,22 @@ const rgbPass = new THREE.ShaderPass(THREE.RGBShiftShader);
 rgbPass.uniforms['amount'].value = 0.0000;
 composer.addPass(rgbPass);
 
+
+
+function createNeonEnvironment() {
+  const c = document.createElement('canvas');
+  c.width = 512; c.height = 256;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#050505'; ctx.fillRect(0,0,512,256);
+  // Draw some neon light strips for the metal to reflect
+  ctx.fillStyle = '#cc3d10'; ctx.fillRect(100, 100, 50, 20);
+  ctx.fillStyle = '#1e4db7'; ctx.fillRect(400, 50, 20, 100);
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(256, 200, 100, 5);
+  const tex = new THREE.CanvasTexture(c);
+  tex.mapping = THREE.EquirectangularReflectionMapping;
+  return tex;
+}
+scene.environment = createNeonEnvironment();
 
 const boardGroup = new THREE.Group();
 scene.add(boardGroup);
@@ -1113,10 +1129,12 @@ socket.position.y = 0.15;
 boardGroup.add(socket);
 
 // RAM Modules
+const ramModules = [];
 for(let i=0; i<4; i++) {
   const ram = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.25, 2.5), matRAM);
   ram.position.set(3.8, 0.225, -2.25 + i*1.5);
   boardGroup.add(ram);
+  ramModules.push({ mesh: ram, baseY: 0.225, targetY: 4.0 + (i*0.5) });
 }
 
 // Heavy IO Ports (FMC, Ethernet, etc)
@@ -1137,10 +1155,12 @@ boardGroup.add(usb);
 
 // Cylindrical Capacitors (Silver with black base)
 const geomCyl = new THREE.CylinderGeometry(0.25, 0.25, 0.6, 16);
+const capModules = [];
 for(let i=0; i<6; i++) {
   const cyl = new THREE.Mesh(geomCyl, matSilver);
   cyl.position.set(-4 + Math.random()*2, 0.4, -4 + Math.random()*2);
   boardGroup.add(cyl);
+  capModules.push({ mesh: cyl, baseY: 0.4, targetY: 2.0 + Math.random()*2.0 });
 }
 
 // Dense Photorealistic SMD Components Grid
@@ -1285,6 +1305,39 @@ if(nmWrap) {
 // duplicate removed
 const camTargetVec = new THREE.Vector3(0,0,0);
 
+
+let isExploded = false;
+let gyroX = 0, gyroY = 0;
+
+const asmBtn = document.getElementById('assembly-btn');
+if(asmBtn) {
+  asmBtn.addEventListener('mouseenter', () => { if(AudioSys) AudioSys.click(300, 'square', 0.05, 0.05); document.body.classList.add('hl'); hoverEl=asmBtn; });
+  asmBtn.addEventListener('mouseleave', () => { document.body.classList.remove('hl'); hoverEl=null; });
+  asmBtn.addEventListener('click', () => {
+    isExploded = !isExploded;
+    asmBtn.style.background = isExploded ? 'var(--acc)' : 'rgba(255,255,255,0.05)';
+    asmBtn.style.color = isExploded ? 'var(--bg)' : 'var(--ink)';
+    if(AudioSys) AudioSys.noise(0.2, 0.1, 800);
+    
+    // Request Gyroscope on iOS
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+      DeviceOrientationEvent.requestPermission().then(response => {
+        if (response == 'granted') {
+          window.addEventListener('deviceorientation', (e) => {
+            gyroY = (e.gamma || 0) * (Math.PI / 180) * 0.5;
+            gyroX = (e.beta - 45 || 0) * (Math.PI / 180) * 0.5;
+          });
+        }
+      }).catch(console.error);
+    } else {
+      window.addEventListener('deviceorientation', (e) => {
+        gyroY = (e.gamma || 0) * (Math.PI / 180) * 0.5;
+        gyroX = (e.beta - 45 || 0) * (Math.PI / 180) * 0.5;
+      });
+    }
+  });
+}
+
 function render3DLoop() {
   tBoard += 0.005;
   
@@ -1298,20 +1351,35 @@ function render3DLoop() {
   matLEDGreen.emissiveIntensity = (Math.sin(tBoard * 20) > 0) ? 6 : 0.5;
   matLEDRed.emissiveIntensity = (Math.sin(tBoard * 4) > 0.9) ? 8 : 0;
   
-  // Data Flow Animation (if packets exist)
+  // Overclocked Data Flow Simulation
   if(typeof packets !== 'undefined') {
+    const overclock = typeof scrollVel !== 'undefined' ? Math.abs(scrollVel) * 0.001 : 0;
     packets.forEach(p => {
-      p.userData.progress += p.userData.speed;
+      p.userData.progress += p.userData.speed + overclock; // Speed scales with scroll velocity
       if(p.userData.progress > 1) { 
         p.userData.progress = 0; p.userData.speed = 0.005 + Math.random()*0.02; 
       }
       p.position.set(
         THREE.MathUtils.lerp(p.userData.startX, p.userData.endX, p.userData.progress),
-        0.3,
+        isExploded ? p.userData.targetY || (p.userData.targetY = 2 + Math.random()*2) : 0.3,
         THREE.MathUtils.lerp(p.userData.startZ, p.userData.endZ, p.userData.progress)
       );
     });
   }
+  
+  // Tony Stark Exploded View Physics
+  const expLerp = isExploded ? 0.05 : 0.08;
+  fpgaDie.position.y += ((isExploded ? 3.0 : 0.3) - fpgaDie.position.y) * expLerp;
+  socket.position.y += ((isExploded ? 1.5 : 0.15) - socket.position.y) * expLerp;
+  if(typeof ramModules !== 'undefined') {
+    ramModules.forEach(r => r.mesh.position.y += ((isExploded ? r.targetY : r.baseY) - r.mesh.position.y) * expLerp);
+  }
+  if(typeof capModules !== 'undefined') {
+    capModules.forEach(c => c.mesh.position.y += ((isExploded ? c.targetY : c.baseY) - c.mesh.position.y) * expLerp);
+  }
+  pcb.material.opacity += ((isExploded ? 0.3 : 1.0) - pcb.material.opacity) * 0.1;
+  pcb.material.transparent = true;
+
 
   // Camera Fly-Through Logic
   let idealPosX = 0, idealPosY = 16, idealPosZ = 22;
@@ -1352,8 +1420,8 @@ function render3DLoop() {
   // Keep gentle rotation for parallax
   const pdx = (mx - window.innerWidth/2) * 0.0003;
   const pdy = (my - window.innerHeight/2) * 0.0003;
-  boardGroup.rotation.x = (sp*0.5) + Math.sin(tBoard)*0.03 + pdy;
-  boardGroup.rotation.y = (sp*Math.PI*1.5) + Math.cos(tBoard*0.8)*0.03 + pdx;
+  boardGroup.rotation.x = (sp*0.5) + Math.sin(tBoard)*0.03 + pdy + gyroX;
+  boardGroup.rotation.y = (sp*Math.PI*1.5) + Math.cos(tBoard*0.8)*0.03 + pdx + gyroY;
   
   // Schematic / Wireframe Transition
   const isWireframe = sp > 0.4;
