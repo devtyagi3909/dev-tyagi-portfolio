@@ -16,7 +16,7 @@
   --bg:      #f0ede8;
   --ink:     #0a0808;
   --acc:     #cc3d10;
-  --muted:   rgba(10,8,8,.36);
+  --muted:   rgba(10,8,8,.45);
   --bd:      rgba(10,8,8,.11);
   --mono:    'Space Mono', monospace;
   --dsp:     'Syne', sans-serif;
@@ -31,7 +31,7 @@ html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-stopped { overflow: hidden; }
 .lenis.lenis-scrolling iframe { pointer-events: none; }
 
-html { font-size:16px; scroll-behavior:auto; } /* Lenis takes over */
+html { font-size:16px; scroll-behavior:auto; } 
 body {
   font-family: var(--dsp);
   background: var(--bg);
@@ -39,7 +39,6 @@ body {
   overflow-x: hidden;
   cursor: none;
   -webkit-font-smoothing: antialiased;
-  writing-mode: horizontal-tb;
 }
 a { color:inherit; text-decoration:none; }
 ::-webkit-scrollbar { width:3px; }
@@ -107,20 +106,16 @@ body.hl #cur-b { width:50px; height:50px; border-color:rgba(204,61,16,.45); }
   96%  { clip-path:inset(50% 0 50% 0); transform:none; opacity:0; }
 }
 
-/* ─── 3D TYPE REVEAL ──────────────────────────────────── */
+/* ─── FAST FADE REVEAL (Removed 3D clipping) ──────────── */
 .t3d {
   opacity:0;
-  transform: perspective(700px) rotateX(48deg) translateY(24px);
-  transform-origin: top center;
-  transition: opacity 1s var(--ease), transform 1s var(--ease);
-  will-change: transform, opacity;
+  transform: translateY(12px);
+  transition: opacity .6s var(--ease), transform .6s var(--ease);
 }
-.t3d.in { opacity:1; transform:perspective(700px) rotateX(0deg) translateY(0); }
-.t3d-d1 { transition-delay:.1s; }
-.t3d-d2 { transition-delay:.2s; }
-.t3d-d3 { transition-delay:.3s; }
-.t3d-d4 { transition-delay:.4s; }
-.t3d-d5 { transition-delay:.5s; }
+.t3d.in { opacity:1; transform:translateY(0); }
+.t3d-d1 { transition-delay:0s; }
+.t3d-d2 { transition-delay:.08s; }
+.t3d-d3 { transition-delay:.16s; }
 
 /* ─── NAV ─────────────────────────────────────────────── */
 nav {
@@ -144,14 +139,13 @@ nav {
 /* ─── HERO ────────────────────────────────────────────── */
 .hero {
   position:relative;
-  min-height:100vh;
+  /* Min height removed to prevent giant empty gap, driven by padding now */
   padding-top:44px;
   border-bottom:1px solid var(--bd);
   overflow:hidden;
   display:flex; flex-direction:column;
 }
 
-/* Scatter */
 .scatter { position:absolute; inset:0; pointer-events:none; z-index:4; }
 .sp { position:absolute; display:flex; flex-direction:column; gap:3px; }
 .sp-key { font-family:var(--mono); font-size:8px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); line-height:1.4; }
@@ -160,7 +154,7 @@ nav {
 
 .hero-top {
   padding:18px 28px 0; display:flex; justify-content:space-between; align-items:flex-start;
-  position:relative; z-index:2; flex-shrink:0;
+  position:relative; z-index:2;
 }
 .hero-top-meta { display:flex; flex-direction:column; gap:3px; }
 .lbl { font-family:var(--mono); font-size:9px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); line-height:1.5; }
@@ -170,14 +164,15 @@ nav {
 .hero-acc-block svg { position:absolute; inset:14px; }
 .hero-acc-label { position:absolute; bottom:-1px; left:-200px; width:192px; text-align:right; display:flex; flex-direction:column; gap:3px; }
 
-.hero-name-wrap { flex:1; display:flex; align-items:center; padding:0; position:relative; z-index:2; overflow:hidden; }
+/* Tightened name padding to pull layout up */
+.hero-name-wrap { padding:4vh 0; display:flex; align-items:center; position:relative; z-index:2; overflow:hidden; }
 .h-dev { font-family:var(--dsp); font-weight:400; font-size:clamp(88px,17vw,210px); line-height:.86; letter-spacing:-.055em; color:rgba(10,8,8,.13); user-select:none; display:block; padding-left:36px; }
 .h-tyagi { font-family:var(--dsp); font-weight:800; font-size:clamp(88px,17vw,210px); line-height:.86; letter-spacing:-.055em; color:var(--ink); display:block; padding-left:36px; }
 .h-tyagi .period { color:var(--acc); }
 
 .hero-bottom {
   border-top:1px solid var(--bd); display:grid; grid-template-columns:repeat(4,1fr);
-  position:relative; z-index:2; flex-shrink:0;
+  position:relative; z-index:2;
 }
 .hbc { padding:16px 22px; border-right:1px solid var(--bd); display:flex; flex-direction:column; gap:4px; }
 .hbc:last-child { border-right:none; }
@@ -193,99 +188,99 @@ nav {
 @keyframes mq-scroll { from{transform:translateX(0)} to{transform:translateX(-50%)} }
 
 /* ─── SECTION TEMPLATE ────────────────────────────────── */
-.sec { border-bottom:1px solid var(--bd); padding:64px 40px; position:relative; }
+.sec { border-bottom:1px solid var(--bd); padding:48px 32px; position:relative; }
 .sec-aside { position:absolute; left:0; top:0; bottom:0; width:28px; border-right:1px solid var(--bd); display:flex; align-items:center; justify-content:center; overflow:hidden; }
 .sec-aside-t { font-family:var(--mono); font-size:7.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); white-space:nowrap; transform:rotate(-90deg); }
-.sec-pad { padding-left:44px; }
+.sec-pad { padding-left:36px; }
 
-.eyebrow { font-family:var(--mono); font-size:9px; letter-spacing:.22em; text-transform:uppercase; color:var(--muted); display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+.eyebrow { font-family:var(--mono); font-size:9px; letter-spacing:.22em; text-transform:uppercase; color:var(--muted); display:flex; align-items:center; gap:10px; margin-bottom:12px; }
 .eyebrow::after { content:''; width:32px; height:1px; background:var(--bd); }
-.sec-h { font-family:var(--dsp); font-weight:800; font-size:clamp(38px,5.5vw,72px); letter-spacing:-.05em; line-height:.9; color:var(--ink); }
-.sec-hd { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:52px; gap:20px; flex-wrap:wrap; }
+.sec-h { font-family:var(--dsp); font-weight:800; font-size:clamp(32px,5vw,60px); letter-spacing:-.05em; line-height:.95; color:var(--ink); }
+.sec-hd { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:36px; gap:16px; flex-wrap:wrap; }
 .sec-num { font-family:var(--mono); font-size:9px; letter-spacing:.18em; color:var(--muted); padding-top:6px; }
 
 /* ─── ABOUT + SKILLS ──────────────────────────────────── */
-.about-grid { display:grid; grid-template-columns:1fr 1fr; gap:48px; }
-.copy p { font-size:14.5px; font-weight:400; color:var(--muted); line-height:1.85; }
-.copy p+p { margin-top:16px; }
+.about-grid { display:grid; grid-template-columns:1.2fr 1fr; gap:36px; align-items:start; }
+.copy p { font-size:14.5px; font-weight:400; color:var(--ink); line-height:1.75; }
+.copy p+p { margin-top:14px; }
 .copy b { color:var(--ink); font-weight:700; }
-.copy .coord { font-family:var(--mono); font-size:9px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); display:block; margin-top:28px; }
+.copy .coord { font-family:var(--mono); font-size:9px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); display:block; margin-top:20px; }
 .copy .coord b { color:var(--ink); }
 
-.skills-stack { display:flex; flex-direction:column; gap:2px; }
-.skill-row { padding:15px 18px; border-radius:14px; transition:background .2s, transform .25s var(--ease), box-shadow .25s; cursor:none; }
-.skill-row:hover { background: rgba(255,255,255,.55); backdrop-filter:blur(24px) saturate(150%); -webkit-backdrop-filter:blur(24px) saturate(150%); border:1px solid rgba(255,255,255,.7); box-shadow:inset 0 1px 0 rgba(255,255,255,.9), 0 8px 32px rgba(0,0,0,.07); transform:translateX(8px); }
+.skills-stack { display:flex; flex-direction:column; gap:4px; }
+.skill-row { padding:14px 16px; border-radius:12px; transition:background .2s, transform .25s var(--ease), box-shadow .25s; cursor:none; }
+.skill-row:hover { background: rgba(255,255,255,.55); backdrop-filter:blur(24px) saturate(150%); -webkit-backdrop-filter:blur(24px) saturate(150%); border:1px solid rgba(255,255,255,.7); box-shadow:inset 0 1px 0 rgba(255,255,255,.9), 0 8px 32px rgba(0,0,0,.07); transform:translateX(6px); }
 .sk-label { font-family:var(--mono); font-size:8.5px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; }
-.sk-tags { display:flex; flex-wrap:wrap; gap:5px; }
-.st { font-family:var(--mono); font-size:9px; letter-spacing:.08em; text-transform:uppercase; padding:4px 11px; border:1px solid var(--bd); color:var(--ink); transition:all .15s; }
+.sk-tags { display:flex; flex-wrap:wrap; gap:4px; }
+.st { font-family:var(--mono); font-size:9px; letter-spacing:.06em; text-transform:uppercase; padding:3px 9px; border:1px solid var(--bd); color:var(--ink); transition:all .15s; }
 .st:hover { background:var(--ink); color:var(--bg); border-color:var(--ink); }
 .st-a { border-color:rgba(204,61,16,.3); color:var(--acc); }
 .st-a:hover { background:var(--acc); color:var(--bg); border-color:var(--acc); }
 
 /* ─── EXPERIENCE ──────────────────────────────────────── */
 .exp-list { display:flex; flex-direction:column; }
-.exp-row { border-top:1px solid var(--bd); padding:28px 0; display:grid; grid-template-columns:140px 1fr 100px; gap:0; transition:background .2s; cursor:none; }
+.exp-row { border-top:1px solid var(--bd); padding:24px 0; display:grid; grid-template-columns:120px 1fr 100px; gap:0; transition:background .2s; cursor:none; }
 .exp-row:hover { background:rgba(255,255,255,.45); backdrop-filter:blur(10px); }
 .exp-idx { font-family:var(--mono); font-size:9px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); padding-top:3px; }
-.exp-main { padding:0 28px; }
-.exp-role { font-family:var(--dsp); font-weight:700; font-size:18px; letter-spacing:-.025em; color:var(--ink); margin-bottom:3px; }
-.exp-co { font-family:var(--mono); font-size:9px; letter-spacing:.16em; text-transform:uppercase; color:var(--acc); margin-bottom:16px; }
-.exp-pts { list-style:none; display:flex; flex-direction:column; gap:8px; }
-.exp-pts li { font-size:13.5px; font-weight:400; color:var(--muted); line-height:1.75; padding-left:16px; position:relative; }
+.exp-main { padding:0 24px; }
+.exp-role { font-family:var(--dsp); font-weight:700; font-size:17px; letter-spacing:-.025em; color:var(--ink); margin-bottom:3px; }
+.exp-co { font-family:var(--mono); font-size:9px; letter-spacing:.16em; text-transform:uppercase; color:var(--acc); margin-bottom:12px; }
+.exp-pts { list-style:none; display:flex; flex-direction:column; gap:6px; }
+.exp-pts li { font-size:13.5px; font-weight:400; color:var(--ink); line-height:1.65; padding-left:14px; position:relative; }
 .exp-pts li::before { content:'—'; position:absolute; left:0; color:var(--bd); }
 .exp-pts li b { color:var(--ink); font-weight:700; }
 .exp-date { font-family:var(--mono); font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); text-align:right; line-height:1.6; }
 
 /* ─── PROJECTS ────────────────────────────────────────── */
-.proj-list { display:flex; flex-direction:column; }
-.proj-item { border-top:1px solid var(--bd); padding:36px 0; display:grid; grid-template-columns:1fr 130px; gap:32px; align-items:start; cursor:none; transition:transform .35s var(--ease), box-shadow .35s; transform-style:preserve-3d; }
+.proj-list { display:flex; flex-direction:column; gap:16px; }
+.proj-item { padding:28px; display:grid; grid-template-columns:1fr 120px; gap:24px; align-items:start; cursor:none; transition:transform .35s var(--ease), box-shadow .35s; transform-style:preserve-3d; }
 .proj-item:hover { box-shadow:0 24px 60px rgba(0,0,0,.08); }
 .proj-award-b { font-family:var(--mono); font-size:8px; letter-spacing:.2em; text-transform:uppercase; color:var(--acc); margin-bottom:10px; display:flex; align-items:center; gap:8px; }
 .proj-award-b::before { content:''; width:18px; height:1px; background:var(--acc); flex-shrink:0; }
-.proj-h { font-family:var(--dsp); font-weight:800; font-size:clamp(18px,2.5vw,30px); letter-spacing:-.04em; line-height:1.05; color:var(--ink); margin-bottom:12px; }
-.proj-desc { font-size:13.5px; font-weight:400; color:var(--muted); line-height:1.75; max-width:600px; }
-.proj-tech { display:flex; flex-wrap:wrap; gap:5px; margin-top:16px; }
-.pt { font-family:var(--mono); font-size:8px; letter-spacing:.12em; text-transform:uppercase; padding:3px 9px; border:1px solid var(--bd); color:var(--muted); }
+.proj-h { font-family:var(--dsp); font-weight:800; font-size:clamp(17px,2.2vw,24px); letter-spacing:-.04em; line-height:1.1; color:var(--ink); margin-bottom:10px; }
+.proj-desc { font-size:13.5px; font-weight:400; color:var(--ink); line-height:1.65; max-width:600px; }
+.proj-tech { display:flex; flex-wrap:wrap; gap:4px; margin-top:14px; }
+.pt { font-family:var(--mono); font-size:8px; letter-spacing:.12em; text-transform:uppercase; padding:2px 7px; border:1px solid var(--bd); color:var(--muted); }
 .proj-gh { font-family:var(--mono); font-size:8.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); border-bottom:1px solid var(--bd); display:inline-block; margin-top:14px; transition:color .15s, border-color .15s; }
 .proj-gh:hover { color:var(--ink); border-color:var(--ink); }
 .proj-right { display:flex; flex-direction:column; align-items:flex-end; gap:14px; }
-.proj-stn { font-family:var(--dsp); font-weight:800; font-size:26px; letter-spacing:-.04em; line-height:1; color:var(--ink); }
+.proj-stn { font-family:var(--dsp); font-weight:800; font-size:24px; letter-spacing:-.04em; line-height:1; color:var(--ink); }
 .proj-stl { font-family:var(--mono); font-size:8px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); margin-top:2px; }
 .proj-arr { font-family:var(--mono); font-size:14px; color:var(--muted); transition:transform .25s var(--ease), color .2s; }
 .proj-item:hover .proj-arr { transform:translateX(4px); color:var(--ink); }
 
 /* ─── ACHIEVEMENTS ────────────────────────────────────── */
-.ach-row { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; padding-top:4px; }
-.ach-card { padding:36px 28px; transition:transform .4s var(--ease), box-shadow .4s; transform-style:preserve-3d; cursor:none; }
+.ach-row { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+.ach-card { padding:32px 24px; transition:transform .4s var(--ease), box-shadow .4s; transform-style:preserve-3d; cursor:none; }
 .ach-card:hover { box-shadow:0 24px 60px rgba(0,0,0,.12); }
-.ach-idx { font-family:var(--mono); font-size:8.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-bottom:20px; }
-.ach-rank { font-family:var(--dsp); font-weight:800; font-size:64px; letter-spacing:-.06em; line-height:1; color:var(--ink); margin-bottom:12px; }
+.ach-idx { font-family:var(--mono); font-size:8.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-bottom:16px; }
+.ach-rank { font-family:var(--dsp); font-weight:800; font-size:52px; letter-spacing:-.06em; line-height:1; color:var(--ink); margin-bottom:10px; }
 .ach-rank sup { font-size:.38em; vertical-align:top; letter-spacing:0; }
-.ach-name { font-family:var(--dsp); font-weight:700; font-size:15px; letter-spacing:-.02em; margin-bottom:8px; }
-.ach-sub { font-size:13px; color:var(--muted); line-height:1.65; }
+.ach-name { font-family:var(--dsp); font-weight:700; font-size:15px; letter-spacing:-.02em; margin-bottom:6px; }
+.ach-sub { font-size:13px; color:var(--ink); line-height:1.6; }
 .ach-ev { font-family:var(--mono); font-size:8px; letter-spacing:.16em; text-transform:uppercase; color:var(--acc); margin-top:12px; }
 
 /* ─── EDU ─────────────────────────────────────────────── */
-.edu-card { padding:40px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:28px; }
-.edu-d { font-family:var(--mono); font-size:8.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; }
-.edu-u { font-family:var(--dsp); font-weight:800; font-size:22px; letter-spacing:-.03em; color:var(--ink); margin-bottom:4px; }
+.edu-card { padding:32px 36px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px; }
+.edu-d { font-family:var(--mono); font-size:8.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+.edu-u { font-family:var(--dsp); font-weight:800; font-size:20px; letter-spacing:-.03em; color:var(--ink); margin-bottom:4px; }
 .edu-l { font-family:var(--mono); font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
 .edu-chips { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
-.edu-chip { font-family:var(--mono); font-size:8.5px; letter-spacing:.12em; text-transform:uppercase; padding:5px 13px; border:1px solid var(--bd); color:var(--muted); }
-.edu-yr { font-family:var(--dsp); font-weight:800; font-size:52px; letter-spacing:-.05em; line-height:1; color:rgba(10,8,8,.08); }
+.edu-chip { font-family:var(--mono); font-size:8.5px; letter-spacing:.12em; text-transform:uppercase; padding:4px 11px; border:1px solid var(--bd); color:var(--ink); }
+.edu-yr { font-family:var(--dsp); font-weight:800; font-size:42px; letter-spacing:-.05em; line-height:1; color:rgba(10,8,8,.15); }
 
 /* ─── CONTACT ─────────────────────────────────────────── */
-.contact-h { font-family:var(--dsp); font-weight:800; font-size:clamp(48px,8vw,108px); letter-spacing:-.055em; line-height:.88; color:var(--ink); margin-bottom:52px; }
+.contact-h { font-family:var(--dsp); font-weight:800; font-size:clamp(40px,7vw,84px); letter-spacing:-.055em; line-height:.9; color:var(--ink); margin-bottom:24px; }
 .contact-h em { font-style:italic; color:var(--acc); }
-.contact-grid { display:grid; grid-template-columns:repeat(4,1fr); border-top:1px solid var(--bd); }
-.cg-cell { padding:22px 0; border-right:1px solid var(--bd); display:flex; flex-direction:column; gap:5px; }
+.contact-grid { display:grid; grid-template-columns:repeat(4,1fr); border-top:1px solid var(--bd); margin-top:32px; }
+.cg-cell { padding:18px 0; border-right:1px solid var(--bd); display:flex; flex-direction:column; gap:4px; }
 .cg-cell:last-child { border-right:none; }
 .cg-label { font-family:var(--mono); font-size:8px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); }
 .cg-val { font-family:var(--dsp); font-size:13px; font-weight:600; color:var(--ink); border-bottom:1px solid transparent; display:inline; transition:border-color .2s; }
 .cg-cell a:hover .cg-val { border-color:var(--ink); }
 
 /* ─── FOOTER ──────────────────────────────────────────── */
-footer { border-top:1px solid var(--bd); padding:20px 40px; display:flex; align-items:center; justify-content:space-between; }
+footer { border-top:1px solid var(--bd); padding:16px 32px; display:flex; align-items:center; justify-content:space-between; }
 .ft-l { font-family:var(--mono); font-size:9px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); }
 .ft-r { display:flex; gap:22px; }
 .ft-r a { font-family:var(--mono); font-size:9px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); transition:color .15s; }
@@ -293,7 +288,7 @@ footer { border-top:1px solid var(--bd); padding:20px 40px; display:flex; align-
 
 /* ─── RESPONSIVE ──────────────────────────────────────── */
 @media(max-width:960px) {
-  .about-grid { grid-template-columns:1fr; gap:40px; }
+  .about-grid { grid-template-columns:1fr; gap:32px; }
   .exp-row { grid-template-columns:1fr; gap:4px; }
   .exp-date { text-align:left; }
   .ach-row { grid-template-columns:1fr 1fr; gap:10px; }
@@ -307,9 +302,9 @@ footer { border-top:1px solid var(--bd); padding:20px 40px; display:flex; align-
   nav { padding:0 16px; }
   .nav-links { display:none; }
   .hero-top { padding:14px 16px 0; }
-  .hero-acc-block { width:100px; height:100px; }
+  .hero-acc-block { width:90px; height:90px; }
   .hero-acc-label { display:none; }
-  .sec { padding:48px 20px; }
+  .sec { padding:36px 20px; }
   .sec-pad { padding-left:20px; }
   .hero-bottom { grid-template-columns:1fr 1fr; }
   .hbc:nth-child(2n) { border-right:none; }
@@ -317,7 +312,7 @@ footer { border-top:1px solid var(--bd); padding:20px 40px; display:flex; align-
   .ach-row { grid-template-columns:1fr; }
   .contact-grid { grid-template-columns:1fr; }
   .cg-cell { border-right:none; border-bottom:1px solid var(--bd); }
-  footer { flex-direction:column; gap:12px; }
+  footer { flex-direction:column; gap:10px; }
   .exp-idx { display:none; }
 }
 </style>
@@ -341,79 +336,27 @@ footer { border-top:1px solid var(--bd); padding:20px 40px; display:flex; align-
 
 <!-- ── HERO ───────────────────────────────────────────── -->
 <section class="hero">
-
   <div class="scatter" aria-hidden="true">
-    <div class="sp" style="top:22%;right:3%">
-      <span class="sp-key">Epoch of action</span>
-      <span class="sp-val">Chennai / Bharat</span>
-      <span class="sp-key" style="margin-top:3px">N13.0827° / E80.2707°</span>
-    </div>
-    <div class="sp" style="top:52%;right:3%">
-      <span class="sp-key">Throughput</span>
-      <span class="sp-val sp-val-acc">1 GB/s</span>
-      <span class="sp-key">Sustained / PYNQ-Z2</span>
-    </div>
-    <div class="sp" style="bottom:24%;right:3%">
-      <span class="sp-key">UltraScale+</span>
-      <span class="sp-val">250 MHz</span>
-      <span class="sp-key">Post-synthesis</span>
-    </div>
-    <div class="sp" style="top:32%;left:40%">
-      <span class="sp-key">Coverage</span>
-      <span class="sp-val">&gt;95%</span>
-    </div>
-    <div class="sp" style="top:16%;left:36%">
-      <span class="sp-key">RISC-V / Protocol.01</span>
-      <span class="sp-val" style="font-size:9px">RV32I Compliant</span>
-    </div>
-    <div class="sp" style="top:40%;left:5%">
-      <span class="sp-key">Institutions</span>
-      <span class="sp-val" style="font-size:9px">Vicharak</span>
-      <span class="sp-val" style="font-size:9px">IIT Palakkad</span>
-      <span class="sp-val" style="font-size:9px">Army Design Bureau</span>
-    </div>
+    <div class="sp" style="top:22%;right:3%"><span class="sp-key">Epoch of action</span><span class="sp-val">Chennai / Bharat</span><span class="sp-key" style="margin-top:3px">N13.0827° / E80.2707°</span></div>
+    <div class="sp" style="top:52%;right:3%"><span class="sp-key">Throughput</span><span class="sp-val sp-val-acc">1 GB/s</span><span class="sp-key">Sustained / PYNQ-Z2</span></div>
+    <div class="sp" style="bottom:24%;right:3%"><span class="sp-key">UltraScale+</span><span class="sp-val">250 MHz</span><span class="sp-key">Post-synthesis</span></div>
+    <div class="sp" style="top:32%;left:40%"><span class="sp-key">Coverage</span><span class="sp-val">&gt;95%</span></div>
+    <div class="sp" style="top:16%;left:36%"><span class="sp-key">RISC-V / Protocol.01</span><span class="sp-val" style="font-size:9px">RV32I Compliant</span></div>
+    <div class="sp" style="top:40%;left:5%"><span class="sp-key">Institutions</span><span class="sp-val" style="font-size:9px">Vicharak</span><span class="sp-val" style="font-size:9px">IIT Palakkad</span><span class="sp-val" style="font-size:9px">Army Design Bureau</span></div>
   </div>
 
   <div class="hero-top">
-    <div class="hero-top-meta">
-      <span class="lbl lbl-ink">Archive Folder [ Dev Tyagi ]</span>
-      <span class="lbl">FPGA / RTL Design / RISC-V Microarchitecture</span>
-      <span class="lbl">Civilizational Layer: Hardware / System 001</span>
-    </div>
+    <div class="hero-top-meta"><span class="lbl lbl-ink">Archive Folder [ Dev Tyagi ]</span><span class="lbl">FPGA / RTL Design / RISC-V Microarchitecture</span><span class="lbl">Civilizational Layer: Hardware / System 001</span></div>
     <div class="hero-acc-block">
-      <svg viewBox="0 0 140 140" fill="none">
-        <path d="M0 22L0 0L22 0" stroke="white" stroke-width="1.5"/>
-        <path d="M118 0L140 0L140 22" stroke="white" stroke-width="1.5"/>
-        <path d="M140 118L140 140L118 140" stroke="white" stroke-width="1.5"/>
-        <path d="M22 140L0 140L0 118" stroke="white" stroke-width="1.5"/>
-        <circle cx="70" cy="70" r="19" stroke="white" stroke-width="1.2"/>
-        <circle cx="70" cy="70" r="2.5" fill="white"/>
-        <line x1="70" y1="0" x2="70" y2="46" stroke="white" stroke-width="1.2"/>
-        <line x1="70" y1="94" x2="70" y2="140" stroke="white" stroke-width="1.2"/>
-        <line x1="0" y1="70" x2="46" y2="70" stroke="white" stroke-width="1.2"/>
-        <line x1="94" y1="70" x2="140" y2="70" stroke="white" stroke-width="1.2"/>
-        <line x1="57" y1="70" x2="53" y2="70" stroke="white" stroke-width=".8"/>
-        <line x1="87" y1="70" x2="83" y2="70" stroke="white" stroke-width=".8"/>
-        <line x1="70" y1="57" x2="70" y2="53" stroke="white" stroke-width=".8"/>
-        <line x1="70" y1="87" x2="70" y2="83" stroke="white" stroke-width=".8"/>
-      </svg>
-      <div class="hero-acc-label">
-        <span class="lbl">Protocol.01</span>
-        <span class="lbl">FPGA.RTL.System</span>
-        <span class="lbl lbl-ink" style="font-weight:700">System Active</span>
-      </div>
+      <svg viewBox="0 0 140 140" fill="none"><path d="M0 22L0 0L22 0" stroke="white" stroke-width="1.5"/><path d="M118 0L140 0L140 22" stroke="white" stroke-width="1.5"/><path d="M140 118L140 140L118 140" stroke="white" stroke-width="1.5"/><path d="M22 140L0 140L0 118" stroke="white" stroke-width="1.5"/><circle cx="70" cy="70" r="19" stroke="white" stroke-width="1.2"/><circle cx="70" cy="70" r="2.5" fill="white"/><line x1="70" y1="0" x2="70" y2="46" stroke="white" stroke-width="1.2"/><line x1="70" y1="94" x2="70" y2="140" stroke="white" stroke-width="1.2"/><line x1="0" y1="70" x2="46" y2="70" stroke="white" stroke-width="1.2"/><line x1="94" y1="70" x2="140" y2="70" stroke="white" stroke-width="1.2"/><line x1="57" y1="70" x2="53" y2="70" stroke="white" stroke-width=".8"/><line x1="87" y1="70" x2="83" y2="70" stroke="white" stroke-width=".8"/><line x1="70" y1="57" x2="70" y2="53" stroke="white" stroke-width=".8"/><line x1="70" y1="87" x2="70" y2="83" stroke="white" stroke-width=".8"/></svg>
+      <div class="hero-acc-label"><span class="lbl">Protocol.01</span><span class="lbl">FPGA.RTL.System</span><span class="lbl lbl-ink" style="font-weight:700">System Active</span></div>
     </div>
   </div>
 
   <div class="hero-name-wrap">
     <div style="position:relative;width:100%;height:100%;display:flex;align-items:center;">
-      <div style="position:absolute;left:0;top:0;bottom:0;width:28px;display:flex;align-items:center;justify-content:center;overflow:hidden;z-index:5;">
-        <div style="position:absolute;right:0;top:0;bottom:0;width:1px;background:var(--bd);"></div>
-        <span style="font-family:var(--mono);font-size:7.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);white-space:nowrap;transform:rotate(-90deg);display:block;">
-          Hardware Engineer / LOG&nbsp;[01] / Silicon / Defense
-        </span>
-      </div>
-      <div style="flex:1;padding:20px 32px 20px 44px;position:relative;z-index:2;">
+      <div style="position:absolute;left:0;top:0;bottom:0;width:28px;display:flex;align-items:center;justify-content:center;overflow:hidden;z-index:5;"><div style="position:absolute;right:0;top:0;bottom:0;width:1px;background:var(--bd);"></div><span style="font-family:var(--mono);font-size:7.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);white-space:nowrap;transform:rotate(-90deg);display:block;">Hardware Engineer / LOG&nbsp;[01] / Silicon / Defense</span></div>
+      <div style="flex:1;padding:0 32px 0 44px;position:relative;z-index:2;">
         <div class="h-dev glitch" data-t="DEV" id="mag-dev">DEV</div>
         <div class="h-tyagi glitch" data-t="TYAGI." id="mag-tyagi">TYAGI<span class="period">.</span></div>
       </div>
@@ -421,43 +364,18 @@ footer { border-top:1px solid var(--bd); padding:20px 40px; display:flex; align-
   </div>
 
   <div class="hero-bottom">
-    <div class="hbc">
-      <div class="hbc-n" id="c1">—</div>
-      <div class="hbc-l">MHz post-synth<br>UltraScale+</div>
-    </div>
-    <div class="hbc">
-      <div class="hbc-n">&gt;<span id="c2">—</span>%</div>
-      <div class="hbc-l">Functional coverage<br>SVA / constrained-rand</div>
-    </div>
-    <div class="hbc">
-      <div class="hbc-n"><span id="c3">—</span> GB/s</div>
-      <div class="hbc-l">DMA throughput<br>PYNQ-Z2</div>
-    </div>
-    <div class="hbc">
-      <div class="hbc-n"><span id="c4">—</span>+</div>
-      <div class="hbc-l">Engineers led<br>Army Design Bureau</div>
-    </div>
+    <div class="hbc"><div class="hbc-n" id="c1">—</div><div class="hbc-l">MHz post-synth<br>UltraScale+</div></div>
+    <div class="hbc"><div class="hbc-n">&gt;<span id="c2">—</span>%</div><div class="hbc-l">Functional coverage<br>SVA / constrained-rand</div></div>
+    <div class="hbc"><div class="hbc-n"><span id="c3">—</span> GB/s</div><div class="hbc-l">DMA throughput<br>PYNQ-Z2</div></div>
+    <div class="hbc"><div class="hbc-n"><span id="c4">—</span>+</div><div class="hbc-l">Engineers led<br>Army Design Bureau</div></div>
   </div>
 </section>
 
 <!-- ── MARQUEE ─────────────────────────────────────────── -->
 <div class="mq">
   <div class="mq-t">
-    <span class="m">RISC-V</span><span>—</span><span>SystemVerilog</span><span>—</span>
-    <span class="ma">AXI4</span><span>—</span><span>UVM</span><span>—</span>
-    <span>Tomasulo's Algorithm</span><span>—</span>
-    <span class="m">Xilinx UltraScale+</span><span>—</span>
-    <span>250 MHz</span><span>—</span><span class="ma">1 GB/s DMA</span><span>—</span>
-    <span>FPGA Design</span><span>—</span><span>AI Accelerators</span><span>—</span>
-    <span>STA / Lint / DRC</span><span>—</span>
-    <!-- dupe -->
-    <span class="m">RISC-V</span><span>—</span><span>SystemVerilog</span><span>—</span>
-    <span class="ma">AXI4</span><span>—</span><span>UVM</span><span>—</span>
-    <span>Tomasulo's Algorithm</span><span>—</span>
-    <span class="m">Xilinx UltraScale+</span><span>—</span>
-    <span>250 MHz</span><span>—</span><span class="ma">1 GB/s DMA</span><span>—</span>
-    <span>FPGA Design</span><span>—</span><span>AI Accelerators</span><span>—</span>
-    <span>STA / Lint / DRC</span><span>—</span>
+    <span class="m">RISC-V</span><span>—</span><span>SystemVerilog</span><span>—</span><span class="ma">AXI4</span><span>—</span><span>UVM</span><span>—</span><span>Tomasulo's Algorithm</span><span>—</span><span class="m">Xilinx UltraScale+</span><span>—</span><span>250 MHz</span><span>—</span><span class="ma">1 GB/s DMA</span><span>—</span><span>FPGA Design</span><span>—</span><span>AI Accelerators</span><span>—</span><span>STA / Lint / DRC</span><span>—</span>
+    <span class="m">RISC-V</span><span>—</span><span>SystemVerilog</span><span>—</span><span class="ma">AXI4</span><span>—</span><span>UVM</span><span>—</span><span>Tomasulo's Algorithm</span><span>—</span><span class="m">Xilinx UltraScale+</span><span>—</span><span>250 MHz</span><span>—</span><span class="ma">1 GB/s DMA</span><span>—</span><span>FPGA Design</span><span>—</span><span>AI Accelerators</span><span>—</span><span>STA / Lint / DRC</span><span>—</span>
   </div>
 </div>
 
@@ -466,61 +384,23 @@ footer { border-top:1px solid var(--bd); padding:20px 40px; display:flex; align-
   <div class="sec-aside"><span class="sec-aside-t">About / Skills</span></div>
   <div class="sec-pad">
     <div class="sec-hd t3d t3d-d1">
-      <div>
-        <div class="eyebrow">Section 01 / 05</div>
-        <h2 class="sec-h">Silicon meets<br>systems thinking</h2>
-      </div>
+      <div><div class="eyebrow">Section 01 / 05</div><h2 class="sec-h">Silicon meets<br>systems thinking</h2></div>
       <div class="sec-num">001</div>
     </div>
     <div class="about-grid">
-      <div class="copy t3d t3d-d2">
+      <!-- Removed t3d class to ensure readability without scrolling wait -->
+      <div class="copy">
         <p><b>B.Tech ECE student at Vellore Institute of Technology, Chennai</b> (2023–2027). Designing and verifying RTL at the intersection of microarchitecture, high-speed protocol implementation, and AI inference acceleration.</p>
         <p>Out-of-order RISC-V processors, AXI4 DMA engines, neural network inference accelerators — built from specification through <b>timing closure at 250 MHz</b> on Xilinx UltraScale+ fabric.</p>
         <p>As <b>Head of Robotics Club, VIT Chennai</b>, led 40+ engineers across hardware development, RTL reviews, and intercollegiate engineering competitions.</p>
         <span class="coord">Location — <b>Chennai, India</b> &nbsp;·&nbsp; N13.0827° / E80.2707°</span>
       </div>
-      <div class="skills-stack t3d t3d-d3">
-        <div class="skill-row">
-          <div class="sk-label">HDL &amp; Verification</div>
-          <div class="sk-tags">
-            <span class="st st-a">SystemVerilog</span><span class="st st-a">Verilog</span>
-            <span class="st st-a">VHDL</span><span class="st st-a">UVM</span>
-            <span class="st st-a">SVA</span><span class="st">Constrained-Random</span>
-            <span class="st">Functional Coverage</span>
-          </div>
-        </div>
-        <div class="skill-row">
-          <div class="sk-label">RTL / Microarch</div>
-          <div class="sk-tags">
-            <span class="st">OOO Execution</span><span class="st">Tomasulo's Algorithm</span>
-            <span class="st">Superscalar Pipelines</span><span class="st">Hazard Resolution</span>
-            <span class="st">Clock Gating</span><span class="st">CDC</span>
-          </div>
-        </div>
-        <div class="skill-row">
-          <div class="sk-label">Protocols</div>
-          <div class="sk-tags">
-            <span class="st st-a">AXI4</span><span class="st st-a">AXI4-Lite</span>
-            <span class="st st-a">AXI4-Stream</span><span class="st">AHB</span>
-            <span class="st">SPI</span><span class="st">I2C</span><span class="st">UART</span>
-          </div>
-        </div>
-        <div class="skill-row">
-          <div class="sk-label">Tools</div>
-          <div class="sk-tags">
-            <span class="st">Vivado</span><span class="st">ModelSim</span>
-            <span class="st">Questa</span><span class="st">VCS</span>
-            <span class="st">Xcelium</span><span class="st">Python</span>
-            <span class="st">C/C++</span><span class="st">Tcl</span>
-          </div>
-        </div>
-        <div class="skill-row">
-          <div class="sk-label">Platforms</div>
-          <div class="sk-tags">
-            <span class="st st-a">Zynq-7000</span><span class="st st-a">UltraScale+</span>
-            <span class="st">Cortex-A9 PS/PL</span><span class="st">PYNQ-Z2</span>
-          </div>
-        </div>
+      <div class="skills-stack">
+        <div class="skill-row"><div class="sk-label">HDL &amp; Verification</div><div class="sk-tags"><span class="st st-a">SystemVerilog</span><span class="st st-a">Verilog</span><span class="st st-a">VHDL</span><span class="st st-a">UVM</span><span class="st st-a">SVA</span><span class="st">Constrained-Random</span><span class="st">Functional Coverage</span></div></div>
+        <div class="skill-row"><div class="sk-label">RTL / Microarch</div><div class="sk-tags"><span class="st">OOO Execution</span><span class="st">Tomasulo's Algorithm</span><span class="st">Superscalar Pipelines</span><span class="st">Hazard Resolution</span><span class="st">Clock Gating</span><span class="st">CDC</span></div></div>
+        <div class="skill-row"><div class="sk-label">Protocols</div><div class="sk-tags"><span class="st st-a">AXI4</span><span class="st st-a">AXI4-Lite</span><span class="st st-a">AXI4-Stream</span><span class="st">AHB</span><span class="st">SPI</span><span class="st">I2C</span><span class="st">UART</span></div></div>
+        <div class="skill-row"><div class="sk-label">Tools</div><div class="sk-tags"><span class="st">Vivado</span><span class="st">ModelSim</span><span class="st">Questa</span><span class="st">VCS</span><span class="st">Xcelium</span><span class="st">Python</span><span class="st">C/C++</span><span class="st">Tcl</span></div></div>
+        <div class="skill-row"><div class="sk-label">Platforms</div><div class="sk-tags"><span class="st st-a">Zynq-7000</span><span class="st st-a">UltraScale+</span><span class="st">Cortex-A9 PS/PL</span><span class="st">PYNQ-Z2</span></div></div>
       </div>
     </div>
   </div>
@@ -531,14 +411,11 @@ footer { border-top:1px solid var(--bd); padding:20px 40px; display:flex; align-
   <div class="sec-aside"><span class="sec-aside-t">Experience</span></div>
   <div class="sec-pad">
     <div class="sec-hd t3d t3d-d1">
-      <div>
-        <div class="eyebrow">Section 02 / 05</div>
-        <h2 class="sec-h">Where I've shipped<br>real silicon</h2>
-      </div>
+      <div><div class="eyebrow">Section 02 / 05</div><h2 class="sec-h">Where I've shipped<br>real silicon</h2></div>
       <div class="sec-num">002</div>
     </div>
     <div class="exp-list">
-      <div class="exp-row gc t3d t3d-d2" style="border-radius:0;border-top:1px solid var(--bd);padding:28px 24px;">
+      <div class="exp-row gc t3d t3d-d2" style="border-radius:0;border-top:1px solid var(--bd);">
         <div class="exp-idx">EXP.01</div>
         <div class="exp-main">
           <div class="exp-role">FPGA RTL Design Intern</div>
@@ -551,7 +428,7 @@ footer { border-top:1px solid var(--bd); padding:20px 40px; display:flex; align-
         </div>
         <div class="exp-date">Mar 2026<br>— Present</div>
       </div>
-      <div class="exp-row gc t3d t3d-d3" style="border-radius:0;border-top:1px solid var(--bd);padding:28px 24px;">
+      <div class="exp-row gc t3d t3d-d3" style="border-radius:0;border-top:1px solid var(--bd);">
         <div class="exp-idx">EXP.02</div>
         <div class="exp-main">
           <div class="exp-role">RTL Design Intern</div>
@@ -564,7 +441,7 @@ footer { border-top:1px solid var(--bd); padding:20px 40px; display:flex; align-
         </div>
         <div class="exp-date">May 2026<br>— Jul 2026</div>
       </div>
-      <div class="exp-row gc t3d t3d-d4" style="border-radius:0;border-top:1px solid var(--bd);padding:28px 24px;">
+      <div class="exp-row gc t3d t3d-d1" style="border-radius:0;border-top:1px solid var(--bd);">
         <div class="exp-idx">EXP.03</div>
         <div class="exp-main">
           <div class="exp-role">Team Lead, FPGA Signal Processing</div>
@@ -586,15 +463,12 @@ footer { border-top:1px solid var(--bd); padding:20px 40px; display:flex; align-
   <div class="sec-aside"><span class="sec-aside-t">Projects</span></div>
   <div class="sec-pad">
     <div class="sec-hd t3d t3d-d1">
-      <div>
-        <div class="eyebrow">Section 03 / 05</div>
-        <h2 class="sec-h">Hardware that<br>pushes limits</h2>
-      </div>
+      <div><div class="eyebrow">Section 03 / 05</div><h2 class="sec-h">Hardware that<br>pushes limits</h2></div>
       <div class="sec-num">003</div>
     </div>
     <div class="proj-list">
 
-      <div class="proj-item gc t3d t3d-d2" style="border-radius:16px;margin-bottom:10px;padding:32px;border-top:none;">
+      <div class="proj-item gc t3d t3d-d2">
         <div>
           <div class="proj-award-b">1st Place + Special Jury Award — SanDisk Hardware Hackathon (100+ teams)</div>
           <div class="proj-h">Out-of-Order Superscalar RISC-V Processor</div>
@@ -606,19 +480,13 @@ footer { border-top:1px solid var(--bd); padding:20px 40px; display:flex; align-
           <a class="proj-gh" href="https://github.com/devtyagi3909/riscv-ooo-core" target="_blank" rel="noopener">devtyagi3909/riscv-ooo-core ↗</a>
         </div>
         <div class="proj-right">
-          <div>
-            <div class="proj-stn">250</div>
-            <div class="proj-stl">MHz post-synth</div>
-          </div>
-          <div>
-            <div class="proj-stn">&gt;95%</div>
-            <div class="proj-stl">Func. coverage</div>
-          </div>
+          <div><div class="proj-stn">250</div><div class="proj-stl">MHz post-synth</div></div>
+          <div><div class="proj-stn">&gt;95%</div><div class="proj-stl">Func. coverage</div></div>
           <div class="proj-arr">↗</div>
         </div>
       </div>
 
-      <div class="proj-item gc t3d t3d-d3" style="border-radius:16px;margin-bottom:10px;padding:32px;border-top:none;">
+      <div class="proj-item gc t3d t3d-d3">
         <div>
           <div class="proj-award-b">2nd Place — FPGA Makeathon</div>
           <div class="proj-h">High-Throughput AXI4 DMA Engine</div>
@@ -629,15 +497,12 @@ footer { border-top:1px solid var(--bd); padding:20px 40px; display:flex; align-
           </div>
         </div>
         <div class="proj-right">
-          <div>
-            <div class="proj-stn">1 GB/s</div>
-            <div class="proj-stl">Sustained</div>
-          </div>
+          <div><div class="proj-stn">1 GB/s</div><div class="proj-stl">Sustained</div></div>
           <div class="proj-arr">↗</div>
         </div>
       </div>
 
-      <div class="proj-item gc t3d t3d-d4" style="border-radius:16px;margin-bottom:10px;padding:32px;border-top:none;">
+      <div class="proj-item gc t3d t3d-d1">
         <div>
           <div class="proj-h">PMDC Motor Drive FPGA Simulation</div>
           <div class="proj-desc">Closed-loop PMDC motor drive on Zybo Z7-20 with internally-generated PWM chopper and multi-frequency preset switching. Real-time telemetry streamed over TCP via AXI DMA and lwIP to a Python live dashboard.</div>
@@ -650,7 +515,7 @@ footer { border-top:1px solid var(--bd); padding:20px 40px; display:flex; align-
         <div class="proj-right"><div class="proj-arr">↗</div></div>
       </div>
 
-      <div class="proj-item gc t3d t3d-d5" style="border-radius:16px;padding:32px;border-top:none;">
+      <div class="proj-item gc t3d t3d-d2">
         <div>
           <div class="proj-h">ConstraintForge — FPGA Timing Constraint Library</div>
           <div class="proj-desc">Annotated XDC/SDC/LPF constraint templates covering 14+ interfaces (AXI4, SPI, DDR3, RGMII, HDMI, MIPI CSI-2) across Xilinx, Intel, Lattice, and Gowin. CI-validated via GitHub Actions on every commit.</div>
@@ -661,10 +526,7 @@ footer { border-top:1px solid var(--bd); padding:20px 40px; display:flex; align-
           <a class="proj-gh" href="https://github.com/devtyagi3909/constraintforge" target="_blank" rel="noopener">devtyagi3909/constraintforge ↗</a>
         </div>
         <div class="proj-right">
-          <div>
-            <div class="proj-stn">14+</div>
-            <div class="proj-stl">Interfaces</div>
-          </div>
+          <div><div class="proj-stn">14+</div><div class="proj-stl">Interfaces</div></div>
           <div class="proj-arr">↗</div>
         </div>
       </div>
@@ -678,10 +540,7 @@ footer { border-top:1px solid var(--bd); padding:20px 40px; display:flex; align-
   <div class="sec-aside"><span class="sec-aside-t">Recognition</span></div>
   <div class="sec-pad">
     <div class="sec-hd t3d t3d-d1">
-      <div>
-        <div class="eyebrow">Section 04 / 05</div>
-        <h2 class="sec-h">Competing at<br>the bleeding edge</h2>
-      </div>
+      <div><div class="eyebrow">Section 04 / 05</div><h2 class="sec-h">Competing at<br>the bleeding edge</h2></div>
       <div class="sec-num">004</div>
     </div>
     <div class="ach-row">
@@ -734,33 +593,20 @@ footer { border-top:1px solid var(--bd); padding:20px 40px; display:flex; align-
 <section class="sec" id="contact" style="border-bottom:none">
   <div class="sec-aside"><span class="sec-aside-t">Contact</span></div>
   <div class="sec-pad">
-    <div class="sec-hd t3d t3d-d1">
-      <div>
-        <div class="eyebrow">Section 05 / 05</div>
-      </div>
+    <div class="sec-hd t3d t3d-d1" style="margin-bottom:16px;">
+      <div><div class="eyebrow">Section 05 / 05</div></div>
       <div class="sec-num">005</div>
     </div>
     <h2 class="contact-h t3d t3d-d2">Let's build<br><em>something real</em><span style="color:var(--acc)">.</span></h2>
-    <p style="font-size:14px;font-weight:400;color:var(--muted);line-height:1.8;max-width:480px;margin-bottom:48px" class="t3d t3d-d3">
+    <!-- Removed t3d from contact paragraph and grid so it's always readable quickly at the end of the scroll -->
+    <p style="font-size:14px;font-weight:400;color:var(--ink);line-height:1.75;max-width:480px;margin-bottom:24px">
       Open for full-time roles, internships, and research collaborations in FPGA/RTL design, RISC-V microarchitecture, and AI accelerator development.
     </p>
-    <div class="contact-grid t3d t3d-d4">
-      <div class="cg-cell">
-        <div class="cg-label">Email</div>
-        <a href="mailto:devtyagi3909@gmail.com"><span class="cg-val">devtyagi3909@gmail.com</span></a>
-      </div>
-      <div class="cg-cell">
-        <div class="cg-label">LinkedIn</div>
-        <a href="https://www.linkedin.com/in/dev-tyagi3909/" target="_blank" rel="noopener"><span class="cg-val">linkedin.com/in/dev-tyagi3909</span></a>
-      </div>
-      <div class="cg-cell">
-        <div class="cg-label">GitHub</div>
-        <a href="https://github.com/devtyagi3909" target="_blank" rel="noopener"><span class="cg-val">github.com/devtyagi3909</span></a>
-      </div>
-      <div class="cg-cell">
-        <div class="cg-label">Phone</div>
-        <a href="tel:+917818011182"><span class="cg-val">+91 78180 11182</span></a>
-      </div>
+    <div class="contact-grid">
+      <div class="cg-cell"><div class="cg-label">Email</div><a href="mailto:devtyagi3909@gmail.com"><span class="cg-val">devtyagi3909@gmail.com</span></a></div>
+      <div class="cg-cell"><div class="cg-label">LinkedIn</div><a href="https://www.linkedin.com/in/dev-tyagi3909/" target="_blank" rel="noopener"><span class="cg-val">linkedin.com/in/dev-tyagi3909</span></a></div>
+      <div class="cg-cell"><div class="cg-label">GitHub</div><a href="https://github.com/devtyagi3909" target="_blank" rel="noopener"><span class="cg-val">github.com/devtyagi3909</span></a></div>
+      <div class="cg-cell"><div class="cg-label">Phone</div><a href="tel:+917818011182"><span class="cg-val">+91 78180 11182</span></a></div>
     </div>
   </div>
 </section>
@@ -794,7 +640,6 @@ function raf(time) {
   requestAnimationFrame(raf)
 }
 requestAnimationFrame(raf)
-
 
 /* ── CURSOR ───────────────────────────────────────────── */
 const ca = document.getElementById('cur-a');
@@ -872,12 +717,12 @@ document.querySelectorAll('.nav-links a,.proj-gh,.ft-r a').forEach(btn=>{
   });
 });
 
-/* ── SCROLL REVEAL (3D type) ──────────────────────────── */
+/* ── FAST SCROLL REVEAL ───────────────────────────────── */
 const io=new IntersectionObserver(entries=>{
   entries.forEach(e=>{
     if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
   });
-},{threshold:.02, rootMargin:'0px 0px -10px 0px'});
+},{threshold:.01});
 document.querySelectorAll('.t3d').forEach(el=>io.observe(el));
 
 /* ── SCATTER PARALLAX ─────────────────────────────────── */
@@ -887,7 +732,7 @@ window.addEventListener('scroll',()=>{
   if(!tick){ requestAnimationFrame(()=>{
     const sy=window.scrollY;
     sps.forEach((el,i)=>{
-      el.style.transform=`translateY(${sy*(i%2===0?.07:-.05)}px)`;
+      el.style.transform=`translateY(${sy*(i%2===0?.05:-.03)}px)`;
     });
     tick=false;
   }); tick=true; }
@@ -909,7 +754,7 @@ new IntersectionObserver(entries=>{
       });
     }
   });
-},{threshold:.4}).observe(document.querySelector('.hero-bottom'));
+},{threshold:.1}).observe(document.querySelector('.hero-bottom'));
 
 /* ── SMOOTH ANCHOR SCROLL ─────────────────────────────── */
 document.querySelectorAll('a[href^="#"]').forEach(a=>{
