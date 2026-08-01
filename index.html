@@ -3,409 +3,989 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dev Tyagi — FPGA/RTL Design Engineer · RISC-V · AI Accelerators</title>
-<meta name="description" content="Dev Tyagi — FPGA/RTL Design Engineer specializing in RISC-V microarchitecture, AXI4 memory subsystems, and AI accelerator datapaths. 250 MHz timing closure, 1 GB/s DMA, 95%+ functional coverage.">
-<meta name="keywords" content="FPGA, RTL, RISC-V, SystemVerilog, UVM, AXI4, Xilinx, Zynq, AI Accelerator, Dev Tyagi">
-<meta property="og:title" content="Dev Tyagi — FPGA/RTL Design Engineer">
-<meta property="og:description" content="Specializing in RISC-V microarchitecture, AI accelerator datapaths, and AXI4 memory subsystems.">
-
+<title>Dev Tyagi — FPGA / RTL Design Engineer</title>
+<meta name="description" content="Dev Tyagi — FPGA/RTL Design Engineer. RISC-V microarchitecture, AXI4 memory subsystems, AI accelerator datapaths. 250 MHz timing closure, 1 GB/s DMA throughput.">
+<meta property="og:title" content="Dev Tyagi — FPGA / RTL Design Engineer">
+<meta property="og:description" content="Specialising in RISC-V microarchitecture, AI accelerator datapaths and AXI4 memory subsystems on Xilinx Zynq / UltraScale+.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-/* ─── RESET & ROOT ─────────────────────────────────────────── */
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#060810;
-  --bg2:#0b0f1a;
-  --bg3:#0f1422;
-  --glass:rgba(14,22,45,0.6);
-  --glass2:rgba(255,255,255,0.03);
-  --border:rgba(99,179,237,0.12);
-  --border-h:rgba(99,179,237,0.35);
-  --cyan:#00d4ff;
-  --cyan2:#63b3ed;
-  --amber:#f6ad55;
-  --amber2:#ed8936;
-  --violet:#9f7aea;
-  --green:#68d391;
-  --pink:#f687b3;
-  --text:#e2e8f4;
-  --muted:rgba(226,232,244,0.45);
-  --muted2:rgba(226,232,244,0.25);
-  --mono:'JetBrains Mono',monospace;
-  --dsp:'Syne',sans-serif;
-  --body:'Space Grotesk',sans-serif;
-  --r8:8px;--r16:16px;--r24:24px;--r32:32px;
-  --glow-cyan:0 0 30px rgba(0,212,255,0.15);
-  --glow-amber:0 0 30px rgba(246,173,85,0.15);
+/* ─────────────────────────────────────────────────────────────
+   TOKENS
+───────────────────────────────────────────────────────────── */
+:root {
+  --ink:       #0b0c0f;
+  --ink-2:     #111318;
+  --ink-3:     #181b22;
+
+  --cream:     #f0e8d8;
+  --cream-2:   #e8dcc8;
+  --cream-dim: rgba(240,232,216,.55);
+  --cream-faint:rgba(240,232,216,.18);
+
+  --blue:      #1a3a6e;
+  --blue-mid:  #1e4db7;
+  --blue-bright:#4f7fe4;
+  --blue-glow: rgba(30,77,183,.28);
+
+  --choc:      #3d1c09;
+  --choc-mid:  #7a3a1a;
+  --choc-warm: #c08050;
+
+  --glass-bg:  rgba(255,255,255,.04);
+  --glass-bd:  rgba(255,255,255,.08);
+  --glass-hi:  rgba(255,255,255,.12);
+
+  --mono: 'Space Mono', monospace;
+  --dsp:  'Syne', sans-serif;
+  --body: 'DM Sans', sans-serif;
+
+  --ease: cubic-bezier(.16,1,.3,1);
+  --ease-in: cubic-bezier(.4,0,1,1);
 }
-html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:var(--body);line-height:1.6;overflow-x:hidden;cursor:none}
-a{color:inherit;text-decoration:none}
-img{display:block;max-width:100%}
 
-/* ─── CUSTOM CURSOR ────────────────────────────────────────── */
-#cur-dot{position:fixed;width:8px;height:8px;border-radius:50%;background:var(--cyan);top:0;left:0;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);box-shadow:0 0 16px var(--cyan),0 0 32px rgba(0,212,255,.4);transition:width .15s,height .15s,background .15s}
-#cur-ring{position:fixed;width:40px;height:40px;border-radius:50%;border:1.5px solid rgba(0,212,255,.4);top:0;left:0;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .3s,height .3s,border-color .3s}
-body.hov #cur-dot{width:12px;height:12px;background:var(--amber)}
-body.hov #cur-ring{width:56px;height:56px;border-color:rgba(246,173,85,.5)}
+/* ─────────────────────────────────────────────────────────────
+   RESET
+───────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  font-family: var(--body);
+  background: var(--ink);
+  color: var(--cream);
+  line-height: 1.6;
+  overflow-x: hidden;
+  cursor: none;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+img { display: block; max-width: 100%; }
+button { font-family: inherit; cursor: none; border: none; background: none; }
 
-/* ─── NOISE OVERLAY ───────────────────────────────────────── */
-body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='.025'/%3E%3C/svg%3E");opacity:.5}
+/* ─────────────────────────────────────────────────────────────
+   SCROLLBAR
+───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--ink); }
+::-webkit-scrollbar-thumb { background: var(--blue); border-radius: 4px; }
 
-/* ─── ANIMATED BG CANVAS ───────────────────────────────────── */
-#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.7}
+/* ─────────────────────────────────────────────────────────────
+   CURSOR
+───────────────────────────────────────────────────────────── */
+#c-dot {
+  position: fixed; z-index: 9999; pointer-events: none;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--cream);
+  top: 0; left: 0;
+  transform: translate(-50%,-50%);
+  transition: width .15s var(--ease), height .15s var(--ease), background .15s;
+  will-change: transform;
+}
+#c-ring {
+  position: fixed; z-index: 9998; pointer-events: none;
+  width: 38px; height: 38px; border-radius: 50%;
+  border: 1.5px solid rgba(240,232,216,.35);
+  top: 0; left: 0;
+  transform: translate(-50%,-50%);
+  transition: width .35s var(--ease), height .35s var(--ease), border-color .3s, transform .1s;
+  will-change: transform;
+}
+body.c-hover #c-dot { width: 10px; height: 10px; background: var(--blue-bright); }
+body.c-hover #c-ring { width: 56px; height: 56px; border-color: rgba(79,127,228,.45); }
+body.c-drag  #c-ring { width: 80px; height: 80px; border-color: rgba(79,127,228,.2); }
 
-/* ─── NAV ──────────────────────────────────────────────────── */
-nav{position:fixed;top:0;left:0;right:0;z-index:500;height:68px;display:flex;align-items:center;padding:0 48px;background:rgba(6,8,16,.75);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);transition:background .3s}
-.nav-brand{display:flex;align-items:center;gap:12px;font-family:var(--dsp);font-size:15px;font-weight:700;letter-spacing:-.02em}
-.brand-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--cyan),var(--violet));display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 0 20px rgba(0,212,255,.3)}
-.nav-center{display:flex;gap:4px;margin:0 auto}
-.nav-center a{font-size:13px;font-weight:500;color:var(--muted);padding:7px 16px;border-radius:30px;transition:color .2s,background .2s;font-family:var(--body)}
-.nav-center a:hover{color:var(--text);background:var(--glass2)}
-.nav-right{display:flex;gap:10px;align-items:center}
-.btn-nav{font-size:13px;font-weight:600;padding:8px 20px;border-radius:30px;transition:all .2s;font-family:var(--body);display:flex;align-items:center;gap:6px}
-.btn-nav-outline{border:1px solid var(--border-h);color:var(--cyan2)}
-.btn-nav-outline:hover{background:rgba(99,179,237,.1);box-shadow:0 0 20px rgba(99,179,237,.15)}
-.btn-nav-solid{background:linear-gradient(135deg,var(--cyan),#0099cc);color:#060810;font-weight:700}
-.btn-nav-solid:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,212,255,.3)}
+/* ─────────────────────────────────────────────────────────────
+   NOISE + GRAIN OVERLAY
+───────────────────────────────────────────────────────────── */
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 1;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='f'%3E%3CfeTurbulence baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23f)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: .6;
+}
 
-/* ─── HERO ─────────────────────────────────────────────────── */
-.hero{position:relative;z-index:10;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:100px 48px 80px;overflow:hidden}
-.hero-bg-img{position:absolute;inset:0;z-index:-1;background-image:url('hero_bg.jpg');background-size:cover;background-position:center;opacity:.12;filter:blur(1px)}
-.hero-bg-grad{position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(0,212,255,.06) 0%,transparent 70%),radial-gradient(ellipse 60% 80% at 20% 80%,rgba(159,122,234,.06) 0%,transparent 60%)}
-.hero-chip{display:inline-flex;align-items:center;gap:10px;background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.22);color:var(--cyan);padding:7px 20px;border-radius:30px;font-size:11.5px;font-weight:600;font-family:var(--mono);letter-spacing:.08em;margin-bottom:40px;animation:slideUp .8s ease .1s both}
-.hero-chip-dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px var(--cyan);animation:blink 2s ease-in-out infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-.hero h1{font-family:var(--dsp);font-size:clamp(48px,8vw,96px);font-weight:800;line-height:.95;letter-spacing:-.05em;margin-bottom:10px;animation:slideUp .8s ease .2s both}
-.hero-name-line{display:block;background:linear-gradient(135deg,#fff 0%,rgba(255,255,255,.75) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.hero-title-line{display:block;font-size:clamp(20px,3vw,36px);font-weight:600;background:linear-gradient(90deg,var(--cyan) 0%,var(--violet) 50%,var(--amber) 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:gradShift 6s linear infinite,slideUp .8s ease .3s both;margin-top:8px}
-@keyframes gradShift{0%{background-position:0% center}100%{background-position:200% center}}
-.hero-sub{font-size:16px;font-weight:400;color:var(--muted);max-width:640px;margin:24px auto 48px;line-height:1.75;animation:slideUp .8s ease .4s both}
-.hero-sub strong{color:var(--text);font-weight:600}
-.hero-metrics{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:48px;animation:slideUp .8s ease .45s both}
-.metric-chip{display:inline-flex;align-items:center;gap:6px;background:var(--glass);border:1px solid var(--border);padding:6px 14px;border-radius:20px;font-size:12px;font-family:var(--mono);color:var(--muted)}
-.metric-chip span{color:var(--cyan);font-weight:600}
-.hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;animation:slideUp .8s ease .5s both}
-.btn-primary{background:linear-gradient(135deg,var(--cyan),#0099cc);color:#060810;font-weight:700;font-size:14px;padding:14px 32px;border-radius:30px;display:flex;align-items:center;gap:8px;box-shadow:0 0 32px rgba(0,212,255,.25);transition:transform .2s,box-shadow .2s;font-family:var(--body)}
-.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 40px rgba(0,212,255,.4)}
-.btn-secondary{background:var(--glass);border:1px solid var(--border-h);color:var(--text);font-weight:500;font-size:14px;padding:14px 32px;border-radius:30px;display:flex;align-items:center;gap:8px;backdrop-filter:blur(12px);transition:all .2s;font-family:var(--body)}
-.btn-secondary:hover{transform:translateY(-2px);border-color:rgba(0,212,255,.5);background:rgba(0,212,255,.06)}
-.btn-amber{background:rgba(246,173,85,.1);border:1px solid rgba(246,173,85,.3);color:var(--amber);font-weight:500;font-size:14px;padding:14px 32px;border-radius:30px;display:flex;align-items:center;gap:8px;transition:all .2s;font-family:var(--body)}
-.btn-amber:hover{transform:translateY(-2px);background:rgba(246,173,85,.18);border-color:rgba(246,173,85,.55)}
-.hero-scroll{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--muted2);font-size:10px;font-family:var(--mono);letter-spacing:.12em;text-transform:uppercase;animation:slideUp 1s ease 1.2s both}
-.scroll-bar{width:1px;height:48px;background:linear-gradient(to bottom,transparent,var(--cyan));animation:scrollPulse 2s ease-in-out infinite}
-@keyframes scrollPulse{0%,100%{opacity:.4;transform:scaleY(.8)}50%{opacity:1;transform:scaleY(1)}}
-@keyframes slideUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+/* ─────────────────────────────────────────────────────────────
+   LIQUID GLASS  (Apple iOS 26 style)
+───────────────────────────────────────────────────────────── */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(32px) saturate(180%) brightness(1.04);
+  -webkit-backdrop-filter: blur(32px) saturate(180%) brightness(1.04);
+  border: 1px solid var(--glass-bd);
+  box-shadow:
+    inset 0 1px 0 var(--glass-hi),
+    0 4px 32px rgba(0,0,0,.32);
+}
+.glass-blue {
+  background: rgba(30,77,183,.08);
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  border: 1px solid rgba(79,127,228,.18);
+  box-shadow:
+    inset 0 1px 0 rgba(79,127,228,.14),
+    0 4px 48px rgba(30,77,183,.15);
+}
 
-/* ─── SECTION COMMONS ──────────────────────────────────────── */
-section{position:relative;z-index:10}
-.section-inner{max-width:1160px;margin:0 auto;padding:0 48px}
-.section-label{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--cyan);letter-spacing:.14em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px}
-.section-label::before{content:'//';opacity:.5}
-.section-h{font-family:var(--dsp);font-size:clamp(28px,3.5vw,44px);font-weight:800;letter-spacing:-.04em;line-height:1.1;margin-bottom:16px}
-.section-sub{font-size:15px;color:var(--muted);max-width:560px;line-height:1.7;margin-bottom:56px}
-.reveal{opacity:0;transform:translateY(36px);transition:opacity .7s ease,transform .7s ease}
-.reveal.vis{opacity:1;transform:translateY(0)}
+/* ─────────────────────────────────────────────────────────────
+   NAVIGATION
+───────────────────────────────────────────────────────────── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 600;
+  height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 48px;
+  background: rgba(11,12,15,.72);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  border-bottom: 1px solid rgba(255,255,255,.055);
+  transition: background .4s;
+}
+.nav-wordmark {
+  font-family: var(--dsp);
+  font-size: 14px; font-weight: 700;
+  letter-spacing: -.01em;
+  color: var(--cream);
+}
+.nav-wordmark span {
+  color: var(--blue-bright);
+  margin-left: 2px;
+}
+.nav-links {
+  display: flex; gap: 2px; align-items: center;
+}
+.nav-links a {
+  font-size: 12.5px; font-weight: 500; letter-spacing: .015em;
+  color: var(--cream-dim);
+  padding: 6px 14px; border-radius: 30px;
+  transition: color .2s, background .2s;
+}
+.nav-links a:hover { color: var(--cream); background: var(--cream-faint); }
+.nav-cta {
+  font-size: 12.5px; font-weight: 600;
+  padding: 8px 22px; border-radius: 30px;
+  background: var(--blue); color: var(--cream-2);
+  border: 1px solid rgba(79,127,228,.3);
+  transition: background .25s, box-shadow .25s, transform .2s;
+  letter-spacing: .02em;
+}
+.nav-cta:hover {
+  background: var(--blue-mid);
+  box-shadow: 0 0 28px var(--blue-glow);
+  transform: translateY(-1px);
+}
 
-/* ─── STATS BAND ───────────────────────────────────────────── */
-.stats-band{padding:60px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:linear-gradient(to right,var(--bg),var(--bg2),var(--bg))}
-.stats-grid{max-width:900px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:0;padding:0 48px}
-.stat-item{text-align:center;padding:32px 16px;position:relative}
-.stat-item+.stat-item::before{content:'';position:absolute;left:0;top:20%;height:60%;width:1px;background:var(--border)}
-.stat-num{font-family:var(--dsp);font-size:52px;font-weight:800;line-height:1;background:linear-gradient(135deg,var(--cyan),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
-.stat-label{font-size:12px;color:var(--muted);font-weight:500;letter-spacing:.04em}
+/* ─────────────────────────────────────────────────────────────
+   HERO
+───────────────────────────────────────────────────────────── */
+.hero {
+  position: relative; z-index: 10;
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  justify-content: center;
+  padding: 140px 48px 100px;
+  overflow: hidden;
+}
+/* Radial background gradient blobs */
+.hero-blob {
+  position: absolute; border-radius: 50%;
+  pointer-events: none; filter: blur(100px);
+}
+.hero-blob-1 {
+  width: 700px; height: 700px;
+  background: radial-gradient(circle, rgba(26,58,110,.45) 0%, transparent 70%);
+  top: -200px; right: -200px;
+  animation: blobFloat1 18s ease-in-out infinite;
+}
+.hero-blob-2 {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(61,28,9,.35) 0%, transparent 70%);
+  bottom: -100px; left: -150px;
+  animation: blobFloat2 22s ease-in-out infinite;
+}
+.hero-blob-3 {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(30,77,183,.18) 0%, transparent 70%);
+  top: 40%; left: 40%;
+  animation: blobFloat3 16s ease-in-out infinite;
+}
+@keyframes blobFloat1 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(-60px,40px) scale(1.08)} }
+@keyframes blobFloat2 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(40px,-60px) scale(1.1)} }
+@keyframes blobFloat3 { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(30px,40px) scale(.92)} 66%{transform:translate(-40px,-20px) scale(1.06)} }
 
-/* ─── ABOUT / SKILLS ───────────────────────────────────────── */
-.about-section{padding:100px 0}
-.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start}
-.about-text p{color:var(--muted);line-height:1.8;font-size:15px}
-.about-text p+p{margin-top:20px}
-.about-text strong{color:var(--text);font-weight:600}
-.skills-block{display:flex;flex-direction:column;gap:24px}
-.skill-cat{background:var(--glass);border:1px solid var(--border);border-radius:var(--r16);padding:28px;backdrop-filter:blur(16px);transition:border-color .3s,transform .3s}
-.skill-cat:hover{border-color:var(--border-h);transform:translateY(-3px)}
-.skill-cat-label{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--cyan);letter-spacing:.12em;text-transform:uppercase;margin-bottom:14px}
-.skill-tags{display:flex;flex-wrap:wrap;gap:7px}
-.skill-tag{font-size:11.5px;font-family:var(--mono);padding:4px 12px;border-radius:20px;font-weight:500;background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.15);color:var(--cyan2);transition:all .2s}
-.skill-tag:hover{background:rgba(0,212,255,.14);border-color:rgba(0,212,255,.35)}
-.skill-tag.amber{background:rgba(246,173,85,.07);border-color:rgba(246,173,85,.18);color:var(--amber)}
-.skill-tag.violet{background:rgba(159,122,234,.07);border-color:rgba(159,122,234,.18);color:var(--violet)}
-.skill-tag.green{background:rgba(104,211,145,.07);border-color:rgba(104,211,145,.18);color:var(--green)}
+.hero-label {
+  font-family: var(--mono);
+  font-size: 11px; letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--cream-dim);
+  margin-bottom: 36px;
+  display: flex; align-items: center; gap: 12px;
+  animation: fadeIn .8s var(--ease) .1s both;
+}
+.hero-label::before {
+  content: '';
+  display: block; width: 40px; height: 1px;
+  background: linear-gradient(90deg, var(--blue-bright), transparent);
+}
 
-/* ─── EXPERIENCE ───────────────────────────────────────────── */
-.exp-section{padding:100px 0;background:linear-gradient(to bottom,transparent,rgba(11,15,26,.5),transparent)}
-.exp-timeline{display:flex;flex-direction:column;gap:0;position:relative}
-.exp-timeline::before{content:'';position:absolute;left:14px;top:0;bottom:0;width:1px;background:linear-gradient(to bottom,transparent,var(--cyan),var(--violet),transparent)}
-.exp-item{display:grid;grid-template-columns:28px 1fr;gap:32px;padding-bottom:56px;position:relative}
-.exp-item:last-child{padding-bottom:0}
-.exp-dot{width:28px;height:28px;border-radius:50%;background:var(--bg);border:2px solid var(--cyan);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;position:relative;z-index:1;box-shadow:0 0 16px rgba(0,212,255,.3);margin-top:4px}
-.exp-card{background:var(--glass);border:1px solid var(--border);border-radius:var(--r24);padding:36px;backdrop-filter:blur(16px);transition:border-color .3s,transform .3s,box-shadow .3s;position:relative;overflow:hidden}
-.exp-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--cyan),var(--violet));opacity:0;transition:opacity .3s}
-.exp-card:hover{border-color:rgba(0,212,255,.3);transform:translateX(4px);box-shadow:var(--glow-cyan)}
-.exp-card:hover::before{opacity:1}
-.exp-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;flex-wrap:wrap;gap:12px}
-.exp-role{font-family:var(--dsp);font-size:20px;font-weight:700;letter-spacing:-.02em}
-.exp-date{font-family:var(--mono);font-size:11px;color:var(--cyan);background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.18);padding:4px 12px;border-radius:20px;white-space:nowrap}
-.exp-company{font-size:14px;font-weight:600;color:var(--amber);margin-bottom:20px}
-.exp-bullets{list-style:none;display:flex;flex-direction:column;gap:10px}
-.exp-bullets li{font-size:14px;color:var(--muted);line-height:1.7;padding-left:20px;position:relative}
-.exp-bullets li::before{content:'▸';position:absolute;left:0;color:var(--cyan);font-size:11px;top:3px}
+.hero-headline {
+  font-family: var(--dsp);
+  font-size: clamp(54px, 9vw, 120px);
+  font-weight: 800;
+  line-height: .92;
+  letter-spacing: -.05em;
+  margin-bottom: 40px;
+  animation: fadeIn .9s var(--ease) .2s both;
+}
+.hero-headline .line-1 {
+  display: block;
+  color: var(--cream);
+}
+.hero-headline .line-2 {
+  display: block;
+  background: linear-gradient(135deg, var(--blue-bright) 0%, var(--cream-2) 60%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-headline .line-3 {
+  display: block;
+  color: var(--choc-warm);
+  font-style: italic;
+  font-size: clamp(36px, 5.5vw, 72px);
+}
 
-/* ─── PROJECTS ─────────────────────────────────────────────── */
-.proj-section{padding:100px 0}
-.proj-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
-.proj-card{background:var(--glass);border:1px solid var(--border);border-radius:var(--r24);padding:36px;backdrop-filter:blur(16px);transition:all .3s;position:relative;overflow:hidden;display:flex;flex-direction:column}
-.proj-card::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 70% 0%,rgba(0,212,255,.06) 0%,transparent 60%);opacity:0;transition:opacity .3s;pointer-events:none}
-.proj-card:hover{border-color:rgba(0,212,255,.3);transform:translateY(-5px);box-shadow:0 20px 60px rgba(0,212,255,.07)}
-.proj-card:hover::after{opacity:1}
-.proj-card.feat{grid-column:span 2;display:grid;grid-template-columns:1fr 1fr;gap:48px;background:linear-gradient(135deg,rgba(14,22,45,.7),rgba(11,15,26,.7));border-color:rgba(0,212,255,.2)}
-.proj-card.feat:hover{border-color:rgba(0,212,255,.4)}
-.proj-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
-.proj-icon{width:52px;height:52px;border-radius:var(--r16);display:flex;align-items:center;justify-content:center;font-size:24px}
-.proj-icon.cyan{background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2)}
-.proj-icon.amber{background:rgba(246,173,85,.1);border:1px solid rgba(246,173,85,.2)}
-.proj-icon.violet{background:rgba(159,122,234,.1);border:1px solid rgba(159,122,234,.2)}
-.proj-icon.green{background:rgba(104,211,145,.1);border:1px solid rgba(104,211,145,.2)}
-.proj-links{display:flex;gap:8px}
-.proj-link{width:36px;height:36px;border-radius:10px;background:var(--glass2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .2s;color:var(--muted)}
-.proj-link:hover{border-color:var(--border-h);color:var(--text);background:rgba(0,212,255,.08)}
-.proj-award{display:inline-flex;align-items:center;gap:6px;background:rgba(246,173,85,.1);border:1px solid rgba(246,173,85,.25);color:var(--amber);padding:4px 12px;border-radius:20px;font-size:10.5px;font-family:var(--mono);font-weight:600;letter-spacing:.06em;margin-bottom:12px}
-.proj-h{font-family:var(--dsp);font-size:20px;font-weight:700;letter-spacing:-.02em;margin-bottom:12px;line-height:1.2}
-.proj-desc{font-size:13.5px;color:var(--muted);line-height:1.75;flex:1}
-.proj-tech{display:flex;flex-wrap:wrap;gap:6px;margin-top:24px}
-.proj-tech-tag{font-size:10.5px;font-family:var(--mono);padding:3px 10px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:var(--muted);font-weight:500}
-.proj-stat-row{display:flex;gap:20px;margin-top:28px;flex-wrap:wrap}
-.proj-stat{text-align:center}
-.proj-stat-n{font-family:var(--dsp);font-size:26px;font-weight:800;background:linear-gradient(135deg,var(--cyan),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1}
-.proj-stat-l{font-size:10px;color:var(--muted2);margin-top:2px;font-family:var(--mono)}
+.hero-body {
+  max-width: 520px;
+  font-size: 16px; font-weight: 300;
+  color: var(--cream-dim);
+  line-height: 1.78;
+  margin-bottom: 56px;
+  animation: fadeIn .9s var(--ease) .35s both;
+}
+.hero-body strong { color: var(--cream); font-weight: 500; }
 
-/* ─── ACHIEVEMENTS ─────────────────────────────────────────── */
-.ach-section{padding:100px 0;background:linear-gradient(to bottom,transparent,rgba(11,15,26,.5),transparent)}
-.ach-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.ach-card{background:var(--glass);border:1px solid var(--border);border-radius:var(--r24);padding:32px;backdrop-filter:blur(16px);transition:all .3s;text-align:center}
-.ach-card:hover{border-color:rgba(246,173,85,.3);transform:translateY(-4px);box-shadow:var(--glow-amber)}
-.ach-medal{font-size:40px;margin-bottom:16px;display:block}
-.ach-title{font-family:var(--dsp);font-size:17px;font-weight:700;margin-bottom:8px;letter-spacing:-.02em}
-.ach-sub{font-size:13px;color:var(--muted);line-height:1.6}
+.hero-pills {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin-bottom: 56px;
+  animation: fadeIn .9s var(--ease) .45s both;
+}
+.pill {
+  font-family: var(--mono); font-size: 10.5px;
+  letter-spacing: .06em; text-transform: uppercase;
+  padding: 6px 16px; border-radius: 30px;
+  border: 1px solid rgba(240,232,216,.14);
+  color: var(--cream-dim);
+  background: rgba(255,255,255,.03);
+  backdrop-filter: blur(12px);
+  transition: border-color .25s, color .25s;
+}
+.pill:hover { border-color: rgba(79,127,228,.4); color: var(--cream); }
+.pill-blue { border-color: rgba(79,127,228,.24); color: var(--blue-bright); }
+.pill-choc { border-color: rgba(192,128,80,.24); color: var(--choc-warm); }
 
-/* ─── CONTACT ──────────────────────────────────────────────── */
-.contact-section{padding:100px 0 120px}
-.contact-inner{max-width:760px;margin:0 auto;text-align:center}
-.contact-glow{width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(0,212,255,.08) 0%,transparent 70%);position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none}
-.contact-links{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:48px}
-.contact-link{display:flex;align-items:center;gap:10px;background:var(--glass);border:1px solid var(--border);padding:14px 28px;border-radius:30px;font-size:14px;font-weight:500;backdrop-filter:blur(12px);transition:all .3s;color:var(--text)}
-.contact-link:hover{border-color:var(--border-h);transform:translateY(-2px);box-shadow:var(--glow-cyan)}
-.contact-link svg{width:18px;height:18px;flex-shrink:0}
+.hero-actions {
+  display: flex; gap: 14px; flex-wrap: wrap;
+  animation: fadeIn .9s var(--ease) .55s both;
+}
+.btn-solid {
+  font-size: 13.5px; font-weight: 600; letter-spacing: .025em;
+  padding: 14px 34px; border-radius: 30px;
+  background: var(--blue); color: var(--cream-2);
+  border: 1px solid rgba(79,127,228,.3);
+  transition: all .25s var(--ease);
+}
+.btn-solid:hover {
+  background: var(--blue-mid);
+  box-shadow: 0 0 40px var(--blue-glow);
+  transform: translateY(-2px);
+}
+.btn-outline {
+  font-size: 13.5px; font-weight: 500;
+  padding: 14px 34px; border-radius: 30px;
+  border: 1px solid rgba(240,232,216,.18);
+  color: var(--cream-dim);
+  transition: all .25s var(--ease);
+}
+.btn-outline:hover {
+  border-color: rgba(240,232,216,.45);
+  color: var(--cream);
+  transform: translateY(-2px);
+}
 
-/* ─── FOOTER ───────────────────────────────────────────────── */
-footer{border-top:1px solid var(--border);padding:40px 48px;display:flex;align-items:center;justify-content:space-between;color:var(--muted2);font-size:13px;position:relative;z-index:10}
-.footer-brand{font-family:var(--dsp);font-size:14px;font-weight:700;color:var(--muted)}
-.footer-links{display:flex;gap:24px}
-.footer-links a{transition:color .2s}
-.footer-links a:hover{color:var(--cyan)}
+.hero-scroll-hint {
+  position: absolute; bottom: 40px; left: 48px;
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: .14em; text-transform: uppercase;
+  color: var(--cream-dim);
+  animation: fadeIn 1s var(--ease) 1.2s both;
+}
+.scroll-line {
+  width: 1px; height: 52px;
+  background: linear-gradient(to bottom, transparent, var(--blue-bright));
+  animation: scrollPulse 2.5s ease-in-out infinite;
+}
+@keyframes scrollPulse { 0%,100%{opacity:.35} 50%{opacity:1} }
 
-/* ─── SCROLLBAR ───────────────────────────────────────────── */
-::-webkit-scrollbar{width:5px}
-::-webkit-scrollbar-track{background:var(--bg)}
-::-webkit-scrollbar-thumb{background:linear-gradient(var(--cyan),var(--violet));border-radius:10px}
+/* ─────────────────────────────────────────────────────────────
+   STATS STRIP
+───────────────────────────────────────────────────────────── */
+.stats-strip {
+  position: relative; z-index: 10;
+  border-top: 1px solid rgba(255,255,255,.055);
+  border-bottom: 1px solid rgba(255,255,255,.055);
+  padding: 0;
+  overflow: hidden;
+}
+.stats-inner {
+  max-width: 1200px; margin: 0 auto;
+  display: grid; grid-template-columns: repeat(4, 1fr);
+}
+.stat {
+  padding: 48px 40px;
+  border-right: 1px solid rgba(255,255,255,.055);
+  transition: background .3s;
+}
+.stat:last-child { border-right: none; }
+.stat:hover { background: rgba(30,77,183,.05); }
+.stat-n {
+  font-family: var(--dsp);
+  font-size: 52px; font-weight: 800; line-height: 1;
+  letter-spacing: -.04em;
+  color: var(--cream);
+  margin-bottom: 8px;
+}
+.stat-n span { color: var(--blue-bright); }
+.stat-l {
+  font-size: 12px; font-weight: 400;
+  color: var(--cream-dim);
+  letter-spacing: .02em;
+  line-height: 1.4;
+}
 
-/* ─── RESPONSIVE ───────────────────────────────────────────── */
-@media(max-width:960px){
-  .about-grid{grid-template-columns:1fr}
-  .proj-grid{grid-template-columns:1fr}
-  .proj-card.feat{grid-column:span 1;grid-template-columns:1fr}
-  .ach-grid{grid-template-columns:1fr 1fr}
-  .stats-grid{grid-template-columns:repeat(2,1fr)}
-  .stat-item::before{display:none}
+/* ─────────────────────────────────────────────────────────────
+   SECTION COMMONS
+───────────────────────────────────────────────────────────── */
+.sec { position: relative; z-index: 10; padding: 120px 0; }
+.wrap { max-width: 1200px; margin: 0 auto; padding: 0 48px; }
+
+.sec-eyebrow {
+  font-family: var(--mono);
+  font-size: 10.5px; letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--blue-bright);
+  margin-bottom: 18px;
+  display: flex; align-items: center; gap: 10px;
+}
+.sec-eyebrow::after {
+  content: '';
+  flex: 1; max-width: 48px; height: 1px;
+  background: var(--blue);
+}
+.sec-h {
+  font-family: var(--dsp);
+  font-size: clamp(36px, 4.5vw, 60px);
+  font-weight: 800; letter-spacing: -.04em;
+  line-height: .98; color: var(--cream);
+  margin-bottom: 20px;
+}
+.sec-sub {
+  font-size: 15.5px; font-weight: 300;
+  color: var(--cream-dim);
+  line-height: 1.72; max-width: 500px;
+  margin-bottom: 64px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   ABOUT / SKILLS
+───────────────────────────────────────────────────────────── */
+.about-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start;
+}
+.about-copy p {
+  font-size: 15.5px; font-weight: 300;
+  color: var(--cream-dim); line-height: 1.82;
+}
+.about-copy p + p { margin-top: 20px; }
+.about-copy strong { color: var(--cream); font-weight: 500; }
+.about-copy a {
+  color: var(--blue-bright);
+  border-bottom: 1px solid rgba(79,127,228,.3);
+  transition: border-color .2s;
+}
+.about-copy a:hover { border-color: var(--blue-bright); }
+
+.skills-stack { display: flex; flex-direction: column; gap: 2px; }
+.skill-row {
+  border-radius: 16px; padding: 22px 28px;
+  transition: background .25s var(--ease), transform .25s var(--ease), box-shadow .25s;
+  cursor: none;
+}
+.skill-row:hover {
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--glass-bd);
+  box-shadow: inset 0 1px 0 var(--glass-hi), 0 4px 24px rgba(0,0,0,.2);
+  transform: translateX(6px);
+}
+.skill-row-label {
+  font-family: var(--mono); font-size: 9.5px;
+  letter-spacing: .16em; text-transform: uppercase;
+  color: var(--cream-dim); margin-bottom: 12px;
+}
+.skill-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.stag {
+  font-size: 12px; font-weight: 500;
+  padding: 4px 13px; border-radius: 20px;
+  transition: all .2s;
+}
+.stag-b { background: rgba(30,77,183,.15); border: 1px solid rgba(79,127,228,.18); color: var(--blue-bright); }
+.stag-b:hover { background: rgba(30,77,183,.28); border-color: rgba(79,127,228,.4); }
+.stag-c { background: rgba(192,128,80,.1); border: 1px solid rgba(192,128,80,.22); color: var(--choc-warm); }
+.stag-c:hover { background: rgba(192,128,80,.2); border-color: rgba(192,128,80,.4); }
+.stag-w { background: rgba(240,232,216,.06); border: 1px solid rgba(240,232,216,.12); color: var(--cream-dim); }
+.stag-w:hover { background: rgba(240,232,216,.12); border-color: rgba(240,232,216,.25); color: var(--cream); }
+
+/* ─────────────────────────────────────────────────────────────
+   EXPERIENCE TIMELINE
+───────────────────────────────────────────────────────────── */
+.exp-list { display: flex; flex-direction: column; gap: 2px; position: relative; }
+.exp-line {
+  position: absolute; left: 0; top: 20px; bottom: 20px; width: 1px;
+  background: linear-gradient(to bottom, transparent, rgba(79,127,228,.35), rgba(192,128,80,.25), transparent);
+}
+
+.exp-item {
+  display: grid; grid-template-columns: 64px 1fr;
+  gap: 0; position: relative;
+}
+.exp-node {
+  display: flex; flex-direction: column; align-items: center; padding-top: 28px;
+}
+.exp-dot-outer {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--ink-2);
+  border: 1.5px solid var(--blue);
+  box-shadow: 0 0 12px var(--blue-glow);
+  position: relative; z-index: 1;
+  flex-shrink: 0;
+  transition: box-shadow .3s;
+}
+.exp-item:hover .exp-dot-outer { box-shadow: 0 0 20px rgba(79,127,228,.5); }
+
+.exp-card {
+  margin: 12px 0; padding: 36px 40px; border-radius: 24px;
+  border: 1px solid rgba(255,255,255,.055);
+  background: rgba(255,255,255,.02);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition: border-color .3s var(--ease), transform .35s var(--ease), box-shadow .35s var(--ease), background .3s;
+  position: relative; overflow: hidden;
+}
+.exp-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(79,127,228,.25), transparent);
+  opacity: 0; transition: opacity .3s;
+}
+.exp-item:hover .exp-card {
+  border-color: rgba(79,127,228,.25);
+  transform: translateX(6px);
+  box-shadow: 0 8px 48px rgba(0,0,0,.3), 0 0 0 1px rgba(79,127,228,.08);
+  background: rgba(30,77,183,.04);
+}
+.exp-item:hover .exp-card::before { opacity: 1; }
+
+.exp-meta {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px; margin-bottom: 6px;
+}
+.exp-role {
+  font-family: var(--dsp); font-size: 20px; font-weight: 700;
+  letter-spacing: -.025em; color: var(--cream);
+}
+.exp-date {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--blue-bright);
+  background: rgba(30,77,183,.12);
+  border: 1px solid rgba(79,127,228,.18);
+  padding: 5px 14px; border-radius: 20px;
+  white-space: nowrap;
+}
+.exp-company {
+  font-size: 13px; font-weight: 500;
+  color: var(--choc-warm); margin-bottom: 22px;
+  letter-spacing: .01em;
+}
+.exp-points { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+.exp-points li {
+  font-size: 14px; font-weight: 300;
+  color: var(--cream-dim); line-height: 1.72;
+  padding-left: 18px; position: relative;
+}
+.exp-points li::before {
+  content: '';
+  position: absolute; left: 0; top: 10px;
+  width: 5px; height: 1px;
+  background: var(--blue-bright);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   PROJECTS — MAGNETIC CARDS
+───────────────────────────────────────────────────────────── */
+.proj-grid {
+  display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px;
+}
+.proj-card {
+  border-radius: 24px;
+  border: 1px solid rgba(255,255,255,.055);
+  background: rgba(255,255,255,.025);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  padding: 40px; position: relative; overflow: hidden;
+  transition: border-color .4s var(--ease), box-shadow .4s var(--ease);
+  /* 3D perspective base */
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.proj-card-a { grid-column: span 7; }
+.proj-card-b { grid-column: span 5; }
+.proj-card-c { grid-column: span 5; }
+.proj-card-d { grid-column: span 7; }
+
+.proj-card::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(79,127,228,.07) 0%, transparent 55%);
+  opacity: 0; transition: opacity .4s; pointer-events: none;
+}
+.proj-card:hover { border-color: rgba(79,127,228,.25); box-shadow: 0 12px 64px rgba(0,0,0,.4); }
+.proj-card:hover::after { opacity: 1; }
+
+.proj-badge {
+  font-family: var(--mono); font-size: 9.5px;
+  letter-spacing: .15em; text-transform: uppercase;
+  padding: 5px 13px; border-radius: 20px;
+  display: inline-block; margin-bottom: 20px;
+}
+.proj-badge-b { background: rgba(26,58,110,.25); border: 1px solid rgba(79,127,228,.22); color: var(--blue-bright); }
+.proj-badge-a { background: rgba(192,128,80,.15); border: 1px solid rgba(192,128,80,.25); color: var(--choc-warm); }
+.proj-badge-g { background: rgba(60,100,60,.2); border: 1px solid rgba(80,160,80,.2); color: #8bc98b; }
+
+.proj-award-tag {
+  font-family: var(--mono); font-size: 9.5px;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--choc-warm);
+  background: rgba(192,128,80,.1);
+  border: 1px solid rgba(192,128,80,.2);
+  padding: 4px 12px; border-radius: 20px;
+  display: inline-block; margin-bottom: 14px;
+}
+.proj-h {
+  font-family: var(--dsp); font-size: 22px; font-weight: 700;
+  letter-spacing: -.03em; line-height: 1.15;
+  color: var(--cream); margin-bottom: 14px;
+}
+.proj-desc {
+  font-size: 13.5px; font-weight: 300;
+  color: var(--cream-dim); line-height: 1.75;
+}
+.proj-tech-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 28px; }
+.proj-tt {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: .05em; text-transform: uppercase;
+  padding: 4px 11px; border-radius: 12px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  color: rgba(240,232,216,.5);
+}
+.proj-stat-row {
+  display: flex; gap: 32px; margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255,255,255,.06);
+}
+.proj-stat-n {
+  font-family: var(--dsp); font-size: 32px; font-weight: 800;
+  letter-spacing: -.04em; line-height: 1;
+  background: linear-gradient(135deg, var(--blue-bright), var(--cream));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.proj-stat-l { font-size: 11px; font-weight: 300; color: var(--cream-dim); margin-top: 3px; }
+.proj-link-row { display: flex; gap: 10px; margin-top: 28px; }
+.proj-gh-link {
+  font-family: var(--mono); font-size: 10.5px;
+  letter-spacing: .08em; text-transform: uppercase;
+  padding: 8px 20px; border-radius: 20px;
+  border: 1px solid rgba(255,255,255,.1);
+  color: var(--cream-dim);
+  display: flex; align-items: center; gap: 8px;
+  transition: all .25s;
+}
+.proj-gh-link:hover { border-color: rgba(79,127,228,.4); color: var(--cream); }
+
+/* ─────────────────────────────────────────────────────────────
+   ACHIEVEMENTS
+───────────────────────────────────────────────────────────── */
+.ach-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+.ach-card {
+  border-radius: 22px; padding: 40px 32px;
+  border: 1px solid rgba(255,255,255,.055);
+  background: rgba(255,255,255,.02);
+  backdrop-filter: blur(20px);
+  text-align: center;
+  transition: all .35s var(--ease);
+}
+.ach-card:hover {
+  border-color: rgba(192,128,80,.3);
+  transform: translateY(-6px);
+  box-shadow: 0 16px 56px rgba(0,0,0,.35), 0 0 0 1px rgba(192,128,80,.08);
+  background: rgba(192,128,80,.04);
+}
+.ach-rank {
+  font-family: var(--dsp); font-size: 56px; font-weight: 800;
+  letter-spacing: -.05em;
+  background: linear-gradient(135deg, var(--choc-warm), var(--cream));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  line-height: 1; margin-bottom: 18px;
+}
+.ach-title {
+  font-family: var(--dsp); font-size: 18px; font-weight: 700;
+  letter-spacing: -.02em; color: var(--cream); margin-bottom: 10px;
+}
+.ach-sub { font-size: 13px; font-weight: 300; color: var(--cream-dim); line-height: 1.65; }
+
+/* ─────────────────────────────────────────────────────────────
+   EDUCATION BAND
+───────────────────────────────────────────────────────────── */
+.edu-band {
+  border-top: 1px solid rgba(255,255,255,.055);
+  border-bottom: 1px solid rgba(255,255,255,.055);
+  padding: 60px 0;
+}
+.edu-inner {
+  max-width: 1200px; margin: 0 auto; padding: 0 48px;
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 32px;
+}
+.edu-degree { font-family: var(--mono); font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--blue-bright); margin-bottom: 10px; }
+.edu-uni { font-family: var(--dsp); font-size: 28px; font-weight: 800; letter-spacing: -.03em; color: var(--cream); }
+.edu-loc { font-size: 13.5px; font-weight: 300; color: var(--cream-dim); margin-top: 4px; }
+.edu-chips { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.edu-chip {
+  font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+  padding: 6px 16px; border-radius: 20px;
+  background: rgba(240,232,216,.05); border: 1px solid rgba(240,232,216,.1); color: var(--cream-dim);
+}
+.edu-date {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .12em;
+  padding: 8px 22px; border-radius: 20px;
+  background: rgba(26,58,110,.2); border: 1px solid rgba(79,127,228,.2); color: var(--blue-bright);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   CONTACT
+───────────────────────────────────────────────────────────── */
+.contact-inner { max-width: 700px; margin: 0 auto; text-align: center; }
+.contact-h {
+  font-family: var(--dsp);
+  font-size: clamp(48px,7vw,88px); font-weight: 800;
+  letter-spacing: -.05em; line-height: .92;
+  color: var(--cream); margin-bottom: 24px;
+}
+.contact-h em {
+  font-style: italic;
+  background: linear-gradient(135deg, var(--blue-bright), var(--choc-warm));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.contact-sub { font-size: 15.5px; font-weight: 300; color: var(--cream-dim); line-height: 1.75; margin-bottom: 52px; }
+.contact-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.contact-link {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13.5px; font-weight: 500;
+  padding: 14px 28px; border-radius: 30px;
+  border: 1px solid rgba(255,255,255,.1);
+  color: var(--cream-dim);
+  background: rgba(255,255,255,.03);
+  backdrop-filter: blur(16px);
+  transition: all .3s var(--ease);
+}
+.contact-link:hover { border-color: rgba(79,127,228,.4); color: var(--cream); transform: translateY(-3px); box-shadow: 0 8px 32px rgba(0,0,0,.3); }
+.contact-link svg { width: 16px; height: 16px; opacity: .7; transition: opacity .2s; }
+.contact-link:hover svg { opacity: 1; }
+
+/* ─────────────────────────────────────────────────────────────
+   FOOTER
+───────────────────────────────────────────────────────────── */
+footer {
+  border-top: 1px solid rgba(255,255,255,.055);
+  padding: 36px 48px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: relative; z-index: 10;
+}
+.footer-l { font-family: var(--dsp); font-size: 14px; font-weight: 700; color: rgba(240,232,216,.4); }
+.footer-l span { color: var(--blue-bright); }
+.footer-r { display: flex; gap: 24px; }
+.footer-r a { font-size: 12.5px; color: rgba(240,232,216,.35); letter-spacing: .03em; transition: color .2s; }
+.footer-r a:hover { color: var(--cream); }
+.footer-c { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; color: rgba(240,232,216,.2); text-align: center; }
+
+/* ─────────────────────────────────────────────────────────────
+   REVEAL ANIMATIONS
+───────────────────────────────────────────────────────────── */
+@keyframes fadeIn { from{opacity:0;transform:translateY(32px)} to{opacity:1;transform:translateY(0)} }
+.r { opacity: 0; transform: translateY(36px); transition: opacity .85s var(--ease), transform .85s var(--ease); }
+.r.in { opacity: 1; transform: translateY(0); }
+.r-d1 { transition-delay: .1s; }
+.r-d2 { transition-delay: .2s; }
+.r-d3 { transition-delay: .3s; }
+.r-d4 { transition-delay: .4s; }
+
+/* horizontal reveal */
+.rh { opacity: 0; transform: translateX(-24px); transition: opacity .85s var(--ease), transform .85s var(--ease); }
+.rh.in { opacity: 1; transform: translateX(0); }
+
+/* ─────────────────────────────────────────────────────────────
+   SECTION DIVIDERS
+───────────────────────────────────────────────────────────── */
+.divider { height: 1px; background: rgba(255,255,255,.055); width: 100%; }
+
+/* ─────────────────────────────────────────────────────────────
+   SCROLL MARQUEE (decorative)
+───────────────────────────────────────────────────────────── */
+.marquee-wrap {
+  border-top: 1px solid rgba(255,255,255,.055);
+  border-bottom: 1px solid rgba(255,255,255,.055);
+  overflow: hidden; padding: 20px 0;
+}
+.marquee-track {
+  display: flex; gap: 0; white-space: nowrap;
+  animation: marquee 28s linear infinite;
+}
+.marquee-track span {
+  font-family: var(--dsp); font-size: 13px; font-weight: 600;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: rgba(240,232,216,.15); padding: 0 32px;
+}
+.marquee-track span.accent { color: rgba(79,127,228,.25); }
+@keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+/* ─────────────────────────────────────────────────────────────
+   RESPONSIVE
+───────────────────────────────────────────────────────────── */
+@media(max-width:1024px){
+  .about-grid { grid-template-columns: 1fr; gap: 56px; }
+  .proj-card-a,.proj-card-b,.proj-card-c,.proj-card-d { grid-column: span 12; }
+  .ach-grid { grid-template-columns: 1fr 1fr; }
+  .stats-inner { grid-template-columns: repeat(2,1fr); }
+  .stat { border-right: none; border-bottom: 1px solid rgba(255,255,255,.055); }
+  .stat:nth-child(2n) { border-right: none; }
 }
 @media(max-width:640px){
-  nav{padding:0 20px}
-  .nav-center{display:none}
-  .hero,.section-inner{padding-left:24px;padding-right:24px}
-  .exp-timeline::before{left:12px}
-  .ach-grid{grid-template-columns:1fr}
-  footer{flex-direction:column;gap:16px;text-align:center}
+  nav { padding: 0 24px; }
+  .nav-links { display: none; }
+  .hero,.wrap { padding-left: 24px; padding-right: 24px; }
+  .hero-headline { font-size: clamp(44px,12vw,88px); }
+  .ach-grid { grid-template-columns: 1fr; }
+  footer { flex-direction: column; gap: 16px; text-align: center; }
+  .edu-inner { flex-direction: column; }
 }
 </style>
 </head>
 <body>
 
-<div id="cur-dot"></div>
-<div id="cur-ring"></div>
-<canvas id="bg-canvas"></canvas>
+<div id="c-dot"></div>
+<div id="c-ring"></div>
 
-<!-- ── NAV ──────────────────────────────────────────────── -->
-<nav id="main-nav">
-  <a class="nav-brand" href="#hero">
-    <div class="brand-icon">⚡</div>
-    Dev Tyagi
-  </a>
-  <div class="nav-center">
+<!-- ─── NAV ──────────────────────────────────────────────── -->
+<nav id="nav">
+  <div class="nav-wordmark">Dev Tyagi<span>.</span></div>
+  <div class="nav-links">
     <a href="#about">About</a>
     <a href="#experience">Experience</a>
     <a href="#projects">Projects</a>
     <a href="#achievements">Awards</a>
     <a href="#contact">Contact</a>
   </div>
-  <div class="nav-right">
-    <a class="btn-nav btn-nav-outline" href="https://github.com/devtyagi3909" target="_blank" rel="noopener">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
-      GitHub
-    </a>
-    <a class="btn-nav btn-nav-solid" href="https://www.linkedin.com/in/devtyagi3909" target="_blank" rel="noopener">LinkedIn →</a>
-  </div>
+  <a class="nav-cta" href="https://www.linkedin.com/in/devtyagi3909" target="_blank" rel="noopener">Connect</a>
 </nav>
 
-<!-- ── HERO ─────────────────────────────────────────────── -->
+<!-- ─── HERO ──────────────────────────────────────────────── -->
 <section class="hero" id="hero">
-  <div class="hero-bg-img"></div>
-  <div class="hero-bg-grad"></div>
+  <div class="hero-blob hero-blob-1"></div>
+  <div class="hero-blob hero-blob-2"></div>
+  <div class="hero-blob hero-blob-3"></div>
 
-  <div class="hero-chip">
-    <div class="hero-chip-dot"></div>
-    FPGA · RTL · RISC-V · AI Accelerators
+  <div class="hero-label">
+    FPGA &nbsp;&middot;&nbsp; RTL Design &nbsp;&middot;&nbsp; RISC-V &nbsp;&middot;&nbsp; AI Accelerators
   </div>
 
-  <h1>
-    <span class="hero-name-line">Dev Tyagi</span>
-    <span class="hero-title-line">Hardware Engineer</span>
+  <h1 class="hero-headline">
+    <span class="line-1">Dev</span>
+    <span class="line-2">Tyagi</span>
+    <span class="line-3">Hardware Engineer</span>
   </h1>
 
-  <p class="hero-sub">
-    Building <strong>silicon-grade systems</strong> from transistors to architecture.<br>
-    FPGA/RTL design · RISC-V microarchitecture · AXI4 memory subsystems · AI accelerator datapaths on Xilinx Zynq/UltraScale+.
+  <p class="hero-body">
+    Building <strong>silicon-grade systems</strong> from first principles.
+    FPGA/RTL on Xilinx Zynq &amp; UltraScale+,
+    RISC-V microarchitecture, AXI4 memory subsystems,
+    and AI accelerator datapaths verified to
+    <strong>250&thinsp;MHz</strong>, <strong>1&thinsp;GB/s</strong>, <strong>&gt;95% coverage</strong>.
   </p>
 
-  <div class="hero-metrics">
-    <div class="metric-chip"><span>250 MHz</span> timing closure</div>
-    <div class="metric-chip"><span>>95%</span> functional coverage</div>
-    <div class="metric-chip"><span>1 GB/s</span> sustained DMA</div>
-    <div class="metric-chip"><span>RV32I</span> OOO processor</div>
-    <div class="metric-chip"><span>UltraScale+</span> post-synthesis</div>
+  <div class="hero-pills">
+    <span class="pill pill-blue">SystemVerilog</span>
+    <span class="pill pill-blue">UVM</span>
+    <span class="pill pill-blue">AXI4</span>
+    <span class="pill">Tomasulo&rsquo;s Algorithm</span>
+    <span class="pill">Xilinx UltraScale+</span>
+    <span class="pill pill-choc">Zynq-7000</span>
+    <span class="pill pill-choc">INT8 Datapaths</span>
+    <span class="pill">SVA</span>
   </div>
 
-  <div class="hero-btns">
-    <a class="btn-primary" href="#projects">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-      View Projects
-    </a>
-    <a class="btn-secondary" href="https://github.com/devtyagi3909" target="_blank" rel="noopener">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
-      GitHub
-    </a>
-    <a class="btn-amber" href="mailto:devtyagi3909@gmail.com">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-      Contact Me
-    </a>
+  <div class="hero-actions">
+    <a class="btn-solid" href="#projects">View Projects</a>
+    <a class="btn-outline" href="https://github.com/devtyagi3909" target="_blank" rel="noopener">GitHub</a>
+    <a class="btn-outline" href="mailto:devtyagi3909@gmail.com">Get in Touch</a>
   </div>
 
-  <div class="hero-scroll">
-    <div class="scroll-bar"></div>
-    scroll
+  <div class="hero-scroll-hint">
+    <div class="scroll-line"></div>
+    Scroll
   </div>
 </section>
 
-<!-- ── STATS BAND ────────────────────────────────────────── -->
-<div class="stats-band">
-  <div class="stats-grid reveal">
-    <div class="stat-item">
-      <div class="stat-num" data-target="250">0</div>
-      <div class="stat-label">MHz Timing Closure</div>
+<!-- ─── MARQUEE STRIP ─────────────────────────────────────── -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span>RISC-V</span><span class="accent">&#8212;</span>
+    <span>SystemVerilog</span><span class="accent">&#8212;</span>
+    <span>AXI4</span><span class="accent">&#8212;</span>
+    <span>UVM</span><span class="accent">&#8212;</span>
+    <span>Tomasulo&rsquo;s Algorithm</span><span class="accent">&#8212;</span>
+    <span>Xilinx UltraScale+</span><span class="accent">&#8212;</span>
+    <span>250 MHz</span><span class="accent">&#8212;</span>
+    <span>1 GB/s DMA</span><span class="accent">&#8212;</span>
+    <span>FPGA Design</span><span class="accent">&#8212;</span>
+    <span>AI Accelerators</span><span class="accent">&#8212;</span>
+    <!-- dupe for loop -->
+    <span>RISC-V</span><span class="accent">&#8212;</span>
+    <span>SystemVerilog</span><span class="accent">&#8212;</span>
+    <span>AXI4</span><span class="accent">&#8212;</span>
+    <span>UVM</span><span class="accent">&#8212;</span>
+    <span>Tomasulo&rsquo;s Algorithm</span><span class="accent">&#8212;</span>
+    <span>Xilinx UltraScale+</span><span class="accent">&#8212;</span>
+    <span>250 MHz</span><span class="accent">&#8212;</span>
+    <span>1 GB/s DMA</span><span class="accent">&#8212;</span>
+    <span>FPGA Design</span><span class="accent">&#8212;</span>
+    <span>AI Accelerators</span><span class="accent">&#8212;</span>
+  </div>
+</div>
+
+<!-- ─── STATS ─────────────────────────────────────────────── -->
+<div class="stats-strip r">
+  <div class="stats-inner">
+    <div class="stat">
+      <div class="stat-n"><span id="cnt-mhz">0</span> MHz</div>
+      <div class="stat-l">Post-synthesis timing closure<br>on Xilinx UltraScale+</div>
     </div>
-    <div class="stat-item">
-      <div class="stat-num" data-target="95">0</div>
-      <div class="stat-label">% Functional Coverage</div>
+    <div class="stat">
+      <div class="stat-n">&gt;<span id="cnt-cov">0</span>%</div>
+      <div class="stat-l">Functional coverage via<br>SVA &amp; constrained-random</div>
     </div>
-    <div class="stat-item">
-      <div class="stat-num" data-target="1">0</div>
-      <div class="stat-label">GB/s DMA Throughput</div>
+    <div class="stat">
+      <div class="stat-n"><span id="cnt-dma">0</span> GB/s</div>
+      <div class="stat-l">Sustained AXI4 DMA throughput<br>on PYNQ-Z2</div>
     </div>
-    <div class="stat-item">
-      <div class="stat-num" data-target="40">0</div>
-      <div class="stat-label">+ Member Team Led</div>
+    <div class="stat">
+      <div class="stat-n"><span id="cnt-team">0</span>+</div>
+      <div class="stat-l">Engineers led across<br>Army Design Bureau project</div>
     </div>
   </div>
 </div>
 
-<!-- ── ABOUT & SKILLS ─────────────────────────────────────── -->
-<section class="about-section" id="about">
-  <div class="section-inner">
-    <div class="reveal">
-      <p class="section-label">About me</p>
-      <h2 class="section-h">Silicon meets<br>Software Thinking</h2>
-    </div>
-    <div class="about-grid reveal">
-      <div class="about-text">
+<!-- ─── ABOUT ─────────────────────────────────────────────── -->
+<section class="sec" id="about">
+  <div class="wrap">
+    <div class="r"><div class="sec-eyebrow">About</div></div>
+    <div class="about-grid">
+      <div class="about-copy r r-d1">
+        <h2 class="sec-h" style="margin-bottom:28px">Silicon meets<br>Systems Thinking</h2>
         <p>
-          I'm a <strong>B.Tech ECE student at VIT Chennai</strong> (Aug 2023 – May 2027) with a relentless passion for hardware that thinks. I design and verify the RTL that sits at the bleeding edge — out-of-order RISC-V processors, neural network inference accelerators, and AXI4 DMA engines that push silicon to its physical limits.
+          I&rsquo;m a <strong>B.Tech ECE student at Vellore Institute of Technology, Chennai</strong> (2023&ndash;2027), obsessed with the full stack from RTL specification through timing closure and silicon.
         </p>
         <p>
-          My work spans the full RTL-to-silicon flow: <strong>SystemVerilog/UVM verification</strong> with constrained-random stimulus and SVA property checks, through <strong>synthesis, P&R, and timing closure</strong> on Xilinx UltraScale+. I've achieved <strong>250 MHz post-synthesis closure</strong> and <strong>>95% functional coverage</strong> on a full superscalar OOO RISC-V processor.
+          My work sits at the intersection of <strong>microarchitecture and verification</strong> &mdash; designing out-of-order RISC-V cores, neural network accelerators, and high-throughput DMA engines that close timing at 250&thinsp;MHz and sustain 1&thinsp;GB/s on real FPGA fabric.
         </p>
         <p>
-          Beyond the bench, I lead the <strong>Robotics Club at VIT Chennai</strong> — 40+ engineers, workshops, and intercollegiate competitions — because great hardware is always a team sport.
+          I believe great hardware is a team sport. As <strong>Head of Robotics Club at VIT Chennai</strong>, I led 40+ engineers across hardware development cycles, RTL reviews, and intercollegiate competition circuits.
         </p>
-        <p style="margin-top:28px">
-          <span style="font-family:var(--mono);font-size:12px;color:var(--muted2)">// Location</span><br>
-          <strong>Chennai, India</strong> &nbsp;·&nbsp; +91 7818011182 &nbsp;·&nbsp; devtyagi3909@gmail.com
+        <p style="margin-top:32px">
+          <span style="font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--cream-dim)">Location &mdash;</span><br>
+          <span style="font-weight:500">Chennai, India</span>
         </p>
       </div>
-
-      <div class="skills-block">
-        <div class="skill-cat">
-          <div class="skill-cat-label">HDL / Verification</div>
+      <div class="skills-stack r r-d2">
+        <div class="skill-row">
+          <div class="skill-row-label">HDL &amp; Verification</div>
           <div class="skill-tags">
-            <span class="skill-tag">SystemVerilog</span>
-            <span class="skill-tag">Verilog</span>
-            <span class="skill-tag">VHDL</span>
-            <span class="skill-tag">UVM</span>
-            <span class="skill-tag">SVA</span>
-            <span class="skill-tag">Constrained-Random</span>
-            <span class="skill-tag">Functional Coverage</span>
-            <span class="skill-tag">Scoreboards</span>
+            <span class="stag stag-b">SystemVerilog</span>
+            <span class="stag stag-b">Verilog</span>
+            <span class="stag stag-b">VHDL</span>
+            <span class="stag stag-b">UVM</span>
+            <span class="stag stag-b">SVA</span>
+            <span class="stag stag-b">Constrained-Random</span>
+            <span class="stag stag-b">Functional Coverage</span>
           </div>
         </div>
-
-        <div class="skill-cat">
-          <div class="skill-cat-label">RTL / Microarchitecture</div>
+        <div class="skill-row">
+          <div class="skill-row-label">RTL &amp; Microarchitecture</div>
           <div class="skill-tags">
-            <span class="skill-tag amber">OOO Execution</span>
-            <span class="skill-tag amber">Tomasulo's Algorithm</span>
-            <span class="skill-tag amber">Superscalar Pipelines</span>
-            <span class="skill-tag amber">Hazard Resolution</span>
-            <span class="skill-tag amber">Clock Gating</span>
-            <span class="skill-tag amber">CDC</span>
+            <span class="stag stag-c">OOO Execution</span>
+            <span class="stag stag-c">Tomasulo&rsquo;s Algorithm</span>
+            <span class="stag stag-c">Superscalar Pipelines</span>
+            <span class="stag stag-c">Hazard Resolution</span>
+            <span class="stag stag-c">Clock Gating</span>
+            <span class="stag stag-c">CDC</span>
           </div>
         </div>
-
-        <div class="skill-cat">
-          <div class="skill-cat-label">Protocols & Platforms</div>
+        <div class="skill-row">
+          <div class="skill-row-label">Protocols</div>
           <div class="skill-tags">
-            <span class="skill-tag violet">AXI4</span>
-            <span class="skill-tag violet">AXI4-Lite</span>
-            <span class="skill-tag violet">AXI4-Stream</span>
-            <span class="skill-tag violet">AHB</span>
-            <span class="skill-tag violet">SPI</span>
-            <span class="skill-tag violet">I2C</span>
-            <span class="skill-tag violet">UART</span>
+            <span class="stag stag-w">AXI4</span>
+            <span class="stag stag-w">AXI4-Lite</span>
+            <span class="stag stag-w">AXI4-Stream</span>
+            <span class="stag stag-w">AHB</span>
+            <span class="stag stag-w">SPI</span>
+            <span class="stag stag-w">I2C</span>
+            <span class="stag stag-w">UART</span>
           </div>
         </div>
-
-        <div class="skill-cat">
-          <div class="skill-cat-label">Tools & Languages</div>
+        <div class="skill-row">
+          <div class="skill-row-label">Tools &amp; Languages</div>
           <div class="skill-tags">
-            <span class="skill-tag green">Vivado</span>
-            <span class="skill-tag green">ModelSim</span>
-            <span class="skill-tag green">Questa Sim</span>
-            <span class="skill-tag green">VCS</span>
-            <span class="skill-tag green">Xcelium</span>
-            <span class="skill-tag green">Python</span>
-            <span class="skill-tag green">C/C++</span>
-            <span class="skill-tag green">Tcl</span>
-            <span class="skill-tag green">Git</span>
+            <span class="stag stag-b">Vivado</span>
+            <span class="stag stag-b">ModelSim</span>
+            <span class="stag stag-b">Questa</span>
+            <span class="stag stag-b">VCS</span>
+            <span class="stag stag-b">Xcelium</span>
+            <span class="stag stag-w">Python</span>
+            <span class="stag stag-w">C/C++</span>
+            <span class="stag stag-w">Tcl</span>
+          </div>
+        </div>
+        <div class="skill-row">
+          <div class="skill-row-label">Platforms</div>
+          <div class="skill-tags">
+            <span class="stag stag-c">Zynq-7000</span>
+            <span class="stag stag-c">UltraScale+</span>
+            <span class="stag stag-c">Cortex-A9 PS/PL</span>
+            <span class="stag stag-c">PYNQ-Z2</span>
           </div>
         </div>
       </div>
@@ -413,61 +993,62 @@ footer{border-top:1px solid var(--border);padding:40px 48px;display:flex;align-i
   </div>
 </section>
 
-<!-- ── EXPERIENCE ────────────────────────────────────────── -->
-<section class="exp-section" id="experience">
-  <div class="section-inner">
-    <div class="reveal">
-      <p class="section-label">Work history</p>
-      <h2 class="section-h">Where I've Shipped<br>Real Silicon</h2>
-      <p class="section-sub">Internships and team leadership roles building production RTL.</p>
-    </div>
+<div class="divider"></div>
 
-    <div class="exp-timeline reveal">
+<!-- ─── EXPERIENCE ───────────────────────────────────────── -->
+<section class="sec" id="experience">
+  <div class="wrap">
+    <div class="r"><div class="sec-eyebrow">Experience</div></div>
+    <div class="r r-d1">
+      <h2 class="sec-h">Where I&rsquo;ve<br>shipped real silicon</h2>
+    </div>
+    <div class="exp-list r r-d2">
+      <div class="exp-line"></div>
 
       <div class="exp-item">
-        <div class="exp-dot">⚡</div>
+        <div class="exp-node"><div class="exp-dot-outer"></div></div>
         <div class="exp-card">
-          <div class="exp-header">
+          <div class="exp-meta">
             <span class="exp-role">FPGA RTL Design Intern</span>
-            <span class="exp-date">Mar 2026 – Present</span>
+            <span class="exp-date">Mar 2026 &ndash; Present</span>
           </div>
-          <div class="exp-company">Vicharak · Remote</div>
-          <ul class="exp-bullets">
+          <div class="exp-company">Vicharak &mdash; Remote</div>
+          <ul class="exp-points">
             <li>Ported <strong>PicoRV32 RISC-V core</strong> to Shrike Lite FPGA, fitting execution within tight LUT/BRAM budgets the original configuration exceeded.</li>
-            <li>Replaced AXI4-Lite memory interface with a custom <strong>SPI protocol bridge</strong> for off-chip flash-backed fetch, cutting fabric logic utilization by <strong>over 30%</strong>.</li>
+            <li>Replaced AXI4-Lite memory interface with a custom <strong>SPI protocol bridge</strong> for off-chip flash-backed instruction fetch, cutting fabric logic utilisation by over <strong>30%</strong>.</li>
             <li>Authored SPI controller and memory-mapped bridge RTL from scratch in SystemVerilog.</li>
           </ul>
         </div>
       </div>
 
       <div class="exp-item">
-        <div class="exp-dot">🔬</div>
+        <div class="exp-node"><div class="exp-dot-outer"></div></div>
         <div class="exp-card">
-          <div class="exp-header">
+          <div class="exp-meta">
             <span class="exp-role">RTL Design Intern</span>
-            <span class="exp-date">May 2026 – Jul 2026</span>
+            <span class="exp-date">May 2026 &ndash; Jul 2026</span>
           </div>
           <div class="exp-company">IIT Palakkad</div>
-          <ul class="exp-bullets">
+          <ul class="exp-points">
             <li>Designed RTL for a <strong>neural network inference accelerator</strong> on Xilinx Zynq-7000, mapping convolutional and fully-connected layer datapaths into PL with Cortex-A9 PS handling control flow.</li>
-            <li>Built <strong>AXI4-MM/AXI4-Stream</strong> interfaces for low-latency weight/activation DMA.</li>
+            <li>Built <strong>AXI4-MM / AXI4-Stream</strong> interfaces for low-latency weight/activation DMA.</li>
             <li>Implemented <strong>INT8/INT16 fixed-point datapaths</strong> on DSP/BRAM resources, holding inference accuracy within target bounds.</li>
           </ul>
         </div>
       </div>
 
       <div class="exp-item">
-        <div class="exp-dot">🛡️</div>
+        <div class="exp-node"><div class="exp-dot-outer"></div></div>
         <div class="exp-card">
-          <div class="exp-header">
+          <div class="exp-meta">
             <span class="exp-role">Team Lead, FPGA Signal Processing</span>
-            <span class="exp-date">Jan 2026 – Present</span>
+            <span class="exp-date">Jan 2026 &ndash; Present</span>
           </div>
-          <div class="exp-company">Army Design Bureau Collaboration · VIT Chennai</div>
-          <ul class="exp-bullets">
+          <div class="exp-company">Army Design Bureau Collaboration &mdash; VIT Chennai</div>
+          <ul class="exp-points">
             <li>Built <strong>real-time DSP pipelines</strong> (FFT, FIR filtering, feature extraction) in Zynq PL for RF signal classification, with ARM Cortex-A9 PS coupled over AXI4/AXI-Stream.</li>
-            <li>Cut <strong>end-to-end system latency by 15%</strong> through RTL pipelining, CDC fixes, and datapath restructuring.</li>
-            <li>Led RTL reviews and integration testing across a <strong>40+ member team</strong>.</li>
+            <li>Reduced end-to-end system latency by <strong>15%</strong> through RTL pipelining, CDC fixes, and datapath restructuring.</li>
+            <li>Led RTL reviews and integration testing across a <strong>40+ member engineering team</strong>.</li>
           </ul>
         </div>
       </div>
@@ -476,124 +1057,106 @@ footer{border-top:1px solid var(--border);padding:40px 48px;display:flex;align-i
   </div>
 </section>
 
-<!-- ── PROJECTS ──────────────────────────────────────────── -->
-<section class="proj-section" id="projects">
-  <div class="section-inner">
-    <div class="reveal">
-      <p class="section-label">Selected projects</p>
-      <h2 class="section-h">Hardware That<br>Pushes Limits</h2>
-      <p class="section-sub">From scratch RTL to tape-out-ready designs, each project represents a hard technical problem solved end-to-end.</p>
+<div class="divider"></div>
+
+<!-- ─── PROJECTS ──────────────────────────────────────────── -->
+<section class="sec" id="projects">
+  <div class="wrap">
+    <div class="r"><div class="sec-eyebrow">Projects</div></div>
+    <div class="r r-d1">
+      <h2 class="sec-h">Hardware that<br>pushes limits</h2>
+      <p class="sec-sub">Each project is a hard technical problem solved end-to-end — from RTL specification through timing closure on real FPGA fabric.</p>
     </div>
 
-    <div class="proj-grid reveal">
+    <div class="proj-grid r r-d2">
 
-      <!-- Featured: OOO RISC-V -->
-      <div class="proj-card feat">
-        <div>
-          <div class="proj-top">
-            <div class="proj-icon cyan">🧠</div>
-            <div class="proj-links">
-              <a class="proj-link" href="https://github.com/devtyagi3909/riscv-ooo-core" target="_blank" rel="noopener" title="GitHub">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
-              </a>
-            </div>
+      <!-- OOO RISC-V — wide card -->
+      <div class="proj-card proj-card-a mag-card">
+        <div class="proj-award-tag">1st Place &mdash; SanDisk Hardware Hackathon (100+ teams)</div>
+        <div class="proj-badge proj-badge-b">Flagship Project</div>
+        <h3 class="proj-h">Out-of-Order Superscalar<br>RISC-V Processor</h3>
+        <p class="proj-desc">Full superscalar RV32I OOO processor implementing Tomasulo&rsquo;s Algorithm &mdash; reservation stations, ROB, CDB &mdash; with a 7-stage pipeline supporting speculative execution and precise exception handling. Passed the full RISC-V ISA compliance test suite.</p>
+        <div class="proj-stat-row">
+          <div>
+            <div class="proj-stat-n">250</div>
+            <div class="proj-stat-l">MHz post-synthesis</div>
           </div>
-          <div class="proj-award">🏆 1st Place + Special Jury Award — SanDisk Hardware Hackathon (100+ teams)</div>
-          <h3 class="proj-h">Out-of-Order Superscalar RISC-V Processor</h3>
-          <p class="proj-desc">Full superscalar RV32I OOO processor implementing Tomasulo's Algorithm — reservation stations, ROB, CDB — with a 7-stage pipeline supporting speculative execution and precise exception handling. Passed RISC-V ISA compliance tests.</p>
-          <div class="proj-tech">
-            <span class="proj-tech-tag">SystemVerilog</span>
-            <span class="proj-tech-tag">Vivado</span>
-            <span class="proj-tech-tag">ModelSim</span>
-            <span class="proj-tech-tag">UVM</span>
-            <span class="proj-tech-tag">SVA</span>
-            <span class="proj-tech-tag">Tomasulo</span>
+          <div>
+            <div class="proj-stat-n">&gt;95%</div>
+            <div class="proj-stat-l">Functional coverage</div>
+          </div>
+          <div>
+            <div class="proj-stat-n">7-stage</div>
+            <div class="proj-stat-l">Pipeline depth</div>
           </div>
         </div>
-        <div>
-          <div class="proj-stat-row">
-            <div class="proj-stat">
-              <div class="proj-stat-n">250</div>
-              <div class="proj-stat-l">MHz post-synth</div>
-            </div>
-            <div class="proj-stat">
-              <div class="proj-stat-n">>95%</div>
-              <div class="proj-stat-l">Func. Coverage</div>
-            </div>
-            <div class="proj-stat">
-              <div class="proj-stat-n">RV32I</div>
-              <div class="proj-stat-l">ISA Compliant</div>
-            </div>
-            <div class="proj-stat">
-              <div class="proj-stat-n">7-stage</div>
-              <div class="proj-stat-l">Pipeline</div>
-            </div>
-          </div>
+        <div class="proj-tech-row">
+          <span class="proj-tt">SystemVerilog</span>
+          <span class="proj-tt">UVM</span>
+          <span class="proj-tt">SVA</span>
+          <span class="proj-tt">Vivado</span>
+          <span class="proj-tt">ModelSim</span>
+          <span class="proj-tt">UltraScale+</span>
+        </div>
+        <div class="proj-link-row">
+          <a class="proj-gh-link" href="https://github.com/devtyagi3909/riscv-ooo-core" target="_blank" rel="noopener">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.44 9.8 8.2 11.39.6.1.82-.26.82-.57v-2.24c-3.01.55-3.79-.73-4.03-1.41-.14-.34-.72-1.41-1.23-1.7-.42-.22-1.02-.78-.01-.79.94-.02 1.62.87 1.84 1.23 1.08 1.81 2.81 1.3 3.5.99.1-.78.42-1.3.76-1.6-2.67-.3-5.46-1.34-5.46-5.93 0-1.3.47-2.38 1.23-3.22-.12-.3-.53-1.53.12-3.18 0 0 1-.31 3.3 1.23a11.5 11.5 0 016 0c2.3-1.54 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.76.84 1.23 1.91 1.23 3.22 0 4.61-2.81 5.63-5.48 5.92.43.38.81 1.1.81 2.22v3.29c0 .32.22.69.82.57A12.01 12.01 0 0024 12C24 5.37 18.63 0 12 0z"/></svg>
+            devtyagi3909/riscv-ooo-core
+          </a>
         </div>
       </div>
 
-      <!-- AXI4 DMA Engine -->
-      <div class="proj-card">
-        <div class="proj-top">
-          <div class="proj-icon amber">⚡</div>
-          <div class="proj-links">
-            <a class="proj-link" href="https://github.com/devtyagi3909" target="_blank" rel="noopener">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
-            </a>
-          </div>
-        </div>
-        <div class="proj-award">🥈 2nd Place — FPGA Makeathon</div>
-        <h3 class="proj-h">High-Throughput AXI4 DMA Engine</h3>
-        <p class="proj-desc">AXI4-MM/AXI4-Stream DMA engine with configurable burst lengths and an interrupt-driven descriptor architecture. Achieved <strong>1 GB/s sustained throughput</strong> on PYNQ-Z2 under real AXI traffic, verified with SVA and constrained-random testing.</p>
-        <div class="proj-tech">
-          <span class="proj-tech-tag">SystemVerilog</span>
-          <span class="proj-tech-tag">AXI4</span>
-          <span class="proj-tech-tag">PYNQ-Z2</span>
-          <span class="proj-tech-tag">SVA</span>
-          <span class="proj-tech-tag">Vivado</span>
+      <!-- AXI4 DMA — narrow card -->
+      <div class="proj-card proj-card-b mag-card">
+        <div class="proj-award-tag">2nd Place &mdash; FPGA Makeathon</div>
+        <div class="proj-badge proj-badge-a">Performance</div>
+        <h3 class="proj-h">High-Throughput<br>AXI4 DMA Engine</h3>
+        <p class="proj-desc">AXI4-MM/Stream DMA engine with configurable burst lengths and interrupt-driven descriptor architecture. Sustained <strong>1&thinsp;GB/s</strong> on PYNQ-Z2 under real AXI traffic, verified with SVA and constrained-random stimulus.</p>
+        <div class="proj-tech-row">
+          <span class="proj-tt">SystemVerilog</span>
+          <span class="proj-tt">AXI4</span>
+          <span class="proj-tt">PYNQ-Z2</span>
+          <span class="proj-tt">SVA</span>
         </div>
       </div>
 
-      <!-- PMDC Motor Drive -->
-      <div class="proj-card">
-        <div class="proj-top">
-          <div class="proj-icon violet">🔄</div>
-          <div class="proj-links">
-            <a class="proj-link" href="https://github.com/devtyagi3909/pmdc-fpga-motor-control" target="_blank" rel="noopener">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
-            </a>
-          </div>
+      <!-- PMDC Motor -->
+      <div class="proj-card proj-card-c mag-card">
+        <div class="proj-badge proj-badge-b">Embedded</div>
+        <h3 class="proj-h">PMDC Motor Drive<br>FPGA Simulation</h3>
+        <p class="proj-desc">Closed-loop PMDC motor drive on Zybo Z7-20 with PWM chopper and multi-frequency preset switching. Real-time telemetry streamed over TCP via AXI DMA and lwIP to a Python live dashboard.</p>
+        <div class="proj-tech-row">
+          <span class="proj-tt">SystemVerilog</span>
+          <span class="proj-tt">Zynq-7000</span>
+          <span class="proj-tt">lwIP</span>
+          <span class="proj-tt">AXI DMA</span>
+          <span class="proj-tt">Python</span>
         </div>
-        <h3 class="proj-h">PMDC Motor Drive FPGA Simulation</h3>
-        <p class="proj-desc">Closed-loop PMDC motor drive simulation RTL on Zybo Z7-20 (Zynq-7000 PL fabric), including internally-generated PWM chopper block with multi-frequency preset switching. Real-time telemetry streamed over TCP via AXI DMA and lwIP stack to a Python live dashboard.</p>
-        <div class="proj-tech">
-          <span class="proj-tech-tag">SystemVerilog</span>
-          <span class="proj-tech-tag">Zynq-7000</span>
-          <span class="proj-tech-tag">lwIP</span>
-          <span class="proj-tech-tag">AXI DMA</span>
-          <span class="proj-tech-tag">Python</span>
-          <span class="proj-tech-tag">PWM</span>
+        <div class="proj-link-row">
+          <a class="proj-gh-link" href="https://github.com/devtyagi3909/pmdc-fpga-motor-control" target="_blank" rel="noopener">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.44 9.8 8.2 11.39.6.1.82-.26.82-.57v-2.24c-3.01.55-3.79-.73-4.03-1.41-.14-.34-.72-1.41-1.23-1.7-.42-.22-1.02-.78-.01-.79.94-.02 1.62.87 1.84 1.23 1.08 1.81 2.81 1.3 3.5.99.1-.78.42-1.3.76-1.6-2.67-.3-5.46-1.34-5.46-5.93 0-1.3.47-2.38 1.23-3.22-.12-.3-.53-1.53.12-3.18 0 0 1-.31 3.3 1.23a11.5 11.5 0 016 0c2.3-1.54 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.76.84 1.23 1.91 1.23 3.22 0 4.61-2.81 5.63-5.48 5.92.43.38.81 1.1.81 2.22v3.29c0 .32.22.69.82.57A12.01 12.01 0 0024 12C24 5.37 18.63 0 12 0z"/></svg>
+            View Repository
+          </a>
         </div>
       </div>
 
-      <!-- ConstraintForge -->
-      <div class="proj-card">
-        <div class="proj-top">
-          <div class="proj-icon green">🛠️</div>
-          <div class="proj-links">
-            <a class="proj-link" href="https://github.com/devtyagi3909/constraintforge" target="_blank" rel="noopener">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
-            </a>
-          </div>
+      <!-- ConstraintForge — wide -->
+      <div class="proj-card proj-card-d mag-card">
+        <div class="proj-badge proj-badge-g">Open Source</div>
+        <h3 class="proj-h">ConstraintForge &mdash; FPGA Timing Constraint Library</h3>
+        <p class="proj-desc">Annotated XDC/SDC/LPF constraint templates covering <strong>14+ interfaces</strong> (AXI4, SPI, DDR3, RGMII, HDMI, MIPI CSI-2) across Xilinx, Intel, Lattice, and Gowin. Every file CI-validated via GitHub Actions on every commit.</p>
+        <div class="proj-tech-row">
+          <span class="proj-tt">Tcl</span>
+          <span class="proj-tt">Python</span>
+          <span class="proj-tt">XDC / SDC / LPF</span>
+          <span class="proj-tt">GitHub Actions</span>
+          <span class="proj-tt">CI/CD</span>
         </div>
-        <h3 class="proj-h">ConstraintForge — Open-Source FPGA Timing Constraint Library</h3>
-        <p class="proj-desc">Annotated XDC/SDC/LPF constraint templates covering <strong>14+ interfaces</strong> (AXI4, SPI, DDR3, RGMII, HDMI, MIPI CSI-2) across Xilinx, Intel, Lattice, and Gowin. Every file CI-validated via GitHub Actions.</p>
-        <div class="proj-tech">
-          <span class="proj-tech-tag">Tcl</span>
-          <span class="proj-tech-tag">Python</span>
-          <span class="proj-tech-tag">XDC/SDC/LPF</span>
-          <span class="proj-tech-tag">GitHub Actions</span>
-          <span class="proj-tech-tag">CI/CD</span>
+        <div class="proj-link-row">
+          <a class="proj-gh-link" href="https://github.com/devtyagi3909/constraintforge" target="_blank" rel="noopener">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.44 9.8 8.2 11.39.6.1.82-.26.82-.57v-2.24c-3.01.55-3.79-.73-4.03-1.41-.14-.34-.72-1.41-1.23-1.7-.42-.22-1.02-.78-.01-.79.94-.02 1.62.87 1.84 1.23 1.08 1.81 2.81 1.3 3.5.99.1-.78.42-1.3.76-1.6-2.67-.3-5.46-1.34-5.46-5.93 0-1.3.47-2.38 1.23-3.22-.12-.3-.53-1.53.12-3.18 0 0 1-.31 3.3 1.23a11.5 11.5 0 016 0c2.3-1.54 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.76.84 1.23 1.91 1.23 3.22 0 4.61-2.81 5.63-5.48 5.92.43.38.81 1.1.81 2.22v3.29c0 .32.22.69.82.57A12.01 12.01 0 0024 12C24 5.37 18.63 0 12 0z"/></svg>
+            devtyagi3909/constraintforge
+          </a>
         </div>
       </div>
 
@@ -601,206 +1164,230 @@ footer{border-top:1px solid var(--border);padding:40px 48px;display:flex;align-i
   </div>
 </section>
 
-<!-- ── ACHIEVEMENTS ──────────────────────────────────────── -->
-<section class="ach-section" id="achievements">
-  <div class="section-inner">
-    <div class="reveal">
-      <p class="section-label">Recognition</p>
-      <h2 class="section-h">Competing at<br>the Bleeding Edge</h2>
-    </div>
-    <div class="ach-grid reveal">
-      <div class="ach-card">
-        <span class="ach-medal">🏆</span>
+<div class="divider"></div>
+
+<!-- ─── ACHIEVEMENTS ─────────────────────────────────────── -->
+<section class="sec" id="achievements">
+  <div class="wrap">
+    <div class="r"><div class="sec-eyebrow">Recognition</div></div>
+    <div class="r r-d1"><h2 class="sec-h">Competing at<br>the bleeding edge</h2></div>
+    <div class="ach-grid r r-d2">
+      <div class="ach-card mag-card">
+        <div class="ach-rank">01</div>
         <div class="ach-title">1st Place + Special Jury Award</div>
-        <div class="ach-sub">SanDisk Hardware Hackathon, RTL Track — 100+ competing teams. Out-of-order RISC-V processor design.</div>
+        <div class="ach-sub">SanDisk Hardware Hackathon &mdash; RTL Track &mdash; 100+ teams. Out-of-order RISC-V processor design.</div>
       </div>
-      <div class="ach-card">
-        <span class="ach-medal">🥈</span>
-        <div class="ach-title">2nd Place — FPGA Makeathon</div>
-        <div class="ach-sub">AXI4 DMA engine sustaining 1 GB/s throughput on PYNQ-Z2. Verified under real AXI traffic.</div>
+      <div class="ach-card mag-card">
+        <div class="ach-rank">02</div>
+        <div class="ach-title">2nd Place &mdash; FPGA Makeathon</div>
+        <div class="ach-sub">AXI4 DMA engine sustaining 1&thinsp;GB/s throughput on PYNQ-Z2, verified under real AXI traffic.</div>
       </div>
-      <div class="ach-card">
-        <span class="ach-medal">🤖</span>
-        <div class="ach-title">Head, Robotics Club</div>
-        <div class="ach-sub">VIT Chennai — led 40+ engineers across hardware development, workshops, and intercollegiate competitions.</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ── EDUCATION ─────────────────────────────────────────── -->
-<section style="padding:100px 0;position:relative;z-index:10" id="education">
-  <div class="section-inner">
-    <div class="reveal">
-      <p class="section-label">Education</p>
-      <h2 class="section-h">Academic Foundation</h2>
-    </div>
-    <div class="reveal" style="background:var(--glass);border:1px solid var(--border);border-radius:var(--r24);padding:48px;backdrop-filter:blur(16px);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:32px;transition:border-color .3s" onmouseenter="this.style.borderColor='rgba(0,212,255,.3)'" onmouseleave="this.style.borderColor='rgba(99,179,237,0.12)'">
-      <div>
-        <div style="font-family:var(--mono);font-size:11px;color:var(--cyan);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px">B.Tech · Electronics and Computer Engineering</div>
-        <div style="font-family:var(--dsp);font-size:26px;font-weight:800;letter-spacing:-.03em;margin-bottom:6px">Vellore Institute of Technology</div>
-        <div style="color:var(--muted);font-size:14px">Chennai, India</div>
-      </div>
-      <div style="text-align:right">
-        <div style="font-family:var(--mono);font-size:13px;color:var(--amber);background:rgba(246,173,85,.1);border:1px solid rgba(246,173,85,.2);padding:8px 20px;border-radius:20px">Aug 2023 – May 2027</div>
-        <div style="margin-top:16px;display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap">
-          <span style="font-size:12px;font-family:var(--mono);color:var(--muted);background:var(--glass2);border:1px solid var(--border);padding:4px 12px;border-radius:12px">RISC-V Architecture</span>
-          <span style="font-size:12px;font-family:var(--mono);color:var(--muted);background:var(--glass2);border:1px solid var(--border);padding:4px 12px;border-radius:12px">VLSI Design</span>
-          <span style="font-size:12px;font-family:var(--mono);color:var(--muted);background:var(--glass2);border:1px solid var(--border);padding:4px 12px;border-radius:12px">Embedded Systems</span>
-        </div>
+      <div class="ach-card mag-card">
+        <div class="ach-rank">40<span style="font-size:.5em;vertical-align:.2em">+</span></div>
+        <div class="ach-title">Head of Robotics Club</div>
+        <div class="ach-sub">VIT Chennai &mdash; led 40+ engineers across hardware development, workshops, and intercollegiate competitions.</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ── CONTACT ───────────────────────────────────────────── -->
-<section class="contact-section" id="contact">
-  <div class="section-inner">
-    <div class="contact-inner reveal">
-      <div style="position:relative">
-        <div class="contact-glow"></div>
-        <p class="section-label" style="justify-content:center">Let's build something</p>
-        <h2 class="section-h" style="font-size:clamp(36px,5vw,64px);margin-bottom:20px">Open for<br><span style="background:linear-gradient(90deg,var(--cyan),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent">Opportunities</span></h2>
-        <p style="color:var(--muted);font-size:16px;line-height:1.75;max-width:500px;margin:0 auto">
-          Looking for full-time roles, internships, or research collaborations in FPGA/RTL design, RISC-V microarchitecture, or AI accelerator development. Let's connect.
-        </p>
-      </div>
+<!-- ─── EDUCATION BAND ─────────────────────────────────── -->
+<div class="edu-band r">
+  <div class="edu-inner">
+    <div>
+      <div class="edu-degree">B.Tech &mdash; Electronics and Computer Engineering</div>
+      <div class="edu-uni">Vellore Institute of Technology</div>
+      <div class="edu-loc">Chennai, India</div>
+    </div>
+    <div class="edu-chips">
+      <span class="edu-chip">RISC-V Architecture</span>
+      <span class="edu-chip">VLSI Design</span>
+      <span class="edu-chip">Embedded Systems</span>
+      <span class="edu-date">2023 &ndash; 2027</span>
+    </div>
+  </div>
+</div>
+
+<!-- ─── CONTACT ──────────────────────────────────────────── -->
+<section class="sec" id="contact">
+  <div class="wrap">
+    <div class="contact-inner r">
+      <h2 class="contact-h">Let&rsquo;s build<br><em>something real</em></h2>
+      <p class="contact-sub">
+        Open for full-time roles, internships, and research collaborations in FPGA/RTL design, RISC-V microarchitecture, and AI accelerator development.
+      </p>
       <div class="contact-links">
         <a class="contact-link" href="mailto:devtyagi3909@gmail.com">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
           devtyagi3909@gmail.com
         </a>
-        <a class="contact-link" href="https://linkedin.com/in/devtyagi3909" target="_blank" rel="noopener">
+        <a class="contact-link" href="https://www.linkedin.com/in/devtyagi3909" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>
           LinkedIn
         </a>
         <a class="contact-link" href="https://github.com/devtyagi3909" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.44 9.8 8.2 11.39.6.1.82-.26.82-.57v-2.24c-3.01.55-3.79-.73-4.03-1.41-.14-.34-.72-1.41-1.23-1.7-.42-.22-1.02-.78-.01-.79.94-.02 1.62.87 1.84 1.23 1.08 1.81 2.81 1.3 3.5.99.1-.78.42-1.3.76-1.6-2.67-.3-5.46-1.34-5.46-5.93 0-1.3.47-2.38 1.23-3.22-.12-.3-.53-1.53.12-3.18 0 0 1-.31 3.3 1.23a11.5 11.5 0 016 0c2.3-1.54 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.76.84 1.23 1.91 1.23 3.22 0 4.61-2.81 5.63-5.48 5.92.43.38.81 1.1.81 2.22v3.29c0 .32.22.69.82.57A12.01 12.01 0 0024 12C24 5.37 18.63 0 12 0z"/></svg>
           GitHub
+        </a>
+        <a class="contact-link" href="tel:+917818011182">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 11a19.79 19.79 0 01-3.07-8.67A2 2 0 012 .18h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/></svg>
+          +91 78180 11182
         </a>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ── FOOTER ────────────────────────────────────────────── -->
+<!-- ─── FOOTER ────────────────────────────────────────────── -->
 <footer>
-  <div class="footer-brand">Dev Tyagi · FPGA/RTL Engineer</div>
-  <div style="font-size:12px;font-family:var(--mono);color:var(--muted2)">Chennai, India · +91 7818011182</div>
-  <div class="footer-links">
+  <div class="footer-l">Dev Tyagi<span>.</span></div>
+  <div class="footer-c">FPGA &middot; RTL &middot; RISC-V &middot; Chennai, India</div>
+  <div class="footer-r">
     <a href="https://github.com/devtyagi3909" target="_blank" rel="noopener">GitHub</a>
-    <a href="https://linkedin.com/in/devtyagi3909" target="_blank" rel="noopener">LinkedIn</a>
+    <a href="https://www.linkedin.com/in/devtyagi3909" target="_blank" rel="noopener">LinkedIn</a>
     <a href="mailto:devtyagi3909@gmail.com">Email</a>
   </div>
 </footer>
 
-<!-- ─── SCRIPTS ─────────────────────────────────────────── -->
+<!-- ─── SCRIPTS ───────────────────────────────────────────── -->
 <script>
-// ── CURSOR ──────────────────────────────────────────────────
-const dot = document.getElementById('cur-dot');
-const ring = document.getElementById('cur-ring');
-let mx = -200, my = -200, rx = -200, ry = -200;
+/* ══ CUSTOM CURSOR ═══════════════════════════════════════════ */
+const dot  = document.getElementById('c-dot');
+const ring = document.getElementById('c-ring');
+let mx = -300, my = -300, rx = -300, ry = -300;
+
 document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
 (function loop() {
-  rx += (mx - rx) * 0.1; ry += (my - ry) * 0.1;
-  dot.style.left = mx + 'px'; dot.style.top = my + 'px';
+  rx += (mx - rx) * 0.09;
+  ry += (my - ry) * 0.09;
+  dot.style.left  = mx + 'px'; dot.style.top  = my + 'px';
   ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
   requestAnimationFrame(loop);
 })();
-document.querySelectorAll('a,button').forEach(el => {
-  el.addEventListener('mouseenter', () => document.body.classList.add('hov'));
-  el.addEventListener('mouseleave', () => document.body.classList.remove('hov'));
+
+const hovers = document.querySelectorAll('a,button,.mag-card,.skill-row,.stat,.ach-card');
+hovers.forEach(el => {
+  el.addEventListener('mouseenter', () => document.body.classList.add('c-hover'));
+  el.addEventListener('mouseleave', () => document.body.classList.remove('c-hover'));
 });
 
-// ── CANVAS CIRCUIT ANIMATION ─────────────────────────────────
-const canvas = document.getElementById('bg-canvas');
-const ctx = canvas.getContext('2d');
-let W, H, nodes = [], t = 0;
+/* ══ MAGNETIC CARDS ══════════════════════════════════════════
+   Each .mag-card subtly tilts and translates toward the cursor.
+   Gives a real 3D glass-panel feel.
+*/
+document.querySelectorAll('.mag-card').forEach(card => {
+  let raf;
+  let tx = 0, ty = 0, rx2 = 0, ry2 = 0;
+  let targetTx = 0, targetTy = 0, targetRx = 0, targetRy = 0;
 
-function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
-resize(); window.addEventListener('resize', resize);
-
-class Node {
-  constructor() { this.reset(); }
-  reset() {
-    this.x = Math.random() * W; this.y = Math.random() * H;
-    this.vx = (Math.random() - 0.5) * 0.4; this.vy = (Math.random() - 0.5) * 0.4;
-    this.r = Math.random() * 2 + 0.5;
-    this.type = Math.random() > 0.6 ? 'cyan' : Math.random() > 0.5 ? 'violet' : 'amber';
-    this.a = Math.random() * 0.5 + 0.1; this.pulse = Math.random() * Math.PI * 2;
+  function animCard() {
+    tx += (targetTx - tx) * 0.1;
+    ty += (targetTy - ty) * 0.1;
+    rx2 += (targetRx - rx2) * 0.1;
+    ry2 += (targetRy - ry2) * 0.1;
+    card.style.transform = `perspective(900px) translate(${tx}px, ${ty}px) rotateX(${ry2}deg) rotateY(${rx2}deg)`;
+    raf = requestAnimationFrame(animCard);
   }
-  get color() {
-    return this.type === 'cyan' ? `rgba(0,212,255,` : this.type === 'violet' ? `rgba(159,122,234,` : `rgba(246,173,85,`;
-  }
-  update() {
-    this.x += this.vx; this.y += this.vy; this.pulse += 0.02;
-    if (this.x < 0 || this.x > W || this.y < 0 || this.y > H) this.reset();
-  }
-  draw() {
-    const pa = this.a * (0.7 + 0.3 * Math.sin(this.pulse));
-    ctx.beginPath(); ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
-    ctx.fillStyle = this.color + pa + ')'; ctx.fill();
-  }
-}
 
-for (let i = 0; i < 100; i++) nodes.push(new Node());
-
-// Grid lines (circuit traces)
-function drawGrid() {
-  ctx.strokeStyle = 'rgba(0,212,255,0.018)'; ctx.lineWidth = 1;
-  for (let x = 0; x < W; x += 80) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
-  for (let y = 0; y < H; y += 80) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
-}
-
-(function frame() {
-  ctx.clearRect(0, 0, W, H);
-  drawGrid();
-  nodes.forEach(n => {
-    n.update(); n.draw();
-    nodes.forEach(m => {
-      const dx = n.x - m.x, dy = n.y - m.y, d = Math.sqrt(dx * dx + dy * dy);
-      if (d < 120) {
-        ctx.beginPath();
-        const alpha = 0.06 * (1 - d / 120);
-        ctx.strokeStyle = n.type === m.type ? n.color + alpha + ')' : `rgba(255,255,255,${alpha * 0.5})`;
-        ctx.lineWidth = 0.6; ctx.moveTo(n.x, n.y); ctx.lineTo(m.x, m.y); ctx.stroke();
-      }
-    });
+  card.addEventListener('mouseenter', () => { raf = requestAnimationFrame(animCard); });
+  card.addEventListener('mousemove', e => {
+    const r = card.getBoundingClientRect();
+    const cx = r.left + r.width  / 2;
+    const cy = r.top  + r.height / 2;
+    const dx = (e.clientX - cx) / (r.width  / 2); // -1 to 1
+    const dy = (e.clientY - cy) / (r.height / 2);
+    targetTx = dx * 8;
+    targetTy = dy * 8;
+    targetRx =  dx * 5;
+    targetRy = -dy * 5;
+    // track mouse pos for radial gradient
+    card.style.setProperty('--mx', ((e.clientX - r.left) / r.width  * 100) + '%');
+    card.style.setProperty('--my', ((e.clientY - r.top)  / r.height * 100) + '%');
   });
-  requestAnimationFrame(frame);
-})();
+  card.addEventListener('mouseleave', () => {
+    targetTx = 0; targetTy = 0; targetRx = 0; targetRy = 0;
+    setTimeout(() => { cancelAnimationFrame(raf); card.style.transform = ''; }, 600);
+  });
+});
 
-// ── REVEAL ON SCROLL ──────────────────────────────────────────
+/* ══ MAGNETIC TEXT BUTTONS ═══════════════════════════════════
+   .btn-solid and .btn-outline get a magnetic pull toward cursor.
+*/
+document.querySelectorAll('.btn-solid, .btn-outline, .nav-cta').forEach(btn => {
+  btn.addEventListener('mousemove', e => {
+    const r = btn.getBoundingClientRect();
+    const dx = (e.clientX - (r.left + r.width  / 2)) * 0.35;
+    const dy = (e.clientY - (r.top  + r.height / 2)) * 0.35;
+    btn.style.transform = `translate(${dx}px, ${dy}px)`;
+  });
+  btn.addEventListener('mouseleave', () => {
+    btn.style.transform = '';
+    btn.style.transition = 'transform .5s cubic-bezier(.16,1,.3,1)';
+    setTimeout(() => { btn.style.transition = ''; }, 500);
+  });
+});
+
+/* ══ SCROLL REVEAL ════════════════════════════════════════════ */
 const io = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('vis'); io.unobserve(e.target); } });
-}, { threshold: 0.12 });
-document.querySelectorAll('.reveal').forEach(el => io.observe(el));
-
-// ── COUNTER ANIMATION ─────────────────────────────────────────
-function animCount(el, target, suffix = '') {
-  let v = 0; const step = target / 60;
-  const iv = setInterval(() => {
-    v += step;
-    if (v >= target) { v = target; clearInterval(iv); }
-    el.textContent = Math.floor(v) + suffix;
-  }, 16);
-}
-const countIO = new IntersectionObserver(entries => {
   entries.forEach(e => {
-    if (e.isIntersecting) {
-      e.target.querySelectorAll('[data-target]').forEach(el => {
-        animCount(el, +el.dataset.target, el.dataset.suffix || '');
+    if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+document.querySelectorAll('.r, .rh').forEach(el => io.observe(el));
+
+/* ══ COUNTER ANIMATION ════════════════════════════════════════ */
+const counters = [
+  { id: 'cnt-mhz',  target: 250, duration: 1800 },
+  { id: 'cnt-cov',  target: 95,  duration: 1600 },
+  { id: 'cnt-dma',  target: 1,   duration: 900  },
+  { id: 'cnt-team', target: 40,  duration: 1400 },
+];
+let counted = false;
+const statsIO = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting && !counted) {
+      counted = true;
+      counters.forEach(({ id, target, duration }) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const start = performance.now();
+        function step(now) {
+          const p = Math.min((now - start) / duration, 1);
+          const ease = 1 - Math.pow(1 - p, 4);
+          el.textContent = target < 2 ? (ease * target).toFixed(0) : Math.round(ease * target);
+          if (p < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
       });
-      countIO.unobserve(e.target);
     }
   });
-}, { threshold: 0.3 });
-document.querySelectorAll('.stats-grid').forEach(el => countIO.observe(el));
+}, { threshold: 0.5 });
+const stripEl = document.querySelector('.stats-strip');
+if (stripEl) statsIO.observe(stripEl);
 
-// ── NAV SCROLL STATE ──────────────────────────────────────────
+/* ══ NAV SCROLL ════════════════════════════════════════════════ */
+const navEl = document.getElementById('nav');
+let lastY = 0;
 window.addEventListener('scroll', () => {
-  const nav = document.getElementById('main-nav');
-  nav.style.background = window.scrollY > 50 ? 'rgba(6,8,16,0.95)' : 'rgba(6,8,16,0.75)';
+  const y = window.scrollY;
+  navEl.style.background = y > 80
+    ? 'rgba(11,12,15,.92)'
+    : 'rgba(11,12,15,.72)';
+  lastY = y;
+}, { passive: true });
+
+/* ══ SMOOTH SCROLL MOMENTUM ════════════════════════════════════
+   CSS scroll-behavior handles basic smooth scroll.
+   This adds easing momentum on anchor clicks.
+*/
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const target = document.querySelector(a.getAttribute('href'));
+    if (!target) return;
+    e.preventDefault();
+    const top = target.getBoundingClientRect().top + window.scrollY - 80;
+    window.scrollTo({ top, behavior: 'smooth' });
+  });
 });
 </script>
 </body>
