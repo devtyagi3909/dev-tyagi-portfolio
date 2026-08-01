@@ -12,6 +12,14 @@
 <script src="https://unpkg.com/lenis@1.1.9/dist/lenis.min.js"></script>
 <!-- Three.js for 3D Board -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/BokehShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/BokehPass.js"></script>
 <style>
 /* ─── TOKENS ──────────────────────────────────────────── */
 :root {
@@ -963,9 +971,30 @@ const camera = new THREE.PerspectiveCamera(35, window.innerWidth/window.innerHei
 camera.position.set(0, 16, 22);
 camera.lookAt(0, 0, 0);
 
-const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: "high-performance" });
+const renderer = new THREE.WebGLRenderer({ canvas, alpha: false, antialias: false, powerPreference: "high-performance" });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setClearColor(0x050505, 1); // Dark bg for post-processing
+
+// Post Processing Stack
+const renderScene = new THREE.RenderPass(scene, camera);
+const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+bloomPass.threshold = 0.15;
+bloomPass.strength = 1.8;
+bloomPass.radius = 0.8;
+
+const bokehPass = new THREE.BokehPass(scene, camera, {
+  focus: 27.0, // Distance to Zynq SoC
+  aperture: 0.00005,
+  maxblur: 0.015,
+  width: window.innerWidth,
+  height: window.innerHeight
+});
+
+const composer = new THREE.EffectComposer(renderer);
+composer.addPass(renderScene);
+composer.addPass(bloomPass);
+composer.addPass(bokehPass);
 
 const boardGroup = new THREE.Group();
 scene.add(boardGroup);
@@ -973,30 +1002,64 @@ scene.add(boardGroup);
 // Texture Generator for ICs
 function createLabelTex(t1, t2) {
   const c = document.createElement('canvas');
-  c.width = 256; c.height = 256;
+  c.width = 512; c.height = 512;
   const ctx = c.getContext('2d');
-  ctx.fillStyle = '#151515'; // Dark ceramic
-  ctx.fillRect(0,0,256,256);
-  ctx.fillStyle = '#999999'; // Laser etched text
-  ctx.font = 'bold 36px monospace';
+  ctx.fillStyle = '#111111'; 
+  ctx.fillRect(0,0,512,512);
+  
+  // Fake FR4 fiberglass noise / microtexture
+  for(let i=0; i<4000; i++) {
+    ctx.fillStyle = Math.random()>0.5 ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.05)';
+    ctx.fillRect(Math.random()*512, Math.random()*512, 2, 2);
+  }
+  
+  ctx.fillStyle = '#a8a8a8'; 
+  ctx.font = 'bold 54px monospace';
   ctx.textAlign = 'center';
-  ctx.fillText(t1, 128, 120);
-  ctx.font = '24px monospace';
-  ctx.fillText(t2, 128, 170);
-  // Pin1 dot
-  ctx.beginPath();
-  ctx.arc(30, 30, 10, 0, Math.PI*2);
-  ctx.fillStyle = '#0a0a0a';
-  ctx.fill();
+  ctx.fillText(t1, 256, 240);
+  ctx.font = '36px monospace';
+  ctx.fillText(t2, 256, 300);
+  
+  ctx.beginPath(); ctx.arc(45, 45, 15, 0, Math.PI*2); ctx.fillStyle = '#050505'; ctx.fill();
+  
   const tex = new THREE.CanvasTexture(c);
   tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
   return tex;
 }
+
+// Generate Silkscreen PCB Base Texture
+function createSilkscreenTex() {
+  const c = document.createElement('canvas');
+  c.width = 1024; c.height = 1024;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#0a0a0a';
+  ctx.fillRect(0,0,1024,1024);
+  
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  ctx.font = 'bold 16px monospace';
+  for(let i=0; i<60; i++) {
+    let t = (Math.random()>0.5 ? "C" : "R") + Math.floor(Math.random()*900);
+    ctx.fillText(t, Math.random()*1024, Math.random()*1024);
+  }
+  // Draw some silkscreen lines/boxes
+  ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+  ctx.lineWidth = 2;
+  for(let i=0; i<15; i++) {
+    ctx.strokeRect(Math.random()*1024, Math.random()*1024, 40+Math.random()*80, 40+Math.random()*80);
+  }
+  
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(2, 2);
+  return tex;
+}
+const texSilkscreen = createSilkscreenTex();
+
 const texFPGA = createLabelTex('XILINX', 'ZYNQ UltraScale+');
 const texRAM = createLabelTex('SK hynix', 'DDR4');
 
 // Photorealistic Materials
-const matPCB = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.9, metalness: 0.1 });
+const matPCB = new THREE.MeshStandardMaterial({ color: 0x111111, map: texSilkscreen, roughness: 0.9, metalness: 0.1 });
 const matSilver = new THREE.MeshStandardMaterial({ color: 0x999999, metalness: 0.8, roughness: 0.3 });
 const matGold = new THREE.MeshStandardMaterial({ color: 0xc9a85c, metalness: 1.0, roughness: 0.2 });
 const matCeramic = new THREE.MeshStandardMaterial({ color: 0x151515, roughness: 0.6 });
@@ -1101,6 +1164,22 @@ for(let i=0; i<5; i++) {
   trace2.position.set(-5 + Math.random()*2, 0, trace.position.z + 1.5);
   boardGroup.add(trace2);
 }
+// Animated Data Flow Packets (1GB/s DMA Simulation)
+const packets = [];
+const matPacket = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 5 });
+const packetGeo = new THREE.BoxGeometry(0.08, 0.08, 0.4);
+for(let i=0; i<30; i++) {
+  const p = new THREE.Mesh(packetGeo, matPacket);
+  p.userData = {
+    progress: Math.random(),
+    speed: 0.005 + Math.random()*0.02,
+    startX: -1.75, startZ: -2.0 + Math.random()*4, // Near Zynq edge
+    endX: 3.2, endZ: -2.25 + (Math.random()*4.5) // Near RAM edge
+  };
+  boardGroup.add(p);
+  packets.push(p);
+}
+
 
 
 // PCIe edge connector (gold pins)
@@ -1199,6 +1278,7 @@ window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
+  composer.setSize(window.innerWidth, window.innerHeight);
 });
 </script>
 </body>
