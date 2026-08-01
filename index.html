@@ -15,8 +15,8 @@
 <style>
 /* ─── TOKENS ──────────────────────────────────────────── */
 :root {
-  --bg:      #f0ede8;
-  --ink:     #0a0808;
+  --bg:      #050505;
+  --ink:     #f4f4f5;
   --acc:     #cc3d10;
   --acc-rgb: 204,61,16;
   --blue-rgb:30,77,183;
@@ -84,7 +84,7 @@ body.hl #cur-b {
 
 /* Base text legibility */
 p, .sec-h, .proj-h, .exp-role, .ach-rank, .edu-u, .copy b {
-  text-shadow: 0 0 12px rgba(240,237,232,0.8), 0 0 3px rgba(240,237,232,0.9);
+  text-shadow: 0 2px 24px rgba(0,0,0,0.9), 0 0 4px rgba(0,0,0,1);
 }
 
 /* Elevate UI over the 3D canvas */
@@ -456,7 +456,7 @@ footer { border-top:1px solid var(--bd); padding:16px 32px; display:flex; align-
     <div style="position:relative;width:100%;height:100%;display:flex;align-items:center;">
       <div style="position:absolute;left:0;top:0;bottom:0;width:28px;display:flex;align-items:center;justify-content:center;overflow:hidden;z-index:5;"><div style="position:absolute;right:0;top:0;bottom:0;width:1px;background:var(--bd);"></div><span style="font-family:var(--mono);font-size:7.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);white-space:nowrap;transform:rotate(-90deg);display:block;">Hardware Engineer / LOG&nbsp;[01] / Silicon / Defense</span></div>
       <div style="flex:1;padding:0 32px 0 44px;position:relative;z-index:2;">
-        <div class="h-dev" id="mag-dev">DEV</div>
+        <div class="h-dev glitch" data-t="DEV" id="mag-dev">DEV</div>
         <div class="h-tyagi glitch" data-t="TYAGI." id="mag-tyagi">TYAGI<span class="period">.</span></div>
       </div>
     </div>
