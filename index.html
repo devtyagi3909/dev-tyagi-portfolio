@@ -15,8 +15,8 @@
 <style>
 /* ─── TOKENS ──────────────────────────────────────────── */
 :root {
-  --bg:      #f0ede8;
-  --ink:     #0a0808;
+  --bg:      #050505;
+  --ink:     #f4f4f5;
   --acc:     #cc3d10;
   --acc-rgb: 204,61,16;
   --blue-rgb:30,77,183;
@@ -78,13 +78,13 @@ body.hl #cur-b {
   width: 100vw; height: 100vh;
   z-index: 0;
   pointer-events: none;
-  opacity: 0.82;
+  opacity: 1.0;
   filter: contrast(1.1) saturate(1.3);
 }
 
-/* Base text legibility over complex 3D */
-p, .sec-h, .proj-h, .exp-role, .ach-rank, .edu-u, .copy b {
-  text-shadow: 0 0 12px rgba(240,237,232,0.7), 0 0 3px rgba(240,237,232,0.9);
+/* Universal legibility lock (dark shadow for white text over bright 3D spots) */
+p, .sec-h, .proj-h, .exp-role, .ach-rank, .edu-u, .copy b, .h-dev, .h-tyagi, .hbc span {
+  text-shadow: 0 2px 24px rgba(0,0,0,0.9), 0 0 4px rgba(0,0,0,1);
 }
 
 /* Elevate UI over the 3D canvas */
@@ -773,7 +773,7 @@ function curLoop() {
   // Draw Oscilloscope Waveform
   oscCtx.clearRect(0, 0, 64, 64);
   oscCtx.beginPath();
-  oscCtx.strokeStyle = hoverEl ? '#cc3d10' : '#0a0808';
+  oscCtx.strokeStyle = hoverEl ? '#cc3d10' : '#f4f4f5';
   oscCtx.lineWidth = 2.5;
   
   let yHigh = 22, yLow = 42;
