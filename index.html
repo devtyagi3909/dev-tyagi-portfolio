@@ -791,7 +791,36 @@ let mx=0, my=0, bx=0, by=0;
 let hoverEl = null;
 let oscOffset = 0;
 
-document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; });
+
+document.addEventListener('mousemove', e => { 
+  mx=e.clientX; my=e.clientY; 
+  mouseVec.x = (e.clientX / window.innerWidth) * 2 - 1;
+  mouseVec.y = -(e.clientY / window.innerHeight) * 2 + 1;
+});
+document.addEventListener('keydown', e => {
+  if(e.key === '`' || e.key === '~') {
+    const t = document.getElementById('term-ui');
+    if(t.classList.contains('off')) {
+      t.classList.remove('off'); setTimeout(()=>document.getElementById('term-in').focus(), 50);
+      if(AudioSys) AudioSys.click(400, 'square', 0.05, 0.1);
+    } else { t.classList.add('off'); }
+  }
+});
+document.getElementById('term-in')?.addEventListener('keydown', e => {
+  if(e.key === 'Enter') {
+    if(e.target.value.toLowerCase().includes('sudo overclock')) {
+      isOverclocked = true;
+      if(AudioSys) AudioSys.noise(0.5, 0.2, 2000);
+      document.getElementById('term-in').value = 'OVERCLOCK ENGAGED';
+      setTimeout(() => document.getElementById('term-ui').classList.add('off'), 1000);
+    }
+    e.target.value = '';
+  }
+});
+document.querySelectorAll('.glass-card, .st, .pt').forEach(el => {
+  el.addEventListener('mouseenter', () => { if(AudioSys && AudioSys.ctx) AudioSys.click(800, 'sine', 0.02, 0.05); });
+});
+
 
 function curLoop() {
   let dx = mx - bx;
@@ -804,6 +833,14 @@ function curLoop() {
   ca.style.left = mx + 'px'; ca.style.top = my + 'px';
   cb.style.left = bx + 'px'; cb.style.top = by + 'px';
   
+  
+  // Update Acoustic Engine
+  if(typeof AudioSys !== 'undefined' && AudioSys.droneGain) {
+    let sv = typeof scrollVel !== 'undefined' ? Math.abs(scrollVel) : 0;
+    AudioSys.droneGain.gain.value += (Math.min(sv * 0.003, 0.25) - AudioSys.droneGain.gain.value) * 0.1;
+    AudioSys.droneOsc.frequency.value += (30 + sv * 0.3 - AudioSys.droneOsc.frequency.value) * 0.1;
+  }
+
   // Update canvas internal res based on hover
   oscCtx.canvas.width = hoverEl ? 72 : 48;
   oscCtx.canvas.height = 24;
@@ -1056,6 +1093,24 @@ scene.environment = createNeonEnvironment();
 const boardGroup = new THREE.Group();
 scene.add(boardGroup);
 
+// Procedural Microscopic Pins
+function attachPins(chip, w, d, countX, countZ) {
+  const pinGeom = new THREE.BoxGeometry(0.04, 0.1, 0.04);
+  const m = new THREE.MeshBasicMaterial({color: 0xaaaaaa});
+  for(let i=0; i<countX; i++) {
+    let px = -w/2 + 0.1 + (i/(countX-1))*(w-0.2);
+    let p1 = new THREE.Mesh(pinGeom, m); p1.position.set(px, -0.05, d/2); chip.add(p1);
+    let p2 = new THREE.Mesh(pinGeom, m); p2.position.set(px, -0.05, -d/2); chip.add(p2);
+  }
+  for(let i=0; i<countZ; i++) {
+    let pz = -d/2 + 0.1 + (i/(countZ-1))*(d-0.2);
+    let p1 = new THREE.Mesh(pinGeom, m); p1.position.set(w/2, -0.05, pz); chip.add(p1);
+    let p2 = new THREE.Mesh(pinGeom, m); p2.position.set(-w/2, -0.05, pz); chip.add(p2);
+  }
+}
+attachPins(fpgaDie, 3.8, 3.8, 24, 24);
+
+
 // Texture Generator for ICs
 function createLabelTex(t1, t2) {
   const c = document.createElement('canvas');
@@ -1132,6 +1187,7 @@ boardGroup.add(pcb);
 // Main FPGA Die
 const fpgaDie = new THREE.Mesh(new THREE.BoxGeometry(3.5, 0.4, 3.5), matFPGA);
 fpgaDie.position.y = 0.3;
+fpgaDie.userData = { name: "ZYNQ ULTRASCALE+ SoC", stats: "L1 CACHE: 32KB\nTEMP: 42°C\nSTATUS: NOMINAL" };
 boardGroup.add(fpgaDie);
 
 // Metal Socket Frame
@@ -1145,7 +1201,9 @@ for(let i=0; i<4; i++) {
   const ram = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.25, 2.5), matRAM);
   ram.position.set(3.8, 0.225, -2.25 + i*1.5);
   boardGroup.add(ram);
+  ram.userData = { name: "DDR4 3200MHz", stats: "BW: 25.6 GB/s\nECC: ACTIVE" };
   ramModules.push({ mesh: ram, baseY: 0.225, targetY: 4.0 + (i*0.5) });
+  attachPins(ram, 1.2, 2.5, 6, 12);
 }
 
 // Heavy IO Ports (FMC, Ethernet, etc)
@@ -1313,6 +1371,12 @@ if(nmWrap) {
 }
 
 // duplicate removed
+
+const raycaster = new THREE.Raycaster();
+const mouseVec = new THREE.Vector2(-2, -2); // offscreen default
+let isOverclocked = false;
+let hoveredChip = null;
+
 const camTargetVec = new THREE.Vector3(0,0,0);
 
 
@@ -1426,6 +1490,33 @@ function render3DLoop() {
   camTargetVec.y += (idealTargetY - camTargetVec.y) * 0.05;
   camTargetVec.z += (idealTargetZ - camTargetVec.z) * 0.05;
   camera.lookAt(camTargetVec);
+
+  if(isOverclocked) {
+    if(typeof scrollVel !== 'undefined') scrollVel = 150; // Forced warp speed
+    matLEDRed.emissiveIntensity = 10;
+    rgbPass.uniforms['amount'].value = 0.003 + Math.random()*0.002;
+  }
+
+  // Interactive HUD Raycaster
+  raycaster.setFromCamera(mouseVec, camera);
+  const hud = document.getElementById('hud');
+  if(isExploded && hud) {
+    const intersects = raycaster.intersectObjects([fpgaDie, ...ramModules.map(r=>r.mesh)]);
+    if(intersects.length > 0) {
+      const obj = intersects[0].object;
+      if(obj.userData && obj.userData.name) {
+        hud.innerHTML = `<span style="color:var(--acc)">[ ID ]</span> ${obj.userData.name}<br><br><span style="color:var(--acc)">[ SYNC ]</span><br>${obj.userData.stats}`;
+        hud.style.opacity = 1;
+        hud.style.left = (mx + 20) + 'px';
+        hud.style.top = (my + 20) + 'px';
+      }
+    } else {
+      hud.style.opacity = 0;
+    }
+  } else if(hud) {
+    hud.style.opacity = 0;
+  }
+
 
   // Keep gentle rotation for parallax
   const pdx = (mx - window.innerWidth/2) * 0.0003;
@@ -1573,5 +1664,19 @@ function runBoot() {
 }
 runBoot();
 </script>
+
+<!-- HUD & TERMINAL -->
+<div id="hud" style="position:fixed; top:-100px; left:-100px; padding:12px 20px; background:rgba(5,5,5,0.85); border:1px solid rgba(255,255,255,0.2); border-radius:12px; font-family:var(--mono); font-size:10px; color:var(--ink); pointer-events:none; z-index:9999; backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); opacity:0; transition:opacity 0.2s; white-space:pre; text-transform:uppercase; letter-spacing:0.1em; line-height:1.5;"></div>
+<div id="term-ui" class="off" style="position:fixed; top:20px; left:50%; transform:translateX(-50%); width:400px; padding:16px; background:rgba(5,5,5,0.95); border:1px solid var(--acc); border-radius:8px; z-index:10000; font-family:var(--mono); box-shadow:0 16px 64px rgba(0,0,0,0.8); transition:transform 0.3s, opacity 0.3s; backdrop-filter:blur(24px);">
+  <div style="font-size:10px; color:var(--acc); margin-bottom:12px; letter-spacing:0.1em;">TERMINAL // ROOT ACCESS</div>
+  <div style="display:flex; align-items:center; color:var(--ink); font-size:12px;">
+    <span style="color:var(--acc); margin-right:8px;">></span>
+    <input type="text" id="term-in" style="background:transparent; border:none; outline:none; color:var(--ink); font-family:var(--mono); width:100%; font-size:12px; text-transform:lowercase;" placeholder="type 'sudo overclock'">
+  </div>
+</div>
+<style>
+#term-ui.off { opacity:0; transform:translate(-50%, -20px); pointer-events:none; }
+</style>
+
 </body>
 </html>
