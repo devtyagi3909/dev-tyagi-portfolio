@@ -283,6 +283,8 @@ nav {
 .sec-hd { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:36px; gap:16px; flex-wrap:wrap; }
 .sec-num { font-family:var(--mono); font-size:9px; letter-spacing:.18em; color:var(--muted); padding-top:6px; }
 
+.target-link { color:var(--acc); font-weight:700; cursor:none; transition: all 0.2s var(--ease); display: inline-block; }
+.target-link:hover { color: #fff; text-shadow: 0 0 12px rgba(255,255,255,0.9); transform: translateY(-2px); }
 /* ─── ABOUT + SKILLS ──────────────────────────────────── */
 .about-grid { display:grid; grid-template-columns:1.2fr 1fr; gap:36px; align-items:start; }
 .copy p { font-size:14.5px; font-weight:400; color:var(--ink); line-height:1.75; }
@@ -493,8 +495,8 @@ footer { border-top:2px solid var(--bd); padding:16px 32px; display:flex; align-
 <!-- ── MARQUEE ─────────────────────────────────────────── -->
 <div class="mq">
   <div class="mq-t">
-    <span class="m">RISC-V</span><span>—</span><span>SystemVerilog</span><span>—</span><span class="ma">AXI4</span><span>—</span><span>UVM</span><span>—</span><span>Tomasulo's Algorithm</span><span>—</span><span class="m">Xilinx UltraScale+</span><span>—</span><span>250 MHz</span><span>—</span><span class="ma">1 GB/s DMA</span><span>—</span><span>FPGA Design</span><span>—</span><span>AI Accelerators</span><span>—</span><span>STA / Lint / DRC</span><span>—</span>
-    <span class="m">RISC-V</span><span>—</span><span>SystemVerilog</span><span>—</span><span class="ma">AXI4</span><span>—</span><span>UVM</span><span>—</span><span>Tomasulo's Algorithm</span><span>—</span><span class="m">Xilinx UltraScale+</span><span>—</span><span>250 MHz</span><span>—</span><span class="ma">1 GB/s DMA</span><span>—</span><span>FPGA Design</span><span>—</span><span>AI Accelerators</span><span>—</span><span>STA / Lint / DRC</span><span>—</span>
+    <span class="m">RISC-V</span><span>—</span><span>SystemVerilog</span><span>—</span><span class="ma">AXI4</span><span>—</span><span>UVM</span><span>—</span><span>Tomasulo's Algorithm</span><span>—</span><span class="m"><span class="target-link" data-target="fpga">Xilinx UltraScale+</span></span><span>—</span><span>250 MHz</span><span>—</span><span class="ma">1 GB/s DMA</span><span>—</span><span>FPGA Design</span><span>—</span><span>AI Accelerators</span><span>—</span><span>STA / Lint / DRC</span><span>—</span>
+    <span class="m">RISC-V</span><span>—</span><span>SystemVerilog</span><span>—</span><span class="ma">AXI4</span><span>—</span><span>UVM</span><span>—</span><span>Tomasulo's Algorithm</span><span>—</span><span class="m"><span class="target-link" data-target="fpga">Xilinx UltraScale+</span></span><span>—</span><span>250 MHz</span><span>—</span><span class="ma">1 GB/s DMA</span><span>—</span><span>FPGA Design</span><span>—</span><span>AI Accelerators</span><span>—</span><span>STA / Lint / DRC</span><span>—</span>
   </div>
 </div>
 
@@ -509,7 +511,7 @@ footer { border-top:2px solid var(--bd); padding:16px 32px; display:flex; align-
     <div class="about-grid">
       <div class="copy">
         <p><b>B.Tech ECE student at Vellore Institute of Technology, Chennai</b> (2023–2027). Designing and verifying RTL at the intersection of microarchitecture, high-speed protocol implementation, and AI inference acceleration.</p>
-        <p>Out-of-order RISC-V processors, AXI4 DMA engines, neural network inference accelerators — built from specification through <b>timing closure at 250 MHz</b> on Xilinx UltraScale+ fabric.</p>
+        <p>Out-of-order RISC-V processors, <span class="target-link" data-target="ram">AXI4 DMA engines</span>, neural network inference accelerators — built from specification through <b>timing closure at 250 MHz</b> on <span class="target-link" data-target="fpga">Xilinx UltraScale+</span> fabric.</p>
         <p>As <b>Head of Robotics Club, VIT Chennai</b>, led 40+ engineers across hardware development, RTL reviews, and intercollegiate engineering competitions.</p>
         <span class="coord">Location — <b>Chennai, India</b> &nbsp;·&nbsp; N13.0827° / E80.2707°</span>
       </div>
@@ -540,8 +542,8 @@ footer { border-top:2px solid var(--bd); padding:16px 32px; display:flex; align-
           <div class="exp-role">FPGA RTL Design Intern</div>
           <div class="exp-co">Vicharak — Remote</div>
           <ul class="exp-pts">
-            <li>Ported <b>PicoRV32 RISC-V core</b> to Shrike Lite FPGA, fitting execution within tight LUT/BRAM budgets the original configuration exceeded.</li>
-            <li>Replaced AXI4-Lite memory interface with a custom <b>SPI protocol bridge</b> for off-chip flash-backed instruction fetch — fabric logic utilisation cut by over <b>30%</b>.</li>
+            <li>Ported <b><span class="target-link" data-target="fpga">PicoRV32 RISC-V core</span></b> to Shrike Lite FPGA, fitting execution within tight LUT/BRAM budgets the original configuration exceeded.</li>
+            <li>Replaced AXI4-Lite memory interface with a custom <b><span class="target-link" data-target="io">SPI protocol bridge</span></b> for off-chip flash-backed instruction fetch — fabric logic utilisation cut by over <b>30%</b>.</li>
             <li>Authored SPI controller and memory-mapped bridge RTL from scratch in SystemVerilog.</li>
           </ul>
         </div>
@@ -978,7 +980,20 @@ const canvas = document.getElementById('webgl-bg');
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(35, window.innerWidth/window.innerHeight, 0.1, 100);
 camera.position.set(0, 16, 22);
-camera.lookAt(0, 0, 0);
+const camTarget = new THREE.Vector3(0,0,0);
+camera.lookAt(camTarget);
+
+let camTargetOverride = null;
+document.querySelectorAll('.target-link').forEach(link => {
+  link.addEventListener('mouseenter', (e) => {
+    camTargetOverride = e.target.getAttribute('data-target');
+    if(AudioSys.ctx) AudioSys.noise(0.1, 0.08, 1500); // Focus sound
+  });
+  link.addEventListener('mouseleave', () => {
+    camTargetOverride = null;
+  });
+});
+
 
 const renderer = new THREE.WebGLRenderer({ canvas, alpha: false, antialias: false, powerPreference: "high-performance" });
 renderer.setSize(window.innerWidth, window.innerHeight);
