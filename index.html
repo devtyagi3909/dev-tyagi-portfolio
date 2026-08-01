@@ -82,6 +82,9 @@ body.hl #cur-b {
   width: 100vw; height: 100vh;
   z-index: 0;
   pointer-events: none;
+  /* Reduced opacity so text remains perfectly legible */
+  opacity: 0.45;
+  filter: contrast(1.15) saturate(1.2);
 }
 
 /* Elevate UI over the 3D canvas */
@@ -890,7 +893,7 @@ document.querySelectorAll('a[href^="#"]').forEach(a=>{
   });
 });
 
-/* ── THREE.JS FULL PROCEDURAL 3D FPGA BOARD ───────────── */
+/* ── THREE.JS FULL PROCEDURAL 3D FPGA BOARD (PHOTOREAL) ─ */
 const canvas = document.getElementById('webgl-bg');
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(35, window.innerWidth/window.innerHeight, 0.1, 100);
@@ -904,75 +907,128 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 const boardGroup = new THREE.Group();
 scene.add(boardGroup);
 
-// Highly elegant, contrasty materials
-const matBoard = new THREE.MeshStandardMaterial({ color: 0x121212, metalness: 0.3, roughness: 0.85 });
-const matChip = new THREE.MeshStandardMaterial({ color: 0x050505, metalness: 0.9, roughness: 0.15 }); // Glossy silicon
-const matGold = new THREE.MeshStandardMaterial({ color: 0xc9a85c, metalness: 1.0, roughness: 0.2 }); // Gold pins
-const matAcc = new THREE.MeshStandardMaterial({ color: 0xcc3d10, metalness: 0.4, roughness: 0.3, emissive: 0xcc3d10, emissiveIntensity: 0.3 }); // Brand accent glowing
+// Texture Generator for ICs
+function createLabelTex(t1, t2) {
+  const c = document.createElement('canvas');
+  c.width = 256; c.height = 256;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#151515'; // Dark ceramic
+  ctx.fillRect(0,0,256,256);
+  ctx.fillStyle = '#999999'; // Laser etched text
+  ctx.font = 'bold 36px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(t1, 128, 120);
+  ctx.font = '24px monospace';
+  ctx.fillText(t2, 128, 170);
+  // Pin1 dot
+  ctx.beginPath();
+  ctx.arc(30, 30, 10, 0, Math.PI*2);
+  ctx.fillStyle = '#0a0a0a';
+  ctx.fill();
+  const tex = new THREE.CanvasTexture(c);
+  tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  return tex;
+}
+const texFPGA = createLabelTex('XILINX', 'ZYNQ UltraScale+');
+const texRAM = createLabelTex('SK hynix', 'DDR4');
+
+// Photorealistic Materials
+const matPCB = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.9, metalness: 0.1 });
+const matSilver = new THREE.MeshStandardMaterial({ color: 0x999999, metalness: 0.8, roughness: 0.3 });
+const matGold = new THREE.MeshStandardMaterial({ color: 0xc9a85c, metalness: 1.0, roughness: 0.2 });
+const matCeramic = new THREE.MeshStandardMaterial({ color: 0x151515, roughness: 0.6 });
+const matTantalum = new THREE.MeshStandardMaterial({ color: 0xd9b322, roughness: 0.7 }); // yellow caps
+const matMLCC = new THREE.MeshStandardMaterial({ color: 0x6b4a2d, roughness: 0.5 }); // brown caps
+const matFPGA = new THREE.MeshStandardMaterial({ map: texFPGA, roughness: 0.5, metalness: 0.2 });
+const matRAM = new THREE.MeshStandardMaterial({ map: texRAM, roughness: 0.5, metalness: 0.1 });
 
 // Base PCB (ZCU102 proportion)
-const pcb = new THREE.Mesh(new THREE.BoxGeometry(16, 0.2, 14), matBoard);
+const pcb = new THREE.Mesh(new THREE.BoxGeometry(16, 0.2, 14), matPCB);
 boardGroup.add(pcb);
 
 // Main FPGA Die
-const fpgaDie = new THREE.Mesh(new THREE.BoxGeometry(3.5, 0.4, 3.5), matChip);
+const fpgaDie = new THREE.Mesh(new THREE.BoxGeometry(3.5, 0.4, 3.5), matFPGA);
 fpgaDie.position.y = 0.3;
 boardGroup.add(fpgaDie);
 
-// Heat sink array
-for(let i=-1.5; i<=1.5; i+=0.25) {
-  const fin = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.5, 3.2), matChip);
-  fin.position.set(i, 0.65, 0);
-  boardGroup.add(fin);
-}
+// Metal Socket Frame
+const socket = new THREE.Mesh(new THREE.BoxGeometry(4.2, 0.25, 4.2), matSilver);
+socket.position.y = 0.15;
+boardGroup.add(socket);
 
-// RAM / Memory Modules
+// RAM Modules
 for(let i=0; i<4; i++) {
-  const ram = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.25, 2.5), matChip);
-  ram.position.set(3.5, 0.225, -2 + i*1.3);
+  const ram = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.25, 2.5), matRAM);
+  ram.position.set(3.8, 0.225, -2.25 + i*1.5);
   boardGroup.add(ram);
 }
 
 // Heavy IO Ports (FMC, Ethernet, etc)
-const io1 = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.0, 5), matChip);
+const io1 = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.0, 5), matCeramic); // Black plastic housing
 io1.position.set(-7.25, 0.6, 0);
 boardGroup.add(io1);
-const io2 = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.2, 1.5), matBoard);
+const io1Pins = new THREE.Mesh(new THREE.BoxGeometry(1.3, 1.05, 4.8), matGold);
+io1Pins.position.set(-7.25, 0.6, 0);
+boardGroup.add(io1Pins);
+
+const io2 = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.2, 1.5), matSilver); // RJ45 Shield
 io2.position.set(6.5, 0.7, -5.5);
 boardGroup.add(io2);
 
-// Dense SMD Components Grid for extreme realism
-for(let x=-7.5; x<=7.5; x+=0.45) {
-  for(let z=-6.5; z<=6.5; z+=0.45) {
-    if(Math.abs(x) < 3.5 && Math.abs(z) < 3.5) continue; // Keep clear of main die
-    if(Math.random() > 0.75) {
-      const w = 0.1 + Math.random()*0.4;
-      const h = 0.05 + Math.random()*0.25;
-      const d = 0.1 + Math.random()*0.4;
+const usb = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.8, 1.5), matSilver); // USB Shield
+usb.position.set(7.0, 0.5, -3.2);
+boardGroup.add(usb);
+
+// Cylindrical Capacitors (Silver with black base)
+const geomCyl = new THREE.CylinderGeometry(0.25, 0.25, 0.6, 16);
+for(let i=0; i<6; i++) {
+  const cyl = new THREE.Mesh(geomCyl, matSilver);
+  cyl.position.set(-4 + Math.random()*2, 0.4, -4 + Math.random()*2);
+  boardGroup.add(cyl);
+}
+
+// Dense Photorealistic SMD Components Grid
+for(let x=-7.5; x<=7.5; x+=0.4) {
+  for(let z=-6.5; z<=6.5; z+=0.4) {
+    if(Math.abs(x) < 4.2 && Math.abs(z) < 4.2) continue; // Keep clear of main die and socket
+    if(Math.random() > 0.6) { // High density
+      const type = Math.random();
+      let w, h, d, mat;
       
-      const isAcc = Math.random() > 0.97;
-      const isGold = Math.random() > 0.92;
-      const mat = isAcc ? matAcc : (isGold ? matGold : matChip);
+      if(type > 0.9) {
+        // Tantalum capacitor (Yellow)
+        w=0.3; h=0.2; d=0.2; mat = matTantalum;
+      } else if (type > 0.8) {
+        // Small IC / Controller (Black Ceramic)
+        w=0.4; h=0.15; d=0.4; mat = matCeramic;
+      } else if (type > 0.75) {
+        // Silver oscillator/component
+        w=0.3; h=0.15; d=0.2; mat = matSilver;
+      } else {
+        // Tiny MLCC capacitor (Brown)
+        w=0.15; h=0.1; d=0.1; mat = matMLCC;
+      }
       
       const comp = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
-      comp.position.set(x + (Math.random()-0.5)*0.2, 0.1 + h/2, z + (Math.random()-0.5)*0.2);
+      comp.position.set(x + (Math.random()-0.5)*0.1, 0.1 + h/2, z + (Math.random()-0.5)*0.1);
+      comp.rotation.y = (Math.random()>0.5) ? Math.PI/2 : 0;
       boardGroup.add(comp);
     }
   }
 }
 
 // Lighting setup (dramatic, high contrast)
-scene.add(new THREE.AmbientLight(0xffffff, 0.8));
-const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
+scene.add(new THREE.AmbientLight(0xffffff, 1.2));
+const dirLight = new THREE.DirectionalLight(0xffffff, 1.8);
 dirLight.position.set(8, 20, 10);
 scene.add(dirLight);
 
 // Dual tone rim lighting (Apple/Awwwards style)
-const blueLight = new THREE.PointLight(0x1e4db7, 10, 30);
+const blueLight = new THREE.PointLight(0x1e4db7, 12, 30);
 blueLight.position.set(-8, 3, -6);
 scene.add(blueLight);
 
-const redLight = new THREE.PointLight(0xcc3d10, 10, 30);
+const redLight = new THREE.PointLight(0xcc3d10, 12, 30);
 redLight.position.set(8, 3, 6);
 scene.add(redLight);
 
