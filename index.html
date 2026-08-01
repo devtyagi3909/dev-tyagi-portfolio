@@ -73,6 +73,32 @@ body.hl #cur-b {
   box-shadow: 0 8px 24px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,255,255,0.8);
 }
 
+/* ─── FIXED 3D FPGA BACKGROUND ────────────────────────── */
+#fixed-bg {
+  position: fixed; inset: 0; z-index: 0;
+  pointer-events: none; overflow: visible;
+  perspective: 1400px;
+  will-change: transform;
+}
+#bg-fpga {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 140vw; max-width: 1400px; height: auto;
+  mix-blend-mode: multiply;
+  opacity: 0.18;
+  filter: contrast(1.4) grayscale(100%);
+  will-change: transform;
+  transform-style: preserve-3d;
+  /* Centered initially, physics engine will take over */
+  transform: translate(-50%, -50%);
+}
+
+/* Make sections relative so they sit above the fixed background */
+nav, .hero, .mq, .sec, footer {
+  position: relative;
+  z-index: 2;
+}
+
 /* ─── ELEVATED 3D GLASS CARDS ─────────────────────────── */
 .gc {
   position:relative;
@@ -178,26 +204,12 @@ nav {
 .sdot { width:5px; height:5px; border-radius:50%; background:var(--acc); animation:blink 2s ease-in-out infinite; }
 @keyframes blink { 0%,100%{opacity:1}50%{opacity:.25} }
 
-/* ─── HERO & BACKGROUND FPGA RENDER ───────────────────── */
+/* ─── HERO ────────────────────────────────────────────── */
 .hero {
-  position:relative;
   padding-top:44px;
   border-bottom:1px solid var(--bd);
   overflow:hidden;
   display:flex; flex-direction:column;
-}
-
-#bg-fpga {
-  position:absolute;
-  top:-5vh; right:-10vw;
-  width: 90vw; max-width:1000px; height:auto;
-  mix-blend-mode: multiply;
-  opacity: 0.16;
-  pointer-events:none;
-  z-index:1;
-  filter: contrast(1.1) grayscale(100%);
-  will-change: transform;
-  transform-origin: center center;
 }
 
 .scatter { position:absolute; inset:0; pointer-events:none; z-index:4; }
@@ -393,6 +405,12 @@ footer { border-top:1px solid var(--bd); padding:16px 32px; display:flex; align-
 <div id="cur-a"></div>
 <div id="cur-b"></div>
 
+<!-- ── FIXED 3D BACKGROUND ────────────────────────────── -->
+<div id="fixed-bg" aria-hidden="true">
+  <!-- Massive Background FPGA Image -->
+  <img src="assets/fpga_render.jpg" id="bg-fpga" alt="FPGA Microchip">
+</div>
+
 <!-- ── NAV ────────────────────────────────────────────── -->
 <nav>
   <div class="nav-id">ARCHIVE / <b>DEV TYAGI</b> / SYS.001</div>
@@ -407,9 +425,6 @@ footer { border-top:1px solid var(--bd); padding:16px 32px; display:flex; align-
 
 <!-- ── HERO ───────────────────────────────────────────── -->
 <section class="hero">
-  <!-- Massive Background FPGA Image -->
-  <img src="assets/fpga_render.jpg" id="bg-fpga" alt="FPGA Microchip" aria-hidden="true">
-
   <div class="scatter" aria-hidden="true">
     <div class="sp" style="top:22%;right:3%"><span class="sp-key">Epoch of action</span><span class="sp-val">Chennai / Bharat</span><span class="sp-key" style="margin-top:3px">N13.0827° / E80.2707°</span></div>
     <div class="sp" style="top:52%;right:3%"><span class="sp-key">Throughput</span><span class="sp-val sp-val-acc">1 GB/s</span><span class="sp-key">Sustained / PYNQ-Z2</span></div>
@@ -724,9 +739,10 @@ function raf(time) {
 }
 requestAnimationFrame(raf)
 
-/* ── CURSOR ───────────────────────────────────────────── */
+/* ── CURSOR & MOUSE PARALLAX ──────────────────────────── */
 const ca = document.getElementById('cur-a');
 const cb = document.getElementById('cur-b');
+const fixedBg = document.getElementById('fixed-bg');
 let mx=0,my=0,bx=0,by=0;
 
 document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; });
@@ -735,6 +751,14 @@ function curLoop() {
   bx += (mx-bx)*.1; by += (my-by)*.1;
   ca.style.left=mx+'px'; ca.style.top=my+'px';
   cb.style.left=bx+'px'; cb.style.top=by+'px';
+  
+  // Mouse Parallax for the Fixed 3D Background
+  if(fixedBg) {
+    const pdx = (mx - window.innerWidth/2) * -0.015;
+    const pdy = (my - window.innerHeight/2) * -0.015;
+    fixedBg.style.transform = `translate3d(${pdx}px, ${pdy}px, 0)`;
+  }
+  
   requestAnimationFrame(curLoop);
 }
 curLoop();
@@ -814,7 +838,7 @@ const io=new IntersectionObserver(entries=>{
 },{threshold:.01});
 document.querySelectorAll('.t3d').forEach(el=>io.observe(el));
 
-/* ── SCROLL VELOCITY SKEW & PARALLAX ──────────────────── */
+/* ── SCROLL VELOCITY SKEW & 3D PHYSICS ────────────────── */
 const sps=document.querySelectorAll('.sp');
 const fpga=document.getElementById('bg-fpga');
 let tick=false, lastY=window.scrollY, scrollVel=0;
@@ -845,9 +869,16 @@ window.addEventListener('scroll',()=>{
       el.setAttribute('data-ty', ty);
     });
     
-    // FPGA Parallax & Rotation
+    // FPGA FULL 3D Rotation Physics
     if(fpga) {
-      fpga.style.transform = `translateY(${sy * 0.25}px) rotate(${sy * 0.03}deg) scale(${1 + Math.abs(sy)*0.0003})`;
+      // Rotates continuously based on scroll depth in all 3 axes
+      const rotZ = sy * 0.02; 
+      const rotX = Math.sin(sy * 0.001) * 35; // Deep tilt
+      const rotY = Math.cos(sy * 0.001) * 35; // Deep pan
+      const tz = sy * 0.08; // Moves closer/further in Z space
+      
+      // The -50%, -50% keeps it centered, then we apply 3D transforms
+      fpga.style.transform = `translate(-50%, -50%) translate3d(0px, 0px, ${tz}px) rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg)`;
     }
     
     tick=false;
