@@ -45,14 +45,33 @@ a { color:inherit; text-decoration:none; }
 ::-webkit-scrollbar-track { background:var(--bg); }
 ::-webkit-scrollbar-thumb { background:var(--ink); }
 
-/* ─── CURSOR ──────────────────────────────────────────── */
-#cur-a, #cur-b { position:fixed; z-index:9999; pointer-events:none; border-radius:50%; top:0; left:0; will-change:left,top; }
-#cur-a { width:7px; height:7px; background:var(--ink); transform:translate(-50%,-50%); transition:background .15s, width .15s, height .15s; }
-#cur-b { width:30px; height:30px; border:1px solid rgba(10,8,8,.4); transform:translate(-50%,-50%); transition:width .3s var(--ease), height .3s var(--ease), border-color .3s, opacity .3s; }
-body.hl #cur-a { width:11px; height:11px; background:var(--acc); }
-body.hl #cur-b { width:50px; height:50px; border-color:rgba(204,61,16,.45); }
+/* ─── LIQUID GLASS CURSOR ─────────────────────────────── */
+#cur-a, #cur-b { position:fixed; z-index:9999; pointer-events:none; border-radius:50%; top:0; left:0; will-change:left,top,transform; }
+#cur-a {
+  width:6px; height:6px; background:var(--ink);
+  transform:translate(-50%,-50%); transition:opacity .2s, width .2s, height .2s;
+}
+#cur-b {
+  width:36px; height:36px; 
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px) contrast(1.2);
+  -webkit-backdrop-filter: blur(8px) contrast(1.2);
+  border: 1px solid rgba(255,255,255,0.4);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transform:translate(-50%,-50%); 
+  transition:width .4s var(--ease), height .4s var(--ease), background .4s, border-color .4s, backdrop-filter .4s;
+}
+body.hl #cur-a { opacity:0; }
+body.hl #cur-b {
+  width:64px; height:64px;
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(16px) contrast(1.4);
+  -webkit-backdrop-filter: blur(16px) contrast(1.4);
+  border-color: rgba(255,255,255,0.9);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,255,255,0.8);
+}
 
-/* ─── iOS 26 GLASS FINISH ─────────────────────────────── */
+/* ─── ELEVATED 3D GLASS CARDS ─────────────────────────── */
 .gc {
   position:relative;
   background: rgba(252,250,248,0.48);
@@ -67,18 +86,35 @@ body.hl #cur-b { width:50px; height:50px; border-color:rgba(204,61,16,.45); }
   border-radius: 24px;
   overflow: hidden;
   transform-style: preserve-3d;
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, box-shadow;
 }
+/* Deep 3D Shadow on Hover */
+.gc:hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,1),
+    inset 0 -1px 0 rgba(0,0,0,0.01),
+    0 12px 32px rgba(0,0,0,0.05),
+    0 32px 100px rgba(0,0,0,0.15);
+}
+/* Top structural line */
 .gc::before {
   content:''; position:absolute; top:0; left:8%; right:8%; height:1px;
   background: linear-gradient(90deg,transparent,rgba(255,255,255,1),transparent);
-  pointer-events:none; z-index:1;
+  pointer-events:none; z-index:2;
 }
-.gc::after {
-  content:''; position:absolute; inset:0;
-  border-radius:inherit;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.4);
-  pointer-events:none;
+/* Dynamic Mouse Glare */
+.gc-glare {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(800px circle at var(--x, 50%) var(--y, 50%), rgba(255,255,255,0.8), transparent 40%);
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.4s var(--ease);
+  mix-blend-mode: overlay;
 }
+.gc:hover .gc-glare { opacity: 1; }
 
 /* ─── GLITCH ──────────────────────────────────────────── */
 .glitch { position:relative; display:block; }
@@ -106,7 +142,7 @@ body.hl #cur-b { width:50px; height:50px; border-color:rgba(204,61,16,.45); }
   96%  { clip-path:inset(50% 0 50% 0); transform:none; opacity:0; }
 }
 
-/* ─── FAST FADE REVEAL (Removed 3D clipping) ──────────── */
+/* ─── FAST FADE REVEAL ────────────────────────────────── */
 .t3d {
   opacity:0;
   transform: translateY(12px);
@@ -139,7 +175,6 @@ nav {
 /* ─── HERO ────────────────────────────────────────────── */
 .hero {
   position:relative;
-  /* Min height removed to prevent giant empty gap, driven by padding now */
   padding-top:44px;
   border-bottom:1px solid var(--bd);
   overflow:hidden;
@@ -164,7 +199,6 @@ nav {
 .hero-acc-block svg { position:absolute; inset:14px; }
 .hero-acc-label { position:absolute; bottom:-1px; left:-200px; width:192px; text-align:right; display:flex; flex-direction:column; gap:3px; }
 
-/* Tightened name padding to pull layout up */
 .hero-name-wrap { padding:4vh 0; display:flex; align-items:center; position:relative; z-index:2; overflow:hidden; }
 .h-dev { font-family:var(--dsp); font-weight:400; font-size:clamp(88px,17vw,210px); line-height:.86; letter-spacing:-.055em; color:rgba(10,8,8,.13); user-select:none; display:block; padding-left:36px; }
 .h-tyagi { font-family:var(--dsp); font-weight:800; font-size:clamp(88px,17vw,210px); line-height:.86; letter-spacing:-.055em; color:var(--ink); display:block; padding-left:36px; }
@@ -233,17 +267,16 @@ nav {
 
 /* ─── PROJECTS ────────────────────────────────────────── */
 .proj-list { display:flex; flex-direction:column; gap:16px; }
-.proj-item { padding:28px; display:grid; grid-template-columns:1fr 120px; gap:24px; align-items:start; cursor:none; transition:transform .35s var(--ease), box-shadow .35s; transform-style:preserve-3d; }
-.proj-item:hover { box-shadow:0 24px 60px rgba(0,0,0,.08); }
+.proj-item { padding:28px; display:grid; grid-template-columns:1fr 120px; gap:24px; align-items:start; cursor:none; }
 .proj-award-b { font-family:var(--mono); font-size:8px; letter-spacing:.2em; text-transform:uppercase; color:var(--acc); margin-bottom:10px; display:flex; align-items:center; gap:8px; }
 .proj-award-b::before { content:''; width:18px; height:1px; background:var(--acc); flex-shrink:0; }
 .proj-h { font-family:var(--dsp); font-weight:800; font-size:clamp(17px,2.2vw,24px); letter-spacing:-.04em; line-height:1.1; color:var(--ink); margin-bottom:10px; }
-.proj-desc { font-size:13.5px; font-weight:400; color:var(--ink); line-height:1.65; max-width:600px; }
-.proj-tech { display:flex; flex-wrap:wrap; gap:4px; margin-top:14px; }
+.proj-desc { font-size:13.5px; font-weight:400; color:var(--ink); line-height:1.65; max-width:600px; position:relative; z-index:3;}
+.proj-tech { display:flex; flex-wrap:wrap; gap:4px; margin-top:14px; position:relative; z-index:3;}
 .pt { font-family:var(--mono); font-size:8px; letter-spacing:.12em; text-transform:uppercase; padding:2px 7px; border:1px solid var(--bd); color:var(--muted); }
-.proj-gh { font-family:var(--mono); font-size:8.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); border-bottom:1px solid var(--bd); display:inline-block; margin-top:14px; transition:color .15s, border-color .15s; }
+.proj-gh { position:relative; z-index:3; font-family:var(--mono); font-size:8.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); border-bottom:1px solid var(--bd); display:inline-block; margin-top:14px; transition:color .15s, border-color .15s; }
 .proj-gh:hover { color:var(--ink); border-color:var(--ink); }
-.proj-right { display:flex; flex-direction:column; align-items:flex-end; gap:14px; }
+.proj-right { display:flex; flex-direction:column; align-items:flex-end; gap:14px; position:relative; z-index:3;}
 .proj-stn { font-family:var(--dsp); font-weight:800; font-size:24px; letter-spacing:-.04em; line-height:1; color:var(--ink); }
 .proj-stl { font-family:var(--mono); font-size:8px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); margin-top:2px; }
 .proj-arr { font-family:var(--mono); font-size:14px; color:var(--muted); transition:transform .25s var(--ease), color .2s; }
@@ -251,21 +284,20 @@ nav {
 
 /* ─── ACHIEVEMENTS ────────────────────────────────────── */
 .ach-row { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
-.ach-card { padding:32px 24px; transition:transform .4s var(--ease), box-shadow .4s; transform-style:preserve-3d; cursor:none; }
-.ach-card:hover { box-shadow:0 24px 60px rgba(0,0,0,.12); }
-.ach-idx { font-family:var(--mono); font-size:8.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-bottom:16px; }
-.ach-rank { font-family:var(--dsp); font-weight:800; font-size:52px; letter-spacing:-.06em; line-height:1; color:var(--ink); margin-bottom:10px; }
+.ach-card { padding:32px 24px; cursor:none; }
+.ach-idx { position:relative; z-index:3; font-family:var(--mono); font-size:8.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-bottom:16px; }
+.ach-rank { position:relative; z-index:3; font-family:var(--dsp); font-weight:800; font-size:52px; letter-spacing:-.06em; line-height:1; color:var(--ink); margin-bottom:10px; }
 .ach-rank sup { font-size:.38em; vertical-align:top; letter-spacing:0; }
-.ach-name { font-family:var(--dsp); font-weight:700; font-size:15px; letter-spacing:-.02em; margin-bottom:6px; }
-.ach-sub { font-size:13px; color:var(--ink); line-height:1.6; }
-.ach-ev { font-family:var(--mono); font-size:8px; letter-spacing:.16em; text-transform:uppercase; color:var(--acc); margin-top:12px; }
+.ach-name { position:relative; z-index:3; font-family:var(--dsp); font-weight:700; font-size:15px; letter-spacing:-.02em; margin-bottom:6px; }
+.ach-sub { position:relative; z-index:3; font-size:13px; color:var(--ink); line-height:1.6; }
+.ach-ev { position:relative; z-index:3; font-family:var(--mono); font-size:8px; letter-spacing:.16em; text-transform:uppercase; color:var(--acc); margin-top:12px; }
 
 /* ─── EDU ─────────────────────────────────────────────── */
 .edu-card { padding:32px 36px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px; }
-.edu-d { font-family:var(--mono); font-size:8.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
-.edu-u { font-family:var(--dsp); font-weight:800; font-size:20px; letter-spacing:-.03em; color:var(--ink); margin-bottom:4px; }
-.edu-l { font-family:var(--mono); font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
-.edu-chips { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+.edu-d { position:relative; z-index:3; font-family:var(--mono); font-size:8.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+.edu-u { position:relative; z-index:3; font-family:var(--dsp); font-weight:800; font-size:20px; letter-spacing:-.03em; color:var(--ink); margin-bottom:4px; }
+.edu-l { position:relative; z-index:3; font-family:var(--mono); font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
+.edu-chips { position:relative; z-index:3; display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
 .edu-chip { font-family:var(--mono); font-size:8.5px; letter-spacing:.12em; text-transform:uppercase; padding:4px 11px; border:1px solid var(--bd); color:var(--ink); }
 .edu-yr { font-family:var(--dsp); font-weight:800; font-size:42px; letter-spacing:-.05em; line-height:1; color:rgba(10,8,8,.15); }
 
@@ -388,7 +420,6 @@ footer { border-top:1px solid var(--bd); padding:16px 32px; display:flex; align-
       <div class="sec-num">001</div>
     </div>
     <div class="about-grid">
-      <!-- Removed t3d class to ensure readability without scrolling wait -->
       <div class="copy">
         <p><b>B.Tech ECE student at Vellore Institute of Technology, Chennai</b> (2023–2027). Designing and verifying RTL at the intersection of microarchitecture, high-speed protocol implementation, and AI inference acceleration.</p>
         <p>Out-of-order RISC-V processors, AXI4 DMA engines, neural network inference accelerators — built from specification through <b>timing closure at 250 MHz</b> on Xilinx UltraScale+ fabric.</p>
@@ -416,6 +447,7 @@ footer { border-top:1px solid var(--bd); padding:16px 32px; display:flex; align-
     </div>
     <div class="exp-list">
       <div class="exp-row gc t3d t3d-d2" style="border-radius:0;border-top:1px solid var(--bd);">
+        <div class="gc-glare"></div>
         <div class="exp-idx">EXP.01</div>
         <div class="exp-main">
           <div class="exp-role">FPGA RTL Design Intern</div>
@@ -429,6 +461,7 @@ footer { border-top:1px solid var(--bd); padding:16px 32px; display:flex; align-
         <div class="exp-date">Mar 2026<br>— Present</div>
       </div>
       <div class="exp-row gc t3d t3d-d3" style="border-radius:0;border-top:1px solid var(--bd);">
+        <div class="gc-glare"></div>
         <div class="exp-idx">EXP.02</div>
         <div class="exp-main">
           <div class="exp-role">RTL Design Intern</div>
@@ -442,6 +475,7 @@ footer { border-top:1px solid var(--bd); padding:16px 32px; display:flex; align-
         <div class="exp-date">May 2026<br>— Jul 2026</div>
       </div>
       <div class="exp-row gc t3d t3d-d1" style="border-radius:0;border-top:1px solid var(--bd);">
+        <div class="gc-glare"></div>
         <div class="exp-idx">EXP.03</div>
         <div class="exp-main">
           <div class="exp-role">Team Lead, FPGA Signal Processing</div>
@@ -469,6 +503,7 @@ footer { border-top:1px solid var(--bd); padding:16px 32px; display:flex; align-
     <div class="proj-list">
 
       <div class="proj-item gc t3d t3d-d2">
+        <div class="gc-glare"></div>
         <div>
           <div class="proj-award-b">1st Place + Special Jury Award — SanDisk Hardware Hackathon (100+ teams)</div>
           <div class="proj-h">Out-of-Order Superscalar RISC-V Processor</div>
@@ -487,6 +522,7 @@ footer { border-top:1px solid var(--bd); padding:16px 32px; display:flex; align-
       </div>
 
       <div class="proj-item gc t3d t3d-d3">
+        <div class="gc-glare"></div>
         <div>
           <div class="proj-award-b">2nd Place — FPGA Makeathon</div>
           <div class="proj-h">High-Throughput AXI4 DMA Engine</div>
@@ -503,6 +539,7 @@ footer { border-top:1px solid var(--bd); padding:16px 32px; display:flex; align-
       </div>
 
       <div class="proj-item gc t3d t3d-d1">
+        <div class="gc-glare"></div>
         <div>
           <div class="proj-h">PMDC Motor Drive FPGA Simulation</div>
           <div class="proj-desc">Closed-loop PMDC motor drive on Zybo Z7-20 with internally-generated PWM chopper and multi-frequency preset switching. Real-time telemetry streamed over TCP via AXI DMA and lwIP to a Python live dashboard.</div>
@@ -516,6 +553,7 @@ footer { border-top:1px solid var(--bd); padding:16px 32px; display:flex; align-
       </div>
 
       <div class="proj-item gc t3d t3d-d2">
+        <div class="gc-glare"></div>
         <div>
           <div class="proj-h">ConstraintForge — FPGA Timing Constraint Library</div>
           <div class="proj-desc">Annotated XDC/SDC/LPF constraint templates covering 14+ interfaces (AXI4, SPI, DDR3, RGMII, HDMI, MIPI CSI-2) across Xilinx, Intel, Lattice, and Gowin. CI-validated via GitHub Actions on every commit.</div>
@@ -545,6 +583,7 @@ footer { border-top:1px solid var(--bd); padding:16px 32px; display:flex; align-
     </div>
     <div class="ach-row">
       <div class="ach-card gc t3d t3d-d2">
+        <div class="gc-glare"></div>
         <div class="ach-idx">ACH.01 / Competition</div>
         <div class="ach-rank">1<sup>st</sup></div>
         <div class="ach-name">Place + Special Jury Award</div>
@@ -552,6 +591,7 @@ footer { border-top:1px solid var(--bd); padding:16px 32px; display:flex; align-
         <div class="ach-ev">SanDisk Hardware Hackathon</div>
       </div>
       <div class="ach-card gc t3d t3d-d3">
+        <div class="gc-glare"></div>
         <div class="ach-idx">ACH.02 / Competition</div>
         <div class="ach-rank">2<sup>nd</sup></div>
         <div class="ach-name">Place — FPGA Makeathon</div>
@@ -559,6 +599,7 @@ footer { border-top:1px solid var(--bd); padding:16px 32px; display:flex; align-
         <div class="ach-ev">FPGA Makeathon</div>
       </div>
       <div class="ach-card gc t3d t3d-d4">
+        <div class="gc-glare"></div>
         <div class="ach-idx">ACH.03 / Leadership</div>
         <div class="ach-rank">40<span style="font-size:.45em;vertical-align:.2em">+</span></div>
         <div class="ach-name">Engineers Led</div>
@@ -574,6 +615,7 @@ footer { border-top:1px solid var(--bd); padding:16px 32px; display:flex; align-
   <div class="sec-aside"><span class="sec-aside-t">Education</span></div>
   <div class="sec-pad">
     <div class="edu-card gc t3d t3d-d1">
+      <div class="gc-glare"></div>
       <div>
         <div class="edu-d">B.Tech — Electronics and Computer Engineering</div>
         <div class="edu-u">Vellore Institute of Technology</div>
@@ -598,7 +640,6 @@ footer { border-top:1px solid var(--bd); padding:16px 32px; display:flex; align-
       <div class="sec-num">005</div>
     </div>
     <h2 class="contact-h t3d t3d-d2">Let's build<br><em>something real</em><span style="color:var(--acc)">.</span></h2>
-    <!-- Removed t3d from contact paragraph and grid so it's always readable quickly at the end of the scroll -->
     <p style="font-size:14px;font-weight:400;color:var(--ink);line-height:1.75;max-width:480px;margin-bottom:24px">
       Open for full-time roles, internships, and research collaborations in FPGA/RTL design, RISC-V microarchitecture, and AI accelerator development.
     </p>
@@ -678,14 +719,14 @@ document.querySelectorAll('a,button,.skill-row,.exp-row,.proj-item,.ach-card,.st
   });
 });
 
-/* ── MAGNETIC GLASS CARDS (3D tilt) ──────────────────── */
+/* ── MAGNETIC GLASS CARDS (3D tilt + Glare) ───────────── */
 document.querySelectorAll('.gc,.ach-card,.proj-item').forEach(card=>{
   let af, tx=0,ty=0,rx=0,ry=0,targetTx=0,targetTy=0,targetRx=0,targetRy=0;
 
   function anim(){
     tx+=(targetTx-tx)*.1; ty+=(targetTy-ty)*.1;
     rx+=(targetRx-rx)*.1; ry+=(targetRy-ry)*.1;
-    card.style.transform=`perspective(1000px) translate(${tx}px,${ty}px) rotateX(${ry}deg) rotateY(${rx}deg)`;
+    card.style.transform=`perspective(800px) scale(1.015) translate(${tx}px,${ty}px) rotateX(${ry}deg) rotateY(${rx}deg)`;
     af=requestAnimationFrame(anim);
   }
   card.addEventListener('mouseenter',()=>{ af=requestAnimationFrame(anim); });
@@ -693,8 +734,14 @@ document.querySelectorAll('.gc,.ach-card,.proj-item').forEach(card=>{
     const r=card.getBoundingClientRect();
     const dx=(e.clientX-(r.left+r.width/2))/(r.width/2);
     const dy=(e.clientY-(r.top+r.height/2))/(r.height/2);
-    targetTx=dx*6; targetTy=dy*6;
-    targetRx=dx*4; targetRy=-dy*4;
+    
+    // Deeper rotation logic
+    targetTx=dx*8; targetTy=dy*8;
+    targetRx=dx*7; targetRy=-dy*7;
+
+    // Track mouse for glare effect inside the card
+    card.style.setProperty('--x', `${e.clientX - r.left}px`);
+    card.style.setProperty('--y', `${e.clientY - r.top}px`);
   });
   card.addEventListener('mouseleave',()=>{
     targetTx=0; targetTy=0; targetRx=0; targetRy=0;
