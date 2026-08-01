@@ -1265,10 +1265,30 @@ scene.add(redLight);
 let tBoard = 0;
 let curRotX = 0.5, curRotY = 0, curRotZ = 0; // Starting rotation
 
+
+// Interactive WebGL Typography Glitch
+const devText = document.getElementById('mag-dev');
+const tyagiText = document.getElementById('mag-tyagi');
+let glitchVel = 0;
+let targetGlitchVel = 0;
+const nmWrap = document.querySelector('.hero-name-wrap');
+if(nmWrap) {
+  nmWrap.addEventListener('mousemove', (e) => {
+    const mx_ = e.movementX; const my_ = e.movementY;
+    const speed = Math.sqrt(mx_*mx_ + my_*my_);
+    targetGlitchVel = Math.min(speed * 0.05, 3.0); 
+    if(AudioSys.ctx && targetGlitchVel > 1.5) AudioSys.noise(0.05, 0.05, 800);
+  });
+  nmWrap.addEventListener('mouseleave', () => { targetGlitchVel = 0; });
+}
+
+let camTargetOverride = null;
+const camTargetVec = new THREE.Vector3(0,0,0);
+
 function render3DLoop() {
   tBoard += 0.005;
   
-  // Dynamic orbiting studio lights to sweep shadows across the board
+  // Dynamic orbiting studio lights
   blueLight.position.x = Math.sin(tBoard * 1.5) * 12;
   blueLight.position.z = Math.cos(tBoard * 1.5) * 12;
   redLight.position.x = Math.cos(tBoard * 1.2) * 12;
@@ -1278,28 +1298,115 @@ function render3DLoop() {
   matLEDGreen.emissiveIntensity = (Math.sin(tBoard * 20) > 0) ? 6 : 0.5;
   matLEDRed.emissiveIntensity = (Math.sin(tBoard * 4) > 0.9) ? 8 : 0;
   
-  // Calculate target rotation based on scroll progress (sp)
-  const targetRotY = sp * Math.PI * 1.5; // Spins 270 degrees total
-  const targetRotX = 0.5 + (sp - 0.5) * 1.0; // Tilts up and down
-  const targetRotZ = sp * 0.6; // Slight Z banking
+  // Data Flow Animation (if packets exist)
+  if(typeof packets !== 'undefined') {
+    packets.forEach(p => {
+      p.userData.progress += p.userData.speed;
+      if(p.userData.progress > 1) { 
+        p.userData.progress = 0; p.userData.speed = 0.005 + Math.random()*0.02; 
+      }
+      p.position.set(
+        THREE.MathUtils.lerp(p.userData.startX, p.userData.endX, p.userData.progress),
+        0.3,
+        THREE.MathUtils.lerp(p.userData.startZ, p.userData.endZ, p.userData.progress)
+      );
+    });
+  }
+
+  // Camera Fly-Through Logic
+  let idealPosX = 0, idealPosY = 16, idealPosZ = 22;
+  let idealTargetX = 0, idealTargetY = 0, idealTargetZ = 0;
   
-  // Smoothly interpolate current rotation to target
-  curRotX += (targetRotX - curRotX) * 0.05;
-  curRotY += (targetRotY - curRotY) * 0.05;
-  curRotZ += (targetRotZ - curRotZ) * 0.05;
-  
-  // Apply mouse parallax (mx, my from global cursor logic)
+  if (camTargetOverride === 'fpga') {
+    idealPosX = 0; idealPosY = 6; idealPosZ = 6; idealTargetY = 0.5;
+  } else if (camTargetOverride === 'ram') {
+    idealPosX = 5; idealPosY = 4; idealPosZ = 4; idealTargetX = 3.8; idealTargetZ = -0.5;
+  } else if (camTargetOverride === 'io') {
+    idealPosX = -6; idealPosY = 6; idealPosZ = 5; idealTargetX = -7.25; idealTargetY = 0.5;
+  } else {
+    // Normal scroll spline
+    if (sp < 0.2) {
+      // Hero
+    } else if (sp < 0.6) {
+      const localSp = (sp - 0.2) / 0.4;
+      idealPosX = THREE.MathUtils.lerp(0, -3, localSp);
+      idealPosY = THREE.MathUtils.lerp(16, 6, localSp);
+      idealPosZ = THREE.MathUtils.lerp(22, 10, localSp);
+      idealTargetX = THREE.MathUtils.lerp(0, -1, localSp);
+    } else {
+      const localSp = (sp - 0.6) / 0.4;
+      idealPosX = THREE.MathUtils.lerp(-3, 0, localSp);
+      idealPosY = THREE.MathUtils.lerp(6, 26, localSp);
+      idealPosZ = THREE.MathUtils.lerp(10, 0.1, localSp);
+    }
+  }
+
+  camera.position.x += (idealPosX - camera.position.x) * 0.05;
+  camera.position.y += (idealPosY - camera.position.y) * 0.05;
+  camera.position.z += (idealPosZ - camera.position.z) * 0.05;
+  camTargetVec.x += (idealTargetX - camTargetVec.x) * 0.05;
+  camTargetVec.y += (idealTargetY - camTargetVec.y) * 0.05;
+  camTargetVec.z += (idealTargetZ - camTargetVec.z) * 0.05;
+  camera.lookAt(camTargetVec);
+
+  // Keep gentle rotation for parallax
   const pdx = (mx - window.innerWidth/2) * 0.0003;
   const pdy = (my - window.innerHeight/2) * 0.0003;
+  boardGroup.rotation.x = (sp*0.5) + Math.sin(tBoard)*0.03 + pdy;
+  boardGroup.rotation.y = (sp*Math.PI*1.5) + Math.cos(tBoard*0.8)*0.03 + pdx;
   
-  boardGroup.rotation.x = curRotX + Math.sin(tBoard)*0.03 + pdy;
-  boardGroup.rotation.y = curRotY + Math.cos(tBoard*0.8)*0.03 + pdx;
-  boardGroup.rotation.z = curRotZ;
-  
-  // Smooth floating motion
-  boardGroup.position.y = Math.sin(tBoard*2) * 0.5;
+  // Schematic / Wireframe Transition
+  const isWireframe = sp > 0.4;
+  const mats = [matPCB, matSilver, matGold, matCeramic, matTantalum, matMLCC, matFPGA, matRAM];
+  mats.forEach(m => {
+    if(m) {
+      m.wireframe = isWireframe;
+      if (isWireframe) {
+        m.emissive.setHex(0xcc3d10);
+        m.emissiveIntensity = (sp - 0.4) * 2.0;
+        m.opacity = Math.max(0.1, 1.0 - (sp - 0.4)*2);
+        m.transparent = true;
+      } else {
+        m.emissive.setHex(0x000000);
+        m.emissiveIntensity = 0;
+        m.opacity = 1.0;
+        m.transparent = false;
+      }
+    }
+  });
 
-  renderer.render(scene, camera);
+  // Glitch Physics & RGB Shift
+  glitchVel += (targetGlitchVel - glitchVel) * 0.15;
+  targetGlitchVel *= 0.9;
+  
+  if(typeof rgbPass !== 'undefined') {
+    rgbPass.uniforms['amount'].value = glitchVel * 0.003;
+    rgbPass.uniforms['angle'].value = Math.random() * Math.PI;
+  }
+  if(typeof bokehPass !== 'undefined') {
+    bokehPass.uniforms["focus"].value = 27.0 + (sp * 10.0);
+  }
+
+  // DOM Glitch Sync
+  const blur = Math.max(0, glitchVel - 0.5) * 2;
+  const shift = glitchVel * 8;
+  const txtShadow = `-${shift}px 0 ${blur}px rgba(204,61,16,0.9), ${shift}px 0 ${blur}px rgba(30,77,183,0.9), 0 0 24px rgba(204,61,16,0.5)`;
+  if(devText) {
+    devText.style.textShadow = txtShadow;
+    devText.style.transform = `skewX(${-glitchVel * 4}deg) translateX(${Math.random()*glitchVel}px)`;
+  }
+  if(tyagiText) {
+    tyagiText.style.textShadow = txtShadow;
+    tyagiText.style.transform = `skewX(${glitchVel * 4}deg) translateX(${-Math.random()*glitchVel}px)`;
+  }
+
+  // Render
+  if(typeof composer !== 'undefined') {
+    composer.render();
+  } else {
+    renderer.render(scene, camera);
+  }
+  
   requestAnimationFrame(render3DLoop);
 }
 render3DLoop();
