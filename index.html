@@ -199,8 +199,14 @@ nav {
 
 /* ─── HERO ────────────────────────────────────────────── */
 .hero {
-  padding-top:44px;
-  border-bottom:1px solid var(--bd);
+  margin: 12vh 3vw 6vh;
+  padding-top: 32px;
+  border-radius: 32px;
+  background: rgba(250,248,245,0.6);
+  backdrop-filter: blur(32px) saturate(150%);
+  -webkit-backdrop-filter: blur(32px) saturate(150%);
+  border: 1px solid rgba(255,255,255,0.6);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,1);
   overflow:hidden;
   display:flex; flex-direction:column;
 }
@@ -248,7 +254,7 @@ nav {
 .hbc-l { font-family:var(--mono); font-size:8px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); line-height:1.5; }
 
 /* ─── MARQUEE ─────────────────────────────────────────── */
-.mq { border-bottom:1px solid var(--bd); overflow:hidden; height:30px; display:flex; align-items:center; }
+.mq { overflow:hidden; height:30px; display:flex; align-items:center; margin: 4vh 0; }
 .mq-t { display:flex; white-space:nowrap; animation:mq-scroll 22s linear infinite; }
 .mq-t span { font-family:var(--mono); font-size:8px; letter-spacing:.22em; text-transform:uppercase; color:var(--muted); padding:0 18px; }
 .mq-t span.m { color:var(--ink); font-weight:700; }
@@ -256,8 +262,18 @@ nav {
 @keyframes mq-scroll { from{transform:translateX(0)} to{transform:translateX(-50%)} }
 
 /* ─── SECTION TEMPLATE ────────────────────────────────── */
-.sec { border-bottom:1px solid var(--bd); padding:48px 32px; position:relative; }
-.sec-aside { position:absolute; left:0; top:0; bottom:0; width:28px; border-right:1px solid var(--bd); display:flex; align-items:center; justify-content:center; overflow:hidden; }
+.sec { 
+  margin: 8vh 3vw; 
+  padding: 48px 32px; 
+  position:relative; 
+  border-radius: 32px;
+  background: rgba(250,248,245,0.6);
+  backdrop-filter: blur(32px) saturate(150%);
+  -webkit-backdrop-filter: blur(32px) saturate(150%);
+  border: 1px solid rgba(255,255,255,0.6);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,1);
+}
+.sec-aside { position:absolute; left:0; top:0; bottom:0; width:28px; border-right:1px solid rgba(10,8,8,0.06); display:flex; align-items:center; justify-content:center; overflow:hidden; }
 .sec-aside-t { font-family:var(--mono); font-size:7.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); white-space:nowrap; transform:rotate(-90deg); }
 .sec-pad { padding-left:36px; }
 
@@ -356,7 +372,16 @@ nav {
 .cg-cell a:hover .cg-val { border-color:var(--ink); }
 
 /* ─── FOOTER ──────────────────────────────────────────── */
-footer { border-top:1px solid var(--bd); padding:16px 32px; display:flex; align-items:center; justify-content:space-between; }
+footer { 
+  margin: 4vh 3vw 4vh;
+  border-radius: 24px;
+  background: rgba(250,248,245,0.6);
+  backdrop-filter: blur(32px) saturate(150%);
+  -webkit-backdrop-filter: blur(32px) saturate(150%);
+  border: 1px solid rgba(255,255,255,0.6);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,1);
+  padding:16px 32px; display:flex; align-items:center; justify-content:space-between; 
+}
 .ft-l { font-family:var(--mono); font-size:9px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); }
 .ft-r { display:flex; gap:22px; }
 .ft-r a { font-family:var(--mono); font-size:9px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); transition:color .15s; }
@@ -657,7 +682,7 @@ footer { border-top:1px solid var(--bd); padding:16px 32px; display:flex; align-
 </section>
 
 <!-- ── EDUCATION ───────────────────────────────────────── -->
-<section class="sec" style="border-bottom:1px solid var(--bd)">
+<section class="sec">
   <div class="sec-aside"><span class="sec-aside-t">Education</span></div>
   <div class="sec-pad">
     <div class="edu-card gc t3d t3d-d1">
@@ -678,7 +703,7 @@ footer { border-top:1px solid var(--bd); padding:16px 32px; display:flex; align-
 </section>
 
 <!-- ── CONTACT ─────────────────────────────────────────── -->
-<section class="sec" id="contact" style="border-bottom:none">
+<section class="sec" id="contact">
   <div class="sec-aside"><span class="sec-aside-t">Contact</span></div>
   <div class="sec-pad">
     <div class="sec-hd t3d t3d-d1" style="margin-bottom:16px;">
@@ -987,10 +1012,10 @@ for(let i=0; i<6; i++) {
 }
 
 // Dense Photorealistic SMD Components Grid
-for(let x=-7.5; x<=7.5; x+=0.4) {
-  for(let z=-6.5; z<=6.5; z+=0.4) {
+for(let x=-7.5; x<=7.5; x+=0.25) {
+  for(let z=-6.5; z<=6.5; z+=0.25) {
     if(Math.abs(x) < 4.2 && Math.abs(z) < 4.2) continue; // Keep clear of main die and socket
-    if(Math.random() > 0.6) { // High density
+    if(Math.random() > 0.45) { // Extreme density
       const type = Math.random();
       let w, h, d, mat;
       
@@ -1036,6 +1061,42 @@ for(let i=0; i<5; i++) {
   const trace2 = new THREE.Mesh(new THREE.BoxGeometry(2 + Math.random()*2, 0.21, 0.02), matTrace);
   trace2.position.set(-5 + Math.random()*2, 0, trace.position.z + 1.5);
   boardGroup.add(trace2);
+}
+
+
+// PCIe edge connector (gold pins)
+const pcie = new THREE.Mesh(new THREE.BoxGeometry(11, 0.25, 0.6), matCeramic);
+pcie.position.set(0, 0, 7.3);
+boardGroup.add(pcie);
+for(let i=-5.3; i<=5.3; i+=0.15) {
+  const pin = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.26, 0.5), matGold);
+  pin.position.set(i, 0, 7.3);
+  boardGroup.add(pin);
+}
+
+// Huge Heat Sink
+const heatsinkBase = new THREE.Mesh(new THREE.BoxGeometry(3.5, 0.2, 3.5), matSilver);
+heatsinkBase.position.set(-3.5, 0.2, 3.5);
+boardGroup.add(heatsinkBase);
+for(let i=-1.5; i<=1.5; i+=0.35) {
+  const fin = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.4, 3.5), matSilver);
+  fin.position.set(-3.5 + i, 0.9, 3.5);
+  boardGroup.add(fin);
+}
+
+// Large peripheral ICs
+for(let i=0; i<12; i++) {
+  const w = 0.6 + Math.random()*1.2;
+  const d = 0.6 + Math.random()*1.2;
+  const chip = new THREE.Mesh(new THREE.BoxGeometry(w, 0.25, d), matCeramic);
+  chip.position.set(-6.5 + Math.random()*13, 0.2, -5.5 + Math.random()*11);
+  if (Math.abs(chip.position.x) < 4.5 && Math.abs(chip.position.z) < 4.5) continue; // avoid socket
+  if (Math.abs(chip.position.x - (-3.5)) < 2.5 && Math.abs(chip.position.z - 3.5) < 2.5) continue; // avoid heatsink
+  boardGroup.add(chip);
+  const pins = new THREE.Mesh(new THREE.BoxGeometry(w + 0.15, 0.1, d + 0.15), matSilver);
+  pins.position.copy(chip.position);
+  pins.position.y = 0.1;
+  boardGroup.add(pins);
 }
 
 // Lighting setup (dramatic, high contrast)
