@@ -178,13 +178,26 @@ nav {
 .sdot { width:5px; height:5px; border-radius:50%; background:var(--acc); animation:blink 2s ease-in-out infinite; }
 @keyframes blink { 0%,100%{opacity:1}50%{opacity:.25} }
 
-/* ─── HERO ────────────────────────────────────────────── */
+/* ─── HERO & BACKGROUND FPGA RENDER ───────────────────── */
 .hero {
   position:relative;
   padding-top:44px;
   border-bottom:1px solid var(--bd);
   overflow:hidden;
   display:flex; flex-direction:column;
+}
+
+#bg-fpga {
+  position:absolute;
+  top:-5vh; right:-10vw;
+  width: 90vw; max-width:1000px; height:auto;
+  mix-blend-mode: multiply;
+  opacity: 0.16;
+  pointer-events:none;
+  z-index:1;
+  filter: contrast(1.1) grayscale(100%);
+  will-change: transform;
+  transform-origin: center center;
 }
 
 .scatter { position:absolute; inset:0; pointer-events:none; z-index:4; }
@@ -394,6 +407,9 @@ footer { border-top:1px solid var(--bd); padding:16px 32px; display:flex; align-
 
 <!-- ── HERO ───────────────────────────────────────────── -->
 <section class="hero">
+  <!-- Massive Background FPGA Image -->
+  <img src="assets/fpga_render.jpg" id="bg-fpga" alt="FPGA Microchip" aria-hidden="true">
+
   <div class="scatter" aria-hidden="true">
     <div class="sp" style="top:22%;right:3%"><span class="sp-key">Epoch of action</span><span class="sp-val">Chennai / Bharat</span><span class="sp-key" style="margin-top:3px">N13.0827° / E80.2707°</span></div>
     <div class="sp" style="top:52%;right:3%"><span class="sp-key">Throughput</span><span class="sp-val sp-val-acc">1 GB/s</span><span class="sp-key">Sustained / PYNQ-Z2</span></div>
@@ -800,6 +816,7 @@ document.querySelectorAll('.t3d').forEach(el=>io.observe(el));
 
 /* ── SCROLL VELOCITY SKEW & PARALLAX ──────────────────── */
 const sps=document.querySelectorAll('.sp');
+const fpga=document.getElementById('bg-fpga');
 let tick=false, lastY=window.scrollY, scrollVel=0;
 
 // Floating scatter animation
@@ -827,6 +844,12 @@ window.addEventListener('scroll',()=>{
       const ty = sy*(i%2===0?.05:-.03);
       el.setAttribute('data-ty', ty);
     });
+    
+    // FPGA Parallax & Rotation
+    if(fpga) {
+      fpga.style.transform = `translateY(${sy * 0.25}px) rotate(${sy * 0.03}deg) scale(${1 + Math.abs(sy)*0.0003})`;
+    }
+    
     tick=false;
   }); tick=true; }
 },{passive:true});
