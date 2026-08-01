@@ -10,6 +10,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <!-- Lenis Smooth Scrolling -->
 <script src="https://unpkg.com/lenis@1.1.9/dist/lenis.min.js"></script>
+<!-- Three.js for 3D Board -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
 /* ─── TOKENS ──────────────────────────────────────────── */
 :root {
@@ -73,27 +75,16 @@ body.hl #cur-b {
   box-shadow: 0 8px 24px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,255,255,0.8);
 }
 
-/* ─── FIXED 3D FPGA BACKGROUND ────────────────────────── */
-#fixed-bg {
-  position: fixed; inset: 0; z-index: 0;
-  pointer-events: none; overflow: visible;
-  perspective: 1400px;
-  will-change: transform;
-}
-#bg-fpga {
-  position: absolute;
-  top: 50%; left: 50%;
-  width: 140vw; max-width: 1400px; height: auto;
-  mix-blend-mode: multiply;
-  opacity: 0.18;
-  filter: contrast(1.4) grayscale(100%);
-  will-change: transform;
-  transform-style: preserve-3d;
-  /* Centered initially, physics engine will take over */
-  transform: translate(-50%, -50%);
+/* ─── WEBGL FULL 3D BACKGROUND ────────────────────────── */
+#webgl-bg {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  z-index: 0;
+  pointer-events: none;
 }
 
-/* Make sections relative so they sit above the fixed background */
+/* Elevate UI over the 3D canvas */
 nav, .hero, .mq, .sec, footer {
   position: relative;
   z-index: 2;
@@ -402,14 +393,10 @@ footer { border-top:1px solid var(--bd); padding:16px 32px; display:flex; align-
 </head>
 <body>
 
+<canvas id="webgl-bg" aria-hidden="true"></canvas>
+
 <div id="cur-a"></div>
 <div id="cur-b"></div>
-
-<!-- ── FIXED 3D BACKGROUND ────────────────────────────── -->
-<div id="fixed-bg" aria-hidden="true">
-  <!-- Massive Background FPGA Image -->
-  <img src="assets/fpga_render.jpg" id="bg-fpga" alt="FPGA Microchip">
-</div>
 
 <!-- ── NAV ────────────────────────────────────────────── -->
 <nav>
@@ -739,10 +726,9 @@ function raf(time) {
 }
 requestAnimationFrame(raf)
 
-/* ── CURSOR & MOUSE PARALLAX ──────────────────────────── */
+/* ── CURSOR ───────────────────────────────────────────── */
 const ca = document.getElementById('cur-a');
 const cb = document.getElementById('cur-b');
-const fixedBg = document.getElementById('fixed-bg');
 let mx=0,my=0,bx=0,by=0;
 
 document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; });
@@ -751,14 +737,6 @@ function curLoop() {
   bx += (mx-bx)*.1; by += (my-by)*.1;
   ca.style.left=mx+'px'; ca.style.top=my+'px';
   cb.style.left=bx+'px'; cb.style.top=by+'px';
-  
-  // Mouse Parallax for the Fixed 3D Background
-  if(fixedBg) {
-    const pdx = (mx - window.innerWidth/2) * -0.015;
-    const pdy = (my - window.innerHeight/2) * -0.015;
-    fixedBg.style.transform = `translate3d(${pdx}px, ${pdy}px, 0)`;
-  }
-  
   requestAnimationFrame(curLoop);
 }
 curLoop();
@@ -805,7 +783,6 @@ document.querySelectorAll('.gc,.ach-card,.proj-item').forEach(card=>{
     targetTx=dx*8; targetTy=dy*8;
     targetRx=dx*7; targetRy=-dy*7;
 
-    // Track mouse for glare effect inside the card
     card.style.setProperty('--x', `${e.clientX - r.left}px`);
     card.style.setProperty('--y', `${e.clientY - r.top}px`);
   });
@@ -838,10 +815,10 @@ const io=new IntersectionObserver(entries=>{
 },{threshold:.01});
 document.querySelectorAll('.t3d').forEach(el=>io.observe(el));
 
-/* ── SCROLL VELOCITY SKEW & 3D PHYSICS ────────────────── */
+/* ── SCROLL VELOCITY SKEW & PARALLAX ──────────────────── */
 const sps=document.querySelectorAll('.sp');
-const fpga=document.getElementById('bg-fpga');
 let tick=false, lastY=window.scrollY, scrollVel=0;
+let sp=0; // scroll progress for 3D
 
 // Floating scatter animation
 let floatT = Math.random()*100;
@@ -868,24 +845,14 @@ window.addEventListener('scroll',()=>{
       const ty = sy*(i%2===0?.05:-.03);
       el.setAttribute('data-ty', ty);
     });
-    
-    // FPGA FULL 3D Rotation Physics
-    if(fpga) {
-      // Rotates continuously based on scroll depth in all 3 axes
-      const rotZ = sy * 0.02; 
-      const rotX = Math.sin(sy * 0.001) * 35; // Deep tilt
-      const rotY = Math.cos(sy * 0.001) * 35; // Deep pan
-      const tz = sy * 0.08; // Moves closer/further in Z space
-      
-      // The -50%, -50% keeps it centered, then we apply 3D transforms
-      fpga.style.transform = `translate(-50%, -50%) translate3d(0px, 0px, ${tz}px) rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg)`;
-    }
+
+    const maxScroll = Math.max(1, document.body.scrollHeight - window.innerHeight);
+    sp = Math.min(1, Math.max(0, sy / maxScroll));
     
     tick=false;
   }); tick=true; }
 },{passive:true});
 
-// Dynamic Skew for Section Headers
 function skewLoop() {
   scrollVel *= 0.85; // Friction
   const skew = Math.min(Math.max(scrollVel * -0.05, -6), 6); // Clamp skew
@@ -921,6 +888,130 @@ document.querySelectorAll('a[href^="#"]').forEach(a=>{
     e.preventDefault(); 
     lenis.scrollTo(t, { offset: 0, duration: 1.2 });
   });
+});
+
+/* ── THREE.JS FULL PROCEDURAL 3D FPGA BOARD ───────────── */
+const canvas = document.getElementById('webgl-bg');
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(35, window.innerWidth/window.innerHeight, 0.1, 100);
+camera.position.set(0, 16, 22);
+camera.lookAt(0, 0, 0);
+
+const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: "high-performance" });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+const boardGroup = new THREE.Group();
+scene.add(boardGroup);
+
+// Highly elegant, contrasty materials
+const matBoard = new THREE.MeshStandardMaterial({ color: 0x121212, metalness: 0.3, roughness: 0.85 });
+const matChip = new THREE.MeshStandardMaterial({ color: 0x050505, metalness: 0.9, roughness: 0.15 }); // Glossy silicon
+const matGold = new THREE.MeshStandardMaterial({ color: 0xc9a85c, metalness: 1.0, roughness: 0.2 }); // Gold pins
+const matAcc = new THREE.MeshStandardMaterial({ color: 0xcc3d10, metalness: 0.4, roughness: 0.3, emissive: 0xcc3d10, emissiveIntensity: 0.3 }); // Brand accent glowing
+
+// Base PCB (ZCU102 proportion)
+const pcb = new THREE.Mesh(new THREE.BoxGeometry(16, 0.2, 14), matBoard);
+boardGroup.add(pcb);
+
+// Main FPGA Die
+const fpgaDie = new THREE.Mesh(new THREE.BoxGeometry(3.5, 0.4, 3.5), matChip);
+fpgaDie.position.y = 0.3;
+boardGroup.add(fpgaDie);
+
+// Heat sink array
+for(let i=-1.5; i<=1.5; i+=0.25) {
+  const fin = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.5, 3.2), matChip);
+  fin.position.set(i, 0.65, 0);
+  boardGroup.add(fin);
+}
+
+// RAM / Memory Modules
+for(let i=0; i<4; i++) {
+  const ram = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.25, 2.5), matChip);
+  ram.position.set(3.5, 0.225, -2 + i*1.3);
+  boardGroup.add(ram);
+}
+
+// Heavy IO Ports (FMC, Ethernet, etc)
+const io1 = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.0, 5), matChip);
+io1.position.set(-7.25, 0.6, 0);
+boardGroup.add(io1);
+const io2 = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.2, 1.5), matBoard);
+io2.position.set(6.5, 0.7, -5.5);
+boardGroup.add(io2);
+
+// Dense SMD Components Grid for extreme realism
+for(let x=-7.5; x<=7.5; x+=0.45) {
+  for(let z=-6.5; z<=6.5; z+=0.45) {
+    if(Math.abs(x) < 3.5 && Math.abs(z) < 3.5) continue; // Keep clear of main die
+    if(Math.random() > 0.75) {
+      const w = 0.1 + Math.random()*0.4;
+      const h = 0.05 + Math.random()*0.25;
+      const d = 0.1 + Math.random()*0.4;
+      
+      const isAcc = Math.random() > 0.97;
+      const isGold = Math.random() > 0.92;
+      const mat = isAcc ? matAcc : (isGold ? matGold : matChip);
+      
+      const comp = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+      comp.position.set(x + (Math.random()-0.5)*0.2, 0.1 + h/2, z + (Math.random()-0.5)*0.2);
+      boardGroup.add(comp);
+    }
+  }
+}
+
+// Lighting setup (dramatic, high contrast)
+scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
+dirLight.position.set(8, 20, 10);
+scene.add(dirLight);
+
+// Dual tone rim lighting (Apple/Awwwards style)
+const blueLight = new THREE.PointLight(0x1e4db7, 10, 30);
+blueLight.position.set(-8, 3, -6);
+scene.add(blueLight);
+
+const redLight = new THREE.PointLight(0xcc3d10, 10, 30);
+redLight.position.set(8, 3, 6);
+scene.add(redLight);
+
+let tBoard = 0;
+let curRotX = 0.5, curRotY = 0, curRotZ = 0; // Starting rotation
+
+function render3DLoop() {
+  tBoard += 0.005;
+  
+  // Calculate target rotation based on scroll progress (sp)
+  const targetRotY = sp * Math.PI * 1.5; // Spins 270 degrees total
+  const targetRotX = 0.5 + (sp - 0.5) * 1.0; // Tilts up and down
+  const targetRotZ = sp * 0.6; // Slight Z banking
+  
+  // Smoothly interpolate current rotation to target
+  curRotX += (targetRotX - curRotX) * 0.05;
+  curRotY += (targetRotY - curRotY) * 0.05;
+  curRotZ += (targetRotZ - curRotZ) * 0.05;
+  
+  // Apply mouse parallax (mx, my from global cursor logic)
+  const pdx = (mx - window.innerWidth/2) * 0.0003;
+  const pdy = (my - window.innerHeight/2) * 0.0003;
+  
+  boardGroup.rotation.x = curRotX + Math.sin(tBoard)*0.03 + pdy;
+  boardGroup.rotation.y = curRotY + Math.cos(tBoard*0.8)*0.03 + pdx;
+  boardGroup.rotation.z = curRotZ;
+  
+  // Smooth floating motion
+  boardGroup.position.y = Math.sin(tBoard*2) * 0.5;
+
+  renderer.render(scene, camera);
+  requestAnimationFrame(render3DLoop);
+}
+render3DLoop();
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
 });
 </script>
 </body>
