@@ -82,9 +82,8 @@ body.hl #cur-b {
   width: 100vw; height: 100vh;
   z-index: 0;
   pointer-events: none;
-  /* Reduced opacity so text remains perfectly legible */
-  opacity: 0.45;
-  filter: contrast(1.15) saturate(1.2);
+  opacity: 1;
+  filter: contrast(1.15) saturate(1.3);
 }
 
 /* Elevate UI over the 3D canvas */
@@ -1017,18 +1016,40 @@ for(let x=-7.5; x<=7.5; x+=0.4) {
   }
 }
 
+// Active Status LEDs (Glowing)
+const matLEDGreen = new THREE.MeshStandardMaterial({ color: 0x00ff00, emissive: 0x00ff00, emissiveIntensity: 2, roughness: 0.2 });
+const led1 = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.1, 0.15), matLEDGreen);
+led1.position.set(5.5, 0.25, 4.5);
+boardGroup.add(led1);
+
+const matLEDRed = new THREE.MeshStandardMaterial({ color: 0xff0000, emissive: 0xff0000, emissiveIntensity: 2, roughness: 0.2 });
+const led2 = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.1, 0.15), matLEDRed);
+led2.position.set(5.9, 0.25, 4.5);
+boardGroup.add(led2);
+
+// High-tech PCB Traces (Glowing Orange lines on the board)
+const matTrace = new THREE.MeshStandardMaterial({ color: 0xcc3d10, emissive: 0xcc3d10, emissiveIntensity: 1.5 });
+for(let i=0; i<5; i++) {
+  const trace = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.21, 3 + Math.random()*2), matTrace);
+  trace.position.set(-6 + Math.random()*2, 0, -2 + Math.random()*4);
+  boardGroup.add(trace);
+  const trace2 = new THREE.Mesh(new THREE.BoxGeometry(2 + Math.random()*2, 0.21, 0.02), matTrace);
+  trace2.position.set(-5 + Math.random()*2, 0, trace.position.z + 1.5);
+  boardGroup.add(trace2);
+}
+
 // Lighting setup (dramatic, high contrast)
-scene.add(new THREE.AmbientLight(0xffffff, 1.2));
-const dirLight = new THREE.DirectionalLight(0xffffff, 1.8);
+scene.add(new THREE.AmbientLight(0xffffff, 1.0));
+const dirLight = new THREE.DirectionalLight(0xffffff, 2.5);
 dirLight.position.set(8, 20, 10);
 scene.add(dirLight);
 
 // Dual tone rim lighting (Apple/Awwwards style)
-const blueLight = new THREE.PointLight(0x1e4db7, 12, 30);
+const blueLight = new THREE.PointLight(0x1e4db7, 20, 40);
 blueLight.position.set(-8, 3, -6);
 scene.add(blueLight);
 
-const redLight = new THREE.PointLight(0xcc3d10, 12, 30);
+const redLight = new THREE.PointLight(0xcc3d10, 20, 40);
 redLight.position.set(8, 3, 6);
 scene.add(redLight);
 
@@ -1037,6 +1058,16 @@ let curRotX = 0.5, curRotY = 0, curRotZ = 0; // Starting rotation
 
 function render3DLoop() {
   tBoard += 0.005;
+  
+  // Dynamic orbiting studio lights to sweep shadows across the board
+  blueLight.position.x = Math.sin(tBoard * 1.5) * 12;
+  blueLight.position.z = Math.cos(tBoard * 1.5) * 12;
+  redLight.position.x = Math.cos(tBoard * 1.2) * 12;
+  redLight.position.z = Math.sin(tBoard * 1.2) * 12;
+
+  // Blinking LEDs
+  matLEDGreen.emissiveIntensity = (Math.sin(tBoard * 20) > 0) ? 6 : 0.5;
+  matLEDRed.emissiveIntensity = (Math.sin(tBoard * 4) > 0.9) ? 8 : 0;
   
   // Calculate target rotation based on scroll progress (sp)
   const targetRotY = sp * Math.PI * 1.5; // Spins 270 degrees total
