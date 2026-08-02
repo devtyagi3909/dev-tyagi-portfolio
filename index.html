@@ -39,7 +39,7 @@
 
 
 /* ─── BIOS BOOT ───────────────────────────────────────── */
-#boot-seq { position:fixed; inset:0; background:#050505; z-index:99999; display:flex; padding: 32px; color:var(--acc); font-family:var(--mono); font-size: 12px; text-transform:uppercase; letter-spacing:0.1em; pointer-events:none; white-space:pre-wrap; line-height: 1.6; transition: opacity 0.1s, transform 0.1s; }
+#boot-seq { position:fixed; inset:0; background:#050505; z-index:999999; display:flex; align-items:flex-start; padding: 48px 40px; color:var(--acc); font-family:var(--mono); font-size: 12px; text-transform:uppercase; letter-spacing:0.1em; pointer-events:auto; white-space:pre-wrap; line-height: 1.8; transition: opacity 0.15s, transform 0.15s; }
 #boot-seq.off { opacity: 0; transform: scale(1.05); }
 #boot-seq.glitch { filter: invert(1) contrast(200%); }
 /* ─── BASE ────────────────────────────────────────────── */
@@ -911,15 +911,42 @@ document.addEventListener('keydown', e => {
     } else { t.classList.add('off'); }
   }
 });
-document.getElementById('term-in')?.addEventListener('keydown', e => {
-  if(e.key === 'Enter') {
-    if(e.target.value.toLowerCase().includes('sudo overclock')) {
-      isOverclocked = true;
-      if(AudioSys) AudioSys.noise(0.5, 0.2, 2000);
-      document.getElementById('term-in').value = 'OVERCLOCK ENGAGED';
-      setTimeout(() => document.getElementById('term-ui').classList.add('off'), 1000);
-    }
-    e.target.value = '';
+// Terminal input listener - deferred so DOM is ready
+window.addEventListener('load', function() {
+  var termIn = document.getElementById('term-in');
+  if(termIn) {
+    termIn.addEventListener('keydown', function(e) {
+      if(e.key === 'Enter') {
+        var val = e.target.value.toLowerCase().trim();
+        var output = '';
+        if(val.includes('sudo overclock')) {
+          isOverclocked = true;
+          output = 'OVERCLOCK ENGAGED // WARP SPEED INITIATED';
+          try { AudioSys.noise(0.5, 0.2, 2000); } catch(x){}
+          setTimeout(function() { document.getElementById('term-ui').classList.add('off'); }, 1200);
+        } else if(val === 'help') {
+          output = 'COMMANDS: sudo overclock | thermal | projects | contact | reset | whoami';
+        } else if(val === 'whoami') {
+          output = 'DEV TYAGI // FPGA / RTL DESIGN // VIT CHENNAI';
+        } else if(val === 'thermal') {
+          if(typeof toggleThermal === 'function') toggleThermal();
+          output = 'THERMAL IMAGING: TOGGLED';
+          setTimeout(function() { document.getElementById('term-ui').classList.add('off'); }, 800);
+        } else if(val === 'reset') {
+          isOverclocked = false; if(typeof thermalActive!=='undefined'&&thermalActive) toggleThermal();
+          output = 'SYSTEM RESET // ALL MODES NOMINAL';
+          setTimeout(function() { document.getElementById('term-ui').classList.add('off'); }, 800);
+        } else if(val !== '') {
+          output = 'ERR: UNKNOWN COMMAND "' + val + '" // TYPE help';
+        }
+        if(output) {
+          e.target.value = output;
+          setTimeout(function() { e.target.value = ''; }, 1500);
+        } else {
+          e.target.value = '';
+        }
+      }
+    });
   }
 });
 
@@ -1811,35 +1838,52 @@ window.addEventListener('resize', () => {
 
 /* ─── AUDIO ENGINE & BOOT SEQUENCE ────────────────────── */
 var AudioSys = {
-  ctx: null,
+  ctx: null, master: null, droneOsc: null, droneGain: null,
   init() {
-    if(this.ctx) return;
-    try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){}
+    if(this.ctx) { if(this.ctx.state === 'suspended') this.ctx.resume(); return; }
+    try {
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+      this.master = this.ctx.createGain();
+      this.master.gain.value = 0.2;
+      this.master.connect(this.ctx.destination);
+      // Sub-bass drone linked to scroll velocity
+      this.droneOsc = this.ctx.createOscillator();
+      this.droneOsc.type = 'sine';
+      this.droneOsc.frequency.value = 30;
+      this.droneGain = this.ctx.createGain();
+      this.droneGain.gain.value = 0;
+      this.droneOsc.connect(this.droneGain);
+      this.droneGain.connect(this.master);
+      this.droneOsc.start();
+    } catch(e) { console.warn('Audio init failed:', e); }
   },
-  click(f = 150, t = 'sine', d = 0.05, v = 0.1) {
-    if(!this.ctx || this.ctx.state !== 'running') return;
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
-    osc.type = t; osc.frequency.setValueAtTime(f, this.ctx.currentTime);
-    osc.connect(gain); gain.connect(this.ctx.destination);
-    gain.gain.setValueAtTime(v, this.ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + d);
-    osc.start(); osc.stop(this.ctx.currentTime + d);
+  click(f=440, t='sine', v=0.05, d=0.08) {
+    if(!this.ctx || !this.master) return;
+    try {
+      const osc = this.ctx.createOscillator();
+      const g = this.ctx.createGain();
+      osc.type = t; osc.frequency.value = f;
+      g.gain.setValueAtTime(v, this.ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + d);
+      osc.connect(g); g.connect(this.master);
+      osc.start(); osc.stop(this.ctx.currentTime + d);
+    } catch(e) {}
   },
-  noise(d = 0.1, v = 0.05, f_cutoff = 1000) {
-    if(!this.ctx || this.ctx.state !== 'running') return;
-    const bs = this.ctx.createBufferSource();
-    const buffer = this.ctx.createBuffer(1, this.ctx.sampleRate * d, this.ctx.sampleRate);
-    const data = buffer.getChannelData(0);
-    for (let i = 0; i < buffer.length; i++) data[i] = Math.random() * 2 - 1;
-    bs.buffer = buffer;
-    const filter = this.ctx.createBiquadFilter();
-    filter.type = 'lowpass'; filter.frequency.value = f_cutoff;
-    const gain = this.ctx.createGain();
-    gain.gain.setValueAtTime(v, this.ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + d);
-    bs.connect(filter); filter.connect(gain); gain.connect(this.ctx.destination);
-    bs.start();
+  noise(v=0.1, d=0.3, cutoff=1000) {
+    if(!this.ctx || !this.master) return;
+    try {
+      const buf = this.ctx.createBuffer(1, Math.floor(this.ctx.sampleRate*d), this.ctx.sampleRate);
+      const data = buf.getChannelData(0);
+      for(let i=0;i<data.length;i++) data[i]=Math.random()*2-1;
+      const src = this.ctx.createBufferSource();
+      const flt = this.ctx.createBiquadFilter();
+      const g = this.ctx.createGain();
+      src.buffer=buf; flt.type='lowpass'; flt.frequency.value=cutoff;
+      g.gain.setValueAtTime(v, this.ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime+d);
+      src.connect(flt); flt.connect(g); g.connect(this.master);
+      src.start();
+    } catch(e) {}
   }
 };
 
