@@ -889,14 +889,14 @@ document.getElementById('term-in')?.addEventListener('keydown', e => {
 
 
 function curLoop() {
-  let dx = mx - bx;
-  let dy = my - by;
+  let dx = mouseX - bx;
+  let dy = mouseY - by;
   let vel = Math.hypot(dx, dy);
   
   bx += dx * 0.15;
   by += dy * 0.15;
   
-  ca.style.left = mx + 'px'; ca.style.top = my + 'px';
+  ca.style.left = mouseX + 'px'; ca.style.top = mouseY + 'px';
   cb.style.left = bx + 'px'; cb.style.top = by + 'px';
   
   
