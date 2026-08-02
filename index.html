@@ -794,6 +794,8 @@ let oscOffset = 0;
 
 
 let mouseX = 0, mouseY = 0;
+var mouseVec = {x:-2, y:-2};
+
 document.addEventListener('mousemove', e => { 
   mouseX = e.clientX; mouseY = e.clientY;
   mx = (e.clientX / window.innerWidth) * 2 - 1; 
@@ -1376,7 +1378,6 @@ if(nmWrap) {
 // duplicate removed
 
 const raycaster = new THREE.Raycaster();
-const mouseVec = new THREE.Vector2(-2, -2); // offscreen default
 let isOverclocked = false;
 let hoveredChip = null;
 
@@ -1591,7 +1592,7 @@ window.addEventListener('resize', () => {
 });
 
 /* ─── AUDIO ENGINE & BOOT SEQUENCE ────────────────────── */
-const AudioSys = {
+var AudioSys = {
   ctx: null,
   init() {
     if(this.ctx) return;
