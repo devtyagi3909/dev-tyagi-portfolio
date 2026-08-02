@@ -799,6 +799,31 @@ footer { border-top:2px solid var(--bd); padding:16px 32px; display:flex; align-
 
 <div id="assembly-btn" style="position:fixed; bottom:32px; left:32px; z-index:99; padding:12px 24px; border:1px solid rgba(255,255,255,0.2); border-radius:30px; font-family:var(--mono); font-size:10px; letter-spacing:0.2em; text-transform:uppercase; color:var(--ink); background:rgba(255,255,255,0.05); backdrop-filter:blur(10px); cursor:none; transition:all 0.3s; pointer-events:auto;">[ SYSTEM ASSEMBLY ]</div>
 <script>
+
+// ── MORSE CODE ENGINE ────────────────────────────────────────────────────
+var morseCode = {
+  'H':'····','I':'··','R':'·−·','E':'·','M':'−−'
+};
+var morseMessage = 'HIRE ME';
+var morseSequence = [];
+(function buildMorse() {
+  for(var ci=0; ci<morseMessage.length; ci++) {
+    var ch = morseMessage[ci];
+    if(ch === ' ') {
+      morseSequence.push({on:false, dur:700});
+    } else {
+      var code = morseCode[ch] || '';
+      for(var si=0; si<code.length; si++) {
+        morseSequence.push({on:true,  dur: code[si]==='·' ? 100 : 300});
+        morseSequence.push({on:false, dur: 80});
+      }
+      morseSequence.push({on:false, dur:200});
+    }
+  }
+  morseSequence.push({on:false, dur:800}); // end gap
+})();
+var morseIdx = 0, morseTimer = 0, morseLEDOn = false;
+
 let scrollVel = 0;
 let glitchVel = 0;
 let targetGlitchVel = 0;
@@ -1133,6 +1158,59 @@ scene.environment = createNeonEnvironment();
 
 const boardGroup = new THREE.Group();
 scene.add(boardGroup);
+
+// ── LIVE GITHUB COMMIT PULSES ────────────────────────────────────────────
+var commitPackets = [];
+var commitLabelEl = document.createElement('div');
+commitLabelEl.id = 'commit-label';
+commitLabelEl.style.cssText = 'position:fixed;padding:6px 14px;background:rgba(5,5,5,0.9);border:1px solid rgba(204,61,16,0.6);border-radius:8px;font-family:var(--mono);font-size:9px;color:#cc3d10;letter-spacing:0.1em;text-transform:uppercase;pointer-events:none;z-index:9998;opacity:0;transition:opacity 0.3s;max-width:280px;word-break:break-all;';
+document.body.appendChild(commitLabelEl);
+fetch('https://api.github.com/users/devtyagi3909/events?per_page=15')
+  .then(function(r){return r.json();})
+  .then(function(events){
+    var commits = [];
+    events.forEach(function(ev){
+      if(ev.type==='PushEvent' && ev.payload && ev.payload.commits) {
+        ev.payload.commits.forEach(function(c){ commits.push(c.message.split('\n')[0].slice(0,50)); });
+      }
+    });
+    commits.slice(0,8).forEach(function(msg, i){
+      setTimeout(function(){
+        var pGeo = new THREE.BoxGeometry(0.12,0.06,0.5);
+        var pMat = new THREE.MeshStandardMaterial({color:0xff6a00,emissive:0xff6a00,emissiveIntensity:8});
+        var pm = new THREE.Mesh(pGeo, pMat);
+        var startX = -8 + Math.random()*16, startZ = -5 + Math.random()*10;
+        pm.userData = {
+          msg: msg, progress: 0, speed: 0.004 + Math.random()*0.004,
+          startX: startX, endX: -startX,
+          startZ: startZ, endZ: -startZ,
+          ctrlX: Math.random()*4-2, ctrlZ: Math.random()*4-2,
+          labeled: false
+        };
+        boardGroup.add(pm);
+        commitPackets.push(pm);
+      }, i * 3000);
+    });
+  }).catch(function(){});
+
+
+// ── CURSOR HEATMAP CONSTELLATION ─────────────────────────────────────────
+var heatGeo = new THREE.BufferGeometry();
+var heatPositions = new Float32Array(3000); // 1000 points × 3
+var heatOpacities = new Float32Array(1000);
+heatGeo.setAttribute('position', new THREE.BufferAttribute(heatPositions, 3));
+heatGeo.setAttribute('opacity',  new THREE.BufferAttribute(heatOpacities,  1));
+var heatMat = new THREE.PointsMaterial({
+  color: 0xff6a00, size: 0.08, transparent: true, opacity: 0.9,
+  blending: THREE.AdditiveBlending, depthWrite: false
+});
+var heatPoints = new THREE.Points(heatGeo, heatMat);
+heatPoints.position.y = 0.13;
+boardGroup.add(heatPoints);
+var heatIdx = 0;
+var heatRaycaster = new THREE.Raycaster();
+var heatPlane = new THREE.Plane(new THREE.Vector3(0,1,0), 0);
+
 
 // Procedural Microscopic Pins
 function attachPins(chip, w, d, countX, countZ) {
@@ -1469,7 +1547,14 @@ function render3DLoop() {
 
   // Blinking LEDs
   matLEDGreen.emissiveIntensity = (Math.sin(tBoard * 20) > 0) ? 6 : 0.5;
-  matLEDRed.emissiveIntensity = (Math.sin(tBoard * 4) > 0.9) ? 8 : 0;
+  // Morse Code LED
+  morseTimer += 16;
+  if(morseTimer >= morseSequence[morseIdx].dur) {
+    morseTimer = 0;
+    morseIdx = (morseIdx + 1) % morseSequence.length;
+  }
+  morseLEDOn = morseSequence[morseIdx].on;
+  matLEDRed.emissiveIntensity = morseLEDOn ? 10 : 0;
   
   // Overclocked Data Flow Simulation
   if(typeof packets !== 'undefined') {
@@ -1636,6 +1721,69 @@ function render3DLoop() {
 
   // Render
   if(typeof composer !== 'undefined') {
+
+  // Cursor Heatmap Constellation — project cursor onto board plane
+  try {
+    heatRaycaster.setFromCamera(mouseVec, camera);
+    var heatTarget = new THREE.Vector3();
+    heatRaycaster.ray.intersectPlane(heatPlane, heatTarget);
+    if(heatTarget && Math.abs(heatTarget.x) < 9 && Math.abs(heatTarget.z) < 8) {
+      var idx3 = (heatIdx % 1000) * 3;
+      heatPositions[idx3]   = heatTarget.x;
+      heatPositions[idx3+1] = 0;
+      heatPositions[idx3+2] = heatTarget.z;
+      heatOpacities[heatIdx % 1000] = 1.0;
+      heatIdx++;
+      heatGeo.attributes.position.needsUpdate = true;
+    }
+    // Fade all heat points
+    for(var hi=0; hi<1000; hi++) {
+      if(heatOpacities[hi] > 0) heatOpacities[hi] -= 0.0003;
+    }
+    heatGeo.attributes.opacity.needsUpdate = true;
+  } catch(e) {}
+
+
+  // Animate GitHub Commit Packets
+  try {
+    var labelShown = false;
+    commitPackets.forEach(function(p) {
+      var t = p.userData.progress;
+      if(t >= 1) { t = 0; p.userData.progress = 0; p.userData.labeled = false; return; }
+      p.userData.progress += p.userData.speed;
+      var bx = (1-t)*(1-t)*p.userData.startX + 2*(1-t)*t*p.userData.ctrlX + t*t*p.userData.endX;
+      var bz = (1-t)*(1-t)*p.userData.startZ + 2*(1-t)*t*p.userData.ctrlZ + t*t*p.userData.endZ;
+      p.position.set(bx, 0.15, bz);
+      if(t > 0.45 && t < 0.55 && !labelShown) {
+        labelShown = true;
+        commitLabelEl.textContent = '[ COMMIT ] ' + p.userData.msg;
+        var sv3 = new THREE.Vector3(); sv3.copy(p.position);
+        boardGroup.localToWorld(sv3);
+        sv3.project(camera);
+        commitLabelEl.style.left = ((sv3.x*0.5+0.5)*window.innerWidth) + 'px';
+        commitLabelEl.style.top  = ((-sv3.y*0.5+0.5)*window.innerHeight - 40) + 'px';
+        commitLabelEl.style.opacity = 1;
+        if(!p.userData.labeled) { p.userData.labeled = true; setTimeout(function(){ commitLabelEl.style.opacity = 0; }, 2500); }
+      }
+    });
+  } catch(e) {}
+
+
+  // Project Morse LED to screen for tooltip trigger
+  try {
+    var ledWorld = new THREE.Vector3(5.9, 0.25, 4.5);
+    boardGroup.localToWorld(ledWorld);
+    ledWorld.project(camera);
+    var ledSX = (ledWorld.x*0.5+0.5)*window.innerWidth;
+    var ledSY = (-ledWorld.y*0.5+0.5)*window.innerHeight;
+    var tip = document.getElementById('morse-tooltip');
+    if(tip && Math.abs(mouseX-ledSX)<30 && Math.abs(mouseY-ledSY)<30) {
+      tip.style.opacity = 1;
+      tip.style.left = (ledSX+20)+'px';
+      tip.style.top  = (ledSY-40)+'px';
+    } else if(tip) { tip.style.opacity = 0; }
+  } catch(e) {}
+
     composer.render();
   } else {
     renderer.render(scene, camera);
@@ -1732,6 +1880,76 @@ document.addEventListener('DOMContentLoaded', () => {
   el.addEventListener('mouseenter', () => { if(AudioSys && AudioSys.ctx) AudioSys.click(800, 'sine', 0.02, 0.05); });
 });
 });
+
+// ── VOICE COMMAND ENGINE ──────────────────────────────────────────────────
+(function() {
+  var voiceBtn = document.getElementById('voice-btn');
+  var voiceStatus = document.getElementById('voice-status');
+  var SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SpeechRec || !voiceBtn) return;
+  var recognition = new SpeechRec();
+  recognition.continuous = true;
+  recognition.interimResults = false;
+  recognition.lang = 'en-US';
+  var listening = false;
+  var commands = {
+    'system assembly': function(){ document.getElementById('assembly-btn') && document.getElementById('assembly-btn').click(); },
+    'assemble':        function(){ document.getElementById('assembly-btn') && document.getElementById('assembly-btn').click(); },
+    'overclock':       function(){ isOverclocked = true; },
+    'thermal':         function(){ if(typeof toggleThermal==='function') toggleThermal(); },
+    'projects':        function(){ document.getElementById('projects') && lenis.scrollTo(document.getElementById('projects')); },
+    'contact':         function(){ document.getElementById('contact') && lenis.scrollTo(document.getElementById('contact')); },
+    'reset':           function(){ isOverclocked=false; if(typeof thermalActive!=='undefined') thermalActive=false; }
+  };
+  recognition.onresult = function(e) {
+    var t = e.results[e.results.length-1][0].transcript.toLowerCase().trim();
+    voiceStatus.textContent = '> ' + t;
+    Object.keys(commands).forEach(function(cmd) { if(t.includes(cmd)) commands[cmd](); });
+  };
+  recognition.onend = function() { if(listening) recognition.start(); };
+  voiceBtn.addEventListener('click', function() {
+    if(!listening) {
+      listening = true;
+      recognition.start();
+      voiceBtn.style.background = 'rgba(204,61,16,0.4)';
+      voiceBtn.style.borderColor = 'var(--acc)';
+      voiceStatus.style.opacity = 1;
+    } else {
+      listening = false;
+      recognition.stop();
+      voiceBtn.style.background = 'rgba(5,5,5,0.85)';
+      voiceBtn.style.borderColor = 'rgba(255,255,255,0.2)';
+      voiceStatus.style.opacity = 0;
+    }
+  });
+})();
+
+
+// ── THERMAL MODE TOGGLE ───────────────────────────────────────────────────
+var thermalActive = false;
+function toggleThermal() {
+  thermalActive = !thermalActive;
+  document.body.classList.toggle('thermal', thermalActive);
+  document.getElementById('thermal-overlay').style.opacity = thermalActive ? 1 : 0;
+  var btn = document.getElementById('thermal-btn');
+  if(btn) {
+    btn.style.background = thermalActive ? 'rgba(204,61,16,0.4)' : 'rgba(5,5,5,0.85)';
+    btn.style.borderColor = thermalActive ? 'var(--acc)' : 'rgba(255,255,255,0.2)';
+    btn.style.color = thermalActive ? 'var(--acc)' : 'var(--ink)';
+  }
+  if(thermalActive) {
+    matLEDGreen.color.setHex(0x0040ff);
+    matLEDGreen.emissive.setHex(0x0040ff);
+    renderer.setClearColor(0x0a0005, 1);
+  } else {
+    matLEDGreen.color.setHex(0x00ff00);
+    matLEDGreen.emissive.setHex(0x00ff00);
+    renderer.setClearColor(0x050505, 1);
+  }
+}
+var thermalBtn = document.getElementById('thermal-btn');
+if(thermalBtn) thermalBtn.addEventListener('click', toggleThermal);
+
 runBoot();
 </script>
 
@@ -1747,6 +1965,30 @@ runBoot();
 <style>
 #term-ui.off { opacity:0; transform:translate(-50%, -20px); pointer-events:none; }
 </style>
+
+
+<div id="voice-btn" title="Voice Commands" style="position:fixed;bottom:32px;right:32px;z-index:200;width:48px;height:48px;border-radius:50%;background:rgba(5,5,5,0.85);border:1px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(10px);transition:all 0.3s;pointer-events:auto;">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--ink)"><path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+</div>
+<div id="voice-status" style="position:fixed;bottom:92px;right:32px;z-index:200;padding:8px 16px;background:rgba(5,5,5,0.9);border:1px solid var(--acc);border-radius:20px;font-family:var(--mono);font-size:9px;letter-spacing:0.12em;color:var(--acc);opacity:0;transition:opacity 0.3s;pointer-events:none;">LISTENING...</div>
+
+<div id="thermal-btn" style="position:fixed;bottom:32px;right:96px;z-index:200;padding:10px 18px;background:rgba(5,5,5,0.85);border:1px solid rgba(255,255,255,0.2);border-radius:30px;font-family:var(--mono);font-size:9px;letter-spacing:0.18em;color:var(--ink);text-transform:uppercase;cursor:pointer;backdrop-filter:blur(10px);transition:all 0.3s;pointer-events:auto;">[ THERMAL ]</div>
+<div id="thermal-overlay" style="position:fixed;inset:0;z-index:50;pointer-events:none;opacity:0;transition:opacity 0.5s;">
+  <div style="position:absolute;top:16px;left:16px;font-family:var(--mono);font-size:9px;letter-spacing:0.12em;color:#ff6a00;text-shadow:0 0 8px #ff6a00;">FLIR SYSTEMS // TEMP RANGE: 28°C — 95°C</div>
+  <div style="position:absolute;top:16px;right:16px;font-family:var(--mono);font-size:9px;letter-spacing:0.12em;color:#ff6a00;">REC ● THERMAL</div>
+  <div style="position:absolute;bottom:16px;left:16px;font-family:var(--mono);font-size:8px;letter-spacing:0.1em;color:rgba(255,106,0,0.6);">IR SENSOR // f/1.2 // 640×480</div>
+  <div style="position:absolute;right:16px;top:50%;transform:translateY(-50%);width:16px;height:200px;background:linear-gradient(to bottom,#fff,#ff0,#f60,#800080,#000);border-radius:4px;"></div>
+</div>
+<style>
+#thermal-overlay { mix-blend-mode: normal; }
+body.thermal canvas { filter: saturate(0) brightness(0.9) contrast(1.4); }
+body.thermal { background: #000 !important; }
+body.thermal .sec { background: transparent !important; }
+</style>
+
+
+<!-- Morse LED Tooltip -->
+<div id="morse-tooltip" style="position:fixed;padding:8px 16px;background:rgba(5,5,5,0.95);border:1px solid var(--acc);border-radius:8px;font-family:var(--mono);font-size:9px;letter-spacing:0.12em;color:var(--acc);pointer-events:none;z-index:9999;opacity:0;transition:opacity 0.3s;">[ SIGNAL DECODED: H-I-R-E  M-E ]</div>
 
 </body>
 </html>
