@@ -64,19 +64,48 @@ a { color:inherit; text-decoration:none; }
 ::-webkit-scrollbar-track { background:var(--bg); }
 ::-webkit-scrollbar-thumb { background:var(--ink); }
 
-/* ─── RAW MINI OSCILLOSCOPE CURSOR ────────────────────── */
+/* ─── PREMIUM CROSSHAIR CURSOR ──────────────────────── */
 #cur-a { display: none; }
+/* Outer ring */
 #cur-b {
-  position:fixed; z-index:9999; pointer-events:none; top:0; left:0; 
+  position:fixed; z-index:9999; pointer-events:none; top:0; left:0;
   transform:translate(-50%,-50%);
-  width:48px; height:24px; 
-  border: none;
-  background: transparent;
-  display: flex; align-items: center; justify-content: center;
-  transition: width 0.3s var(--ease), height 0.3s var(--ease);
+  width:36px; height:36px;
+  border: 1.5px solid rgba(244,244,245,0.85);
+  border-radius: 50%;
+  transition: width 0.2s var(--ease), height 0.2s var(--ease),
+              border-color 0.2s var(--ease), background 0.2s var(--ease);
+  mix-blend-mode: difference;
 }
-body.hl #cur-b { width: 72px; }
-#osc-canvas { width: 100%; height: 100%; }
+/* Inner dot */
+#cur-b::after {
+  content:''; position:absolute; top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  width:4px; height:4px;
+  border-radius:50%;
+  background: #f4f4f5;
+  transition: transform 0.2s var(--ease);
+}
+/* Crosshair lines */
+#cur-b::before {
+  content:''; position:absolute; top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  width:12px; height:12px;
+  border-top: 1px solid rgba(244,244,245,0.5);
+  border-bottom: 1px solid rgba(244,244,245,0.5);
+  border-left: 1px solid rgba(244,244,245,0.5);
+  border-right: 1px solid rgba(244,244,245,0.5);
+}
+/* Hover state — expands and turns orange */
+body.hl #cur-b {
+  width:54px; height:54px;
+  border-color: var(--acc);
+  background: rgba(204,61,16,0.08);
+}
+body.hl #cur-b::after { background: var(--acc); transform:translate(-50%,-50%) scale(1.5); }
+/* Click state */
+body.clicking #cur-b { width:20px; height:20px; background:rgba(204,61,16,0.2); }
+#osc-canvas { display:none; }
 
 /* ─── WEBGL FULL 3D BACKGROUND ────────────────────────── */
 #webgl-bg {
@@ -387,6 +416,14 @@ nav {
   50%  { clip-path: inset(30% 0 50% 0); }
   75%  { clip-path: inset(80% 0 5% 0); }
   100% { clip-path: inset(5% 0 75% 0); }
+}
+
+
+/* ─── SECTION TRANSITION GLITCH FLASH ─────────────────────────────────── */
+#glitch-flash {
+  position:fixed; inset:0; z-index:500; pointer-events:none;
+  background: var(--acc); opacity:0; mix-blend-mode: exclusion;
+  transition: none;
 }
 
 /* ─── ACHIEVEMENTS ────────────────────────────────────── */
@@ -907,35 +944,7 @@ function curLoop() {
     AudioSys.droneOsc.frequency.value += (30 + sv * 0.3 - AudioSys.droneOsc.frequency.value) * 0.1;
   }
 
-  // Update canvas internal res based on hover
-  oscCtx.canvas.width = hoverEl ? 72 : 48;
-  oscCtx.canvas.height = 24;
-  let cw = oscCtx.canvas.width;
-
-  // Draw Raw Oscilloscope Waveform
-  oscCtx.clearRect(0, 0, cw, 24);
-  oscCtx.beginPath();
-  oscCtx.strokeStyle = hoverEl ? '#cc3d10' : '#f4f4f5'; // White wave for dark mode
-  oscCtx.lineWidth = 1.5;
-  
-  let yHigh = 4, yLow = 20;
-  let wavelength = hoverEl ? cw : Math.max(4, 24 - (vel + (typeof glitchVel!=="undefined"?glitchVel:0)*2 + (typeof scrollVel!=="undefined"?Math.abs(scrollVel)*0.1:0)) * 0.5);
-  oscOffset += hoverEl ? 0 : (1 + vel * 0.2);
-  
-  let x = 0;
-  oscCtx.moveTo(0, hoverEl ? yHigh : yLow);
-  while(x < cw) {
-    if (hoverEl) { oscCtx.lineTo(cw, yHigh); break; }
-    
-    let curY = ((x + oscOffset) % wavelength) < (wavelength/2) ? yHigh : yLow;
-    let nextX = x + 1;
-    let nextY = ((nextX + oscOffset) % wavelength) < (wavelength/2) ? yHigh : yLow;
-    
-    oscCtx.lineTo(x, curY);
-    if (curY !== nextY) { oscCtx.lineTo(x, nextY); }
-    x = nextX;
-  }
-  oscCtx.stroke();
+  // Cursor state — pure CSS, no canvas drawing needed
   
   requestAnimationFrame(curLoop);
 }
@@ -1835,8 +1844,13 @@ var AudioSys = {
 };
 
 // Bind Audio Triggers
-document.addEventListener('click', () => AudioSys.init(), {once:true});
-document.addEventListener('mouseover', () => AudioSys.init(), {once:true});
+document.addEventListener('click', () => { try { AudioSys.init(); } catch(e){} }, {once:true});
+document.addEventListener('pointermove', () => { try { AudioSys.init(); } catch(e){} }, {once:true});
+document.addEventListener('keydown', () => { try { AudioSys.init(); } catch(e){} }, {once:true});
+
+document.addEventListener('mousedown', () => document.body.classList.add('clicking'));
+document.addEventListener('mouseup', () => document.body.classList.remove('clicking'));
+
 
 document.querySelectorAll('a, .st, .skill-row, .exp-row, .proj-item').forEach(el => {
   el.addEventListener('mouseenter', () => AudioSys.click(100, 'square', 0.02, 0.02));
@@ -1929,26 +1943,131 @@ document.addEventListener('DOMContentLoaded', () => {
 var thermalActive = false;
 function toggleThermal() {
   thermalActive = !thermalActive;
-  document.body.classList.toggle('thermal', thermalActive);
   document.getElementById('thermal-overlay').style.opacity = thermalActive ? 1 : 0;
   var btn = document.getElementById('thermal-btn');
   if(btn) {
     btn.style.background = thermalActive ? 'rgba(204,61,16,0.4)' : 'rgba(5,5,5,0.85)';
     btn.style.borderColor = thermalActive ? 'var(--acc)' : 'rgba(255,255,255,0.2)';
     btn.style.color = thermalActive ? 'var(--acc)' : 'var(--ink)';
+    btn.textContent = thermalActive ? '[ THERMAL ON ]' : '[ THERMAL ]';
   }
+  var canvas = document.getElementById('webgl-bg');
   if(thermalActive) {
-    matLEDGreen.color.setHex(0x0040ff);
-    matLEDGreen.emissive.setHex(0x0040ff);
-    renderer.setClearColor(0x0a0005, 1);
+    // FLIR-style: high-contrast infrared palette
+    canvas.style.filter = 'hue-rotate(220deg) saturate(4) contrast(1.6) brightness(0.8)';
+    matPCB.color.setHex(0x1a0066);
+    matFPGA.color.setHex(0xffffff); matFPGA.emissive.setHex(0xff8800); matFPGA.emissiveIntensity = 3;
+    matRAM.color.setHex(0xff6600);  matRAM.emissive.setHex(0xff4400);  matRAM.emissiveIntensity = 2;
+    matSilver.color.setHex(0xffff00); matSilver.emissive.setHex(0xffaa00); matSilver.emissiveIntensity = 1;
+    matLEDGreen.color.setHex(0x0000ff); matLEDGreen.emissive.setHex(0x0000ff); matLEDGreen.emissiveIntensity = 10;
+    matLEDRed.color.setHex(0xffffff); matLEDRed.emissive.setHex(0xffffff);
+    renderer.setClearColor(0x00001a, 1);
   } else {
-    matLEDGreen.color.setHex(0x00ff00);
-    matLEDGreen.emissive.setHex(0x00ff00);
+    canvas.style.filter = 'contrast(1.05) saturate(1.2)';
+    matPCB.color.setHex(0x1a3a1a);
+    matFPGA.color.setHex(0x111111); matFPGA.emissive.setHex(0x000000); matFPGA.emissiveIntensity = 0;
+    matRAM.color.setHex(0x222222);  matRAM.emissive.setHex(0x000000);  matRAM.emissiveIntensity = 0;
+    matSilver.color.setHex(0xcccccc); matSilver.emissive.setHex(0x000000); matSilver.emissiveIntensity = 0;
+    matLEDGreen.color.setHex(0x00ff00); matLEDGreen.emissive.setHex(0x00ff00); matLEDGreen.emissiveIntensity = 2;
+    matLEDRed.color.setHex(0xff0000); matLEDRed.emissive.setHex(0xff0000);
     renderer.setClearColor(0x050505, 1);
   }
 }
 var thermalBtn = document.getElementById('thermal-btn');
 if(thermalBtn) thermalBtn.addEventListener('click', toggleThermal);
+
+
+// ── MAGNETIC CURSOR ──────────────────────────────────────────────────────
+(function() {
+  var magnetEls = document.querySelectorAll('a, button, [id$="-btn"], .st, .pt, nav a');
+  magnetEls.forEach(function(el) {
+    el.addEventListener('mousemove', function(e) {
+      var rect = el.getBoundingClientRect();
+      var cx = rect.left + rect.width/2;
+      var cy = rect.top + rect.height/2;
+      var dx = e.clientX - cx;
+      var dy = e.clientY - cy;
+      var dist = Math.hypot(dx, dy);
+      if(dist < 80) {
+        var force = (80 - dist) / 80;
+        el.style.transform = 'translate(' + (dx*force*0.3) + 'px,' + (dy*force*0.3) + 'px)';
+      }
+    });
+    el.addEventListener('mouseleave', function() {
+      el.style.transform = '';
+    });
+  });
+})();
+
+
+// ── KONAMI CODE → MATRIX RAIN ────────────────────────────────────────────
+(function() {
+  var konamiSeq = [38,38,40,40,37,39,37,39,66,65];
+  var konamiIdx = 0;
+  document.addEventListener('keydown', function(e) {
+    if(e.keyCode === konamiSeq[konamiIdx]) {
+      konamiIdx++;
+      if(konamiIdx === konamiSeq.length) {
+        konamiIdx = 0;
+        triggerMatrixRain();
+      }
+    } else { konamiIdx = 0; }
+  });
+  function triggerMatrixRain() {
+    // Flash the terminal with MATRIX RAIN message
+    var t = document.getElementById('term-ui');
+    if(t) {
+      t.classList.remove('off');
+      document.getElementById('term-in').value = '>>> MATRIX_RAIN PROTOCOL ACTIVATED <<<';
+    }
+    // Create canvas overlay
+    var mc = document.createElement('canvas');
+    mc.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:300;pointer-events:none;opacity:0.85;transition:opacity 2s;';
+    mc.width = window.innerWidth; mc.height = window.innerHeight;
+    document.body.appendChild(mc);
+    var mctx = mc.getContext('2d');
+    var cols = Math.floor(mc.width / 14);
+    var drops = Array(cols).fill(1);
+    var chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホ01バビブベボ';
+    var matInterval = setInterval(function() {
+      mctx.fillStyle = 'rgba(5,5,5,0.07)';
+      mctx.fillRect(0,0,mc.width,mc.height);
+      mctx.font = '13px monospace';
+      for(var i=0; i<cols; i++) {
+        var ch = chars[Math.floor(Math.random()*chars.length)];
+        mctx.fillStyle = i % 3 === 0 ? '#ff6a00' : '#cc3d10';
+        mctx.fillText(ch, i*14, drops[i]*14);
+        if(drops[i]*14 > mc.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      }
+    }, 40);
+    // Auto-close after 8 seconds
+    setTimeout(function() {
+      mc.style.opacity = 0;
+      setTimeout(function() { mc.remove(); clearInterval(matInterval); }, 2000);
+      if(t) t.classList.add('off');
+    }, 8000);
+    // Play glitch audio
+    try { AudioSys.noise(0.4, 0.1, 800); } catch(e) {}
+  }
+})();
+
+
+// ── NAV GLITCH TRANSITION ────────────────────────────────────────────────
+var glitchFlash = document.createElement('div');
+glitchFlash.id = 'glitch-flash';
+document.body.appendChild(glitchFlash);
+document.querySelectorAll('nav a').forEach(function(a) {
+  a.addEventListener('click', function() {
+    glitchFlash.style.transition = 'none';
+    glitchFlash.style.opacity = 0.6;
+    setTimeout(function() {
+      glitchFlash.style.transition = 'opacity 0.4s';
+      glitchFlash.style.opacity = 0;
+    }, 60);
+    try { AudioSys.click(200, 'sawtooth', 0.1, 0.08); } catch(e) {}
+  });
+});
 
 runBoot();
 </script>
