@@ -39,8 +39,9 @@
 
 
 /* ─── BIOS BOOT ───────────────────────────────────────── */
-#boot-seq { position:fixed; inset:0; background:#050505; z-index:999999; display:flex; align-items:flex-start; padding: 48px 40px; color:var(--acc); font-family:var(--mono); font-size: 12px; text-transform:uppercase; letter-spacing:0.1em; pointer-events:auto; white-space:pre-wrap; line-height: 1.8; transition: opacity 0.15s, transform 0.15s; }
-#boot-seq.off { opacity: 0; transform: scale(1.05); }
+#boot-seq { position:fixed; inset:0; background:#050505; z-index:999999; display:flex; align-items:flex-start; padding: 48px 40px; color:var(--acc); font-family:var(--mono); font-size: 12px; text-transform:uppercase; letter-spacing:0.1em; pointer-events:none; white-space:pre-wrap; line-height: 1.8; transition: opacity 0.15s, transform 0.15s; }
+#boot-seq.off { opacity: 0; transform: scale(1.05); pointer-events:none; }
+#boot-seq.hidden { display:none; }
 #boot-seq.glitch { filter: invert(1) contrast(200%); }
 /* ─── BASE ────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
@@ -914,36 +915,48 @@ document.addEventListener('keydown', e => {
 // Terminal input listener - deferred so DOM is ready
 window.addEventListener('load', function() {
   var termIn = document.getElementById('term-in');
+  var termOut = document.getElementById('term-output');
+  var termClose = document.getElementById('term-close');
+  function setOutput(msg) { if(termOut) termOut.textContent = '> ' + msg; }
+  function closeTerminal() {
+    document.getElementById('term-ui').classList.add('off');
+    var ob = document.getElementById('term-open-btn');
+    if(ob) { ob.style.borderColor='rgba(255,255,255,0.2)'; ob.style.color='var(--ink)'; }
+  }
+  if(termClose) termClose.addEventListener('click', closeTerminal);
+  document.addEventListener('keydown', function(e) { if(e.key==='Escape') closeTerminal(); });
   if(termIn) {
     termIn.addEventListener('keydown', function(e) {
       if(e.key === 'Enter') {
         var val = e.target.value.toLowerCase().trim();
-        var output = '';
+        e.target.value = '';
+        if(!val) return;
         if(val.includes('sudo overclock')) {
           isOverclocked = true;
-          output = 'OVERCLOCK ENGAGED // WARP SPEED INITIATED';
+          setOutput('OVERCLOCK ENGAGED // DMA PACKETS AT WARP SPEED');
           try { AudioSys.noise(0.5, 0.2, 2000); } catch(x){}
-          setTimeout(function() { document.getElementById('term-ui').classList.add('off'); }, 1200);
+          setTimeout(closeTerminal, 1500);
         } else if(val === 'help') {
-          output = 'COMMANDS: sudo overclock | thermal | projects | contact | reset | whoami';
+          setOutput('COMMANDS: help | whoami | sudo overclock | thermal | reset | projects | contact');
         } else if(val === 'whoami') {
-          output = 'DEV TYAGI // FPGA / RTL DESIGN // VIT CHENNAI';
+          setOutput('DEV TYAGI // FPGA ENGINEER // RTL DESIGN // VIT CHENNAI 2027');
         } else if(val === 'thermal') {
-          if(typeof toggleThermal === 'function') toggleThermal();
-          output = 'THERMAL IMAGING: TOGGLED';
-          setTimeout(function() { document.getElementById('term-ui').classList.add('off'); }, 800);
+          if(typeof toggleThermal==='function') toggleThermal();
+          setOutput('THERMAL IMAGING ' + (thermalActive ? 'ENGAGED' : 'DISENGAGED'));
+          setTimeout(closeTerminal, 1000);
         } else if(val === 'reset') {
-          isOverclocked = false; if(typeof thermalActive!=='undefined'&&thermalActive) toggleThermal();
-          output = 'SYSTEM RESET // ALL MODES NOMINAL';
-          setTimeout(function() { document.getElementById('term-ui').classList.add('off'); }, 800);
-        } else if(val !== '') {
-          output = 'ERR: UNKNOWN COMMAND "' + val + '" // TYPE help';
-        }
-        if(output) {
-          e.target.value = output;
-          setTimeout(function() { e.target.value = ''; }, 1500);
+          isOverclocked = false;
+          if(typeof thermalActive!=='undefined' && thermalActive) toggleThermal();
+          setOutput('SYSTEM RESET // ALL PARAMETERS NOMINAL');
+          setTimeout(closeTerminal, 1000);
+        } else if(val === 'projects') {
+          document.getElementById('projects') && lenis.scrollTo(document.getElementById('projects'));
+          closeTerminal();
+        } else if(val === 'contact') {
+          document.getElementById('contact') && lenis.scrollTo(document.getElementById('contact'));
+          closeTerminal();
         } else {
-          e.target.value = '';
+          setOutput('ERR: UNKNOWN COMMAND \"' + val + '\" // TYPE help');
         }
       }
     });
@@ -1926,7 +1939,7 @@ function runBoot() {
       setTimeout(() => {
         bootSeq.classList.add('glitch');
         if(AudioSys.ctx) AudioSys.noise(0.2, 0.1, 500);
-        setTimeout(() => { bootSeq.classList.remove('glitch'); bootSeq.classList.add('off'); }, 50);
+        setTimeout(() => { bootSeq.classList.remove('glitch'); bootSeq.classList.add('off'); setTimeout(()=>bootSeq.classList.add('hidden'),200); }, 50);
       }, 300);
     } else {
       setTimeout(runBoot, 30 + Math.random()*80);
@@ -2113,20 +2126,44 @@ document.querySelectorAll('nav a').forEach(function(a) {
   });
 });
 
+
+// Visible terminal button
+var termOpenBtn = document.getElementById('term-open-btn');
+if(termOpenBtn) {
+  termOpenBtn.addEventListener('click', function() {
+    try { AudioSys.init(); } catch(e){}
+    var t = document.getElementById('term-ui');
+    if(t.classList.contains('off')) {
+      t.classList.remove('off');
+      setTimeout(function(){ var ti=document.getElementById('term-in'); if(ti) ti.focus(); }, 100);
+      termOpenBtn.style.borderColor = 'var(--acc)';
+      termOpenBtn.style.color = 'var(--acc)';
+    } else {
+      t.classList.add('off');
+      termOpenBtn.style.borderColor = 'rgba(255,255,255,0.2)';
+      termOpenBtn.style.color = 'var(--ink)';
+    }
+  });
+}
+
 runBoot();
 </script>
 
 <!-- HUD & TERMINAL -->
 <div id="hud" style="position:fixed; top:-100px; left:-100px; padding:12px 20px; background:rgba(5,5,5,0.85); border:1px solid rgba(255,255,255,0.2); border-radius:12px; font-family:var(--mono); font-size:10px; color:var(--ink); pointer-events:none; z-index:9999; backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); opacity:0; transition:opacity 0.2s; white-space:pre; text-transform:uppercase; letter-spacing:0.1em; line-height:1.5;"></div>
-<div id="term-ui" class="off" style="position:fixed; top:20px; left:50%; transform:translateX(-50%); width:400px; padding:16px; background:rgba(5,5,5,0.95); border:1px solid var(--acc); border-radius:8px; z-index:10000; font-family:var(--mono); box-shadow:0 16px 64px rgba(0,0,0,0.8); transition:transform 0.3s, opacity 0.3s; backdrop-filter:blur(24px);">
-  <div style="font-size:10px; color:var(--acc); margin-bottom:12px; letter-spacing:0.1em;">TERMINAL // ROOT ACCESS</div>
-  <div style="display:flex; align-items:center; color:var(--ink); font-size:12px;">
-    <span style="color:var(--acc); margin-right:8px;">></span>
-    <input type="text" id="term-in" style="background:transparent; border:none; outline:none; color:var(--ink); font-family:var(--mono); width:100%; font-size:12px; text-transform:lowercase;" placeholder="type 'sudo overclock'">
+<div id="term-ui" class="off" style="position:fixed; top:50%; left:50%; transform:translate(-50%,-60%); width:520px; padding:24px; background:rgba(5,5,5,0.97); border:1px solid var(--acc); border-radius:12px; z-index:100000; font-family:var(--mono); box-shadow:0 0 60px rgba(204,61,16,0.3), 0 24px 80px rgba(0,0,0,0.9); transition:transform 0.25s, opacity 0.25s; backdrop-filter:blur(32px);">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+    <span style="font-size:10px;color:var(--acc);letter-spacing:0.15em;">ROOT@DEVTYAGI:~$</span>
+    <span id="term-close" style="font-size:10px;color:rgba(255,255,255,0.4);cursor:pointer;letter-spacing:0.1em;">[ESC] CLOSE</span>
+  </div>
+  <div id="term-output" style="font-size:10px;color:rgba(255,255,255,0.5);margin-bottom:12px;line-height:1.8;min-height:40px;letter-spacing:0.08em;">TYPE A COMMAND BELOW. TRY: help</div>
+  <div style="display:flex;align-items:center;border-top:1px solid rgba(255,255,255,0.1);padding-top:12px;">
+    <span style="color:var(--acc);margin-right:10px;font-size:12px;">►</span>
+    <input type="text" id="term-in" autocomplete="off" style="background:transparent;border:none;outline:none;color:var(--ink);font-family:var(--mono);width:100%;font-size:12px;letter-spacing:0.08em;" placeholder="sudo overclock">
   </div>
 </div>
 <style>
-#term-ui.off { opacity:0; transform:translate(-50%, -20px); pointer-events:none; }
+#term-ui.off { opacity:0; transform:translate(-50%,-80%); pointer-events:none; }
 </style>
 
 
@@ -2135,7 +2172,10 @@ runBoot();
 </div>
 <div id="voice-status" style="position:fixed;bottom:92px;right:32px;z-index:200;padding:8px 16px;background:rgba(5,5,5,0.9);border:1px solid var(--acc);border-radius:20px;font-family:var(--mono);font-size:9px;letter-spacing:0.12em;color:var(--acc);opacity:0;transition:opacity 0.3s;pointer-events:none;">LISTENING...</div>
 
-<div id="thermal-btn" style="position:fixed;bottom:32px;right:96px;z-index:200;padding:10px 18px;background:rgba(5,5,5,0.85);border:1px solid rgba(255,255,255,0.2);border-radius:30px;font-family:var(--mono);font-size:9px;letter-spacing:0.18em;color:var(--ink);text-transform:uppercase;cursor:pointer;backdrop-filter:blur(10px);transition:all 0.3s;pointer-events:auto;">[ THERMAL ]</div>
+<div style="position:fixed;bottom:32px;right:90px;z-index:200;display:flex;gap:10px;align-items:center;">
+  <div id="term-open-btn" style="padding:10px 18px;background:rgba(5,5,5,0.85);border:1px solid rgba(255,255,255,0.2);border-radius:30px;font-family:var(--mono);font-size:9px;letter-spacing:0.18em;color:var(--ink);text-transform:uppercase;cursor:pointer;backdrop-filter:blur(10px);transition:all 0.3s;pointer-events:auto;">[ TERMINAL ]</div>
+  <div id="thermal-btn" style="padding:10px 18px;background:rgba(5,5,5,0.85);border:1px solid rgba(255,255,255,0.2);border-radius:30px;font-family:var(--mono);font-size:9px;letter-spacing:0.18em;color:var(--ink);text-transform:uppercase;cursor:pointer;backdrop-filter:blur(10px);transition:all 0.3s;pointer-events:auto;">[ THERMAL ]</div>
+</div>
 <div id="thermal-overlay" style="position:fixed;inset:0;z-index:50;pointer-events:none;opacity:0;transition:opacity 0.5s;">
   <div style="position:absolute;top:16px;left:16px;font-family:var(--mono);font-size:9px;letter-spacing:0.12em;color:#ff6a00;text-shadow:0 0 8px #ff6a00;">FLIR SYSTEMS // TEMP RANGE: 28°C — 95°C</div>
   <div style="position:absolute;top:16px;right:16px;font-family:var(--mono);font-size:9px;letter-spacing:0.12em;color:#ff6a00;">REC ● THERMAL</div>
