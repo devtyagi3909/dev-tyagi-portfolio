@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <!-- Lenis Smooth Scrolling -->
+
 <script src="https://unpkg.com/lenis@1.1.9/dist/lenis.min.js"></script>
 <!-- Three.js for 3D Board -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -792,10 +793,13 @@ let hoverEl = null;
 let oscOffset = 0;
 
 
+let mouseX = 0, mouseY = 0;
 document.addEventListener('mousemove', e => { 
-  mx=e.clientX; my=e.clientY; 
-  mouseVec.x = (e.clientX / window.innerWidth) * 2 - 1;
-  mouseVec.y = -(e.clientY / window.innerHeight) * 2 + 1;
+  mouseX = e.clientX; mouseY = e.clientY;
+  mx = (e.clientX / window.innerWidth) * 2 - 1; 
+  my = -(e.clientY / window.innerHeight) * 2 + 1; 
+  mouseVec.x = mx;
+  mouseVec.y = my;
 });
 document.addEventListener('keydown', e => {
   if(e.key === '`' || e.key === '~') {
@@ -817,9 +821,7 @@ document.getElementById('term-in')?.addEventListener('keydown', e => {
     e.target.value = '';
   }
 });
-document.querySelectorAll('.glass-card, .st, .pt').forEach(el => {
-  el.addEventListener('mouseenter', () => { if(AudioSys && AudioSys.ctx) AudioSys.click(800, 'sine', 0.02, 0.05); });
-});
+
 
 
 function curLoop() {
@@ -1108,7 +1110,6 @@ function attachPins(chip, w, d, countX, countZ) {
     let p2 = new THREE.Mesh(pinGeom, m); p2.position.set(-w/2, -0.05, pz); chip.add(p2);
   }
 }
-attachPins(fpgaDie, 3.8, 3.8, 24, 24);
 
 
 // Texture Generator for ICs
@@ -1189,6 +1190,8 @@ const fpgaDie = new THREE.Mesh(new THREE.BoxGeometry(3.5, 0.4, 3.5), matFPGA);
 fpgaDie.position.y = 0.3;
 fpgaDie.userData = { name: "ZYNQ ULTRASCALE+ SoC", stats: "L1 CACHE: 32KB\nTEMP: 42°C\nSTATUS: NOMINAL" };
 boardGroup.add(fpgaDie);
+attachPins(fpgaDie, 3.8, 3.8, 24, 24);
+
 
 // Metal Socket Frame
 const socket = new THREE.Mesh(new THREE.BoxGeometry(4.2, 0.25, 4.2), matSilver);
@@ -1507,8 +1510,8 @@ function render3DLoop() {
       if(obj.userData && obj.userData.name) {
         hud.innerHTML = `<span style="color:var(--acc)">[ ID ]</span> ${obj.userData.name}<br><br><span style="color:var(--acc)">[ SYNC ]</span><br>${obj.userData.stats}`;
         hud.style.opacity = 1;
-        hud.style.left = (mx + 20) + 'px';
-        hud.style.top = (my + 20) + 'px';
+        hud.style.left = (mouseX + 20) + 'px';
+        hud.style.top = (mouseY + 20) + 'px';
       }
     } else {
       hud.style.opacity = 0;
@@ -1662,6 +1665,11 @@ function runBoot() {
     }
   }
 }
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.glass-card, .st, .pt').forEach(el => {
+  el.addEventListener('mouseenter', () => { if(AudioSys && AudioSys.ctx) AudioSys.click(800, 'sine', 0.02, 0.05); });
+});
+});
 runBoot();
 </script>
 
