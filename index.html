@@ -1953,7 +1953,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ── VOICE COMMAND ENGINE ──────────────────────────────────────────────────
-(function() {
+window.addEventListener('load', function() {
   var voiceBtn = document.getElementById('voice-btn');
   var voiceStatus = document.getElementById('voice-status');
   var SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1993,7 +1993,7 @@ document.addEventListener('DOMContentLoaded', () => {
       voiceStatus.style.opacity = 0;
     }
   });
-})();
+});
 
 
 // ── THERMAL MODE TOGGLE ───────────────────────────────────────────────────
@@ -2030,8 +2030,10 @@ function toggleThermal() {
     renderer.setClearColor(0x050505, 1);
   }
 }
-var thermalBtn = document.getElementById('thermal-btn');
-if(thermalBtn) thermalBtn.addEventListener('click', toggleThermal);
+window.addEventListener('load', function() {
+  var thermalBtn = document.getElementById('thermal-btn');
+  if(thermalBtn) thermalBtn.addEventListener('click', toggleThermal);
+});
 
 
 // ── MAGNETIC CURSOR ──────────────────────────────────────────────────────
@@ -2054,7 +2056,7 @@ if(thermalBtn) thermalBtn.addEventListener('click', toggleThermal);
       el.style.transform = '';
     });
   });
-})();
+});
 
 
 // ── KONAMI CODE → MATRIX RAIN ────────────────────────────────────────────
@@ -2128,23 +2130,25 @@ document.querySelectorAll('nav a').forEach(function(a) {
 
 
 // Visible terminal button
-var termOpenBtn = document.getElementById('term-open-btn');
-if(termOpenBtn) {
-  termOpenBtn.addEventListener('click', function() {
-    try { AudioSys.init(); } catch(e){}
-    var t = document.getElementById('term-ui');
-    if(t.classList.contains('off')) {
-      t.classList.remove('off');
-      setTimeout(function(){ var ti=document.getElementById('term-in'); if(ti) ti.focus(); }, 100);
-      termOpenBtn.style.borderColor = 'var(--acc)';
-      termOpenBtn.style.color = 'var(--acc)';
-    } else {
-      t.classList.add('off');
-      termOpenBtn.style.borderColor = 'rgba(255,255,255,0.2)';
-      termOpenBtn.style.color = 'var(--ink)';
-    }
-  });
-}
+window.addEventListener('load', function() {
+  var termOpenBtn = document.getElementById('term-open-btn');
+  if(termOpenBtn) {
+    termOpenBtn.addEventListener('click', function() {
+      try { AudioSys.init(); } catch(e){}
+      var t = document.getElementById('term-ui');
+      if(t.classList.contains('off')) {
+        t.classList.remove('off');
+        setTimeout(function(){ var ti=document.getElementById('term-in'); if(ti) ti.focus(); }, 100);
+        termOpenBtn.style.borderColor = 'var(--acc)';
+        termOpenBtn.style.color = 'var(--acc)';
+      } else {
+        t.classList.add('off');
+        termOpenBtn.style.borderColor = 'rgba(255,255,255,0.2)';
+        termOpenBtn.style.color = 'var(--ink)';
+      }
+    });
+  }
+});
 
 runBoot();
 </script>
