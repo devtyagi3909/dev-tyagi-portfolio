@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Out-of-Order Superscalar RISC-V Processor - Case Study</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050505;
+            --ink: rgba(255,255,255,.88);
+            --acc: #cc3d10;
+            --bd: rgba(255,255,255,.15);
+            --dsp: 'Space Grotesk', sans-serif;
+            --mono: 'Space Mono', monospace;
+        }
+
+        body {
+            background-color: var(--bg);
+            background-image: 
+                linear-gradient(var(--bd) 1px, transparent 1px),
+                linear-gradient(90deg, var(--bd) 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: center top;
+            color: var(--ink);
+            font-family: var(--dsp);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .back-link {
+            font-family: var(--mono);
+            color: var(--ink);
+            text-decoration: none;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.1em;
+            display: inline-block;
+            margin-bottom: 3rem;
+            transition: color 0.2s;
+            border-bottom: 1px solid transparent;
+        }
+
+        .back-link:hover {
+            color: var(--acc);
+            border-bottom-color: var(--acc);
+        }
+
+        header {
+            margin-bottom: 4rem;
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin: 0 0 1rem 0;
+            line-height: 1.1;
+        }
+
+        .subtitle {
+            font-family: var(--mono);
+            color: var(--acc);
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin: 0;
+        }
+
+        .gc {
+            background: linear-gradient(135deg, rgba(20,20,20,0.95), rgba(5,5,5,0.85));
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid var(--acc);
+            padding-bottom: 0.5rem;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+        }
+
+        p {
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+        }
+
+        p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Pipeline Diagram CSS */
+        .pipeline-wrapper {
+            overflow-x: auto;
+            padding: 1rem 0;
+            margin-bottom: 1.5rem;
+        }
+        
+        .pipeline {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-width: 700px;
+        }
+
+        .stage {
+            background-color: transparent;
+            border: 2px solid var(--acc);
+            color: var(--ink);
+            font-family: var(--mono);
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 1rem;
+            border-radius: 4px;
+            text-align: center;
+            flex: 1;
+            margin: 0 0.5rem;
+            position: relative;
+        }
+
+        .stage:first-child {
+            margin-left: 0;
+        }
+
+        .stage:last-child {
+            margin-right: 0;
+        }
+
+        .arrow {
+            color: var(--bd);
+            font-size: 1.5rem;
+        }
+
+        .badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 4rem;
+        }
+
+        .badge {
+            font-family: var(--mono);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--bd);
+            background: rgba(255,255,255,0.03);
+            border-radius: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .gc {
+                padding: 1.5rem;
+            }
+            .stage {
+                padding: 0.75rem 0.5rem;
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../index.html" class="back-link">← Back to Portfolio</a>
+        
+        <header>
+            <h1>Out-of-Order Superscalar RISC-V Processor</h1>
+            <p class="subtitle">1st Place + Special Jury Award — SanDisk Hardware Hackathon (100+ teams)</p>
+        </header>
+
+        <section class="gc">
+            <h2>The Challenge</h2>
+            <p>Design a fully compliant RV32I processor that executes instructions out-of-order using Tomasulo's Algorithm, with speculative execution and precise exception handling.</p>
+        </section>
+
+        <section class="gc">
+            <h2>Architecture</h2>
+            
+            <div class="pipeline-wrapper">
+                <div class="pipeline">
+                    <div class="stage">Fetch</div>
+                    <div class="arrow">→</div>
+                    <div class="stage">Decode</div>
+                    <div class="arrow">→</div>
+                    <div class="stage">Issue</div>
+                    <div class="arrow">→</div>
+                    <div class="stage">Execute</div>
+                    <div class="arrow">→</div>
+                    <div class="stage">Memory</div>
+                    <div class="arrow">→</div>
+                    <div class="stage">Write-Back</div>
+                    <div class="arrow">→</div>
+                    <div class="stage">Commit</div>
+                </div>
+            </div>
+
+            <p>The core implements a robust out-of-order microarchitecture centered around Tomasulo's Algorithm. Instructions are fetched, decoded, and issued to reservation stations, bypassing register bottlenecks. A Reorder Buffer (ROO) ensures instructions commit in-order to maintain precise architectural state, while a Common Data Bus (CDB) broadcasts results to dependent instructions instantly. Speculative execution is supported by advanced branch prediction, enabling deep pipelines without significant stalling.</p>
+        </section>
+
+        <section class="gc">
+            <h2>The Hard Bug</h2>
+            <p>During verification, we encountered a subtle RAW (Read-After-Write) hazard that only manifested under back-to-back dependent ALU instructions when the ROB was nearly full. The scoreboard was correctly tracking in-flight instructions, but the CDB broadcast timing had a 1-cycle race condition with the reservation station wakeup logic.</p>
+            <p>This edge case was isolated using constrained-random UVM stimulus specifically targeting ROB pressure scenarios. The fix required a direct forwarding bypass from the CDB broadcast stage directly to the reservation station comparators in the same cycle, resolving the race condition without impacting critical path delay.</p>
+        </section>
+
+        <section class="gc">
+            <h2>Verification</h2>
+            <p>The processor was verified using a robust UVM testbench architecture. We achieved >95% functional coverage utilizing constrained-random stimulus to stress-test complex hazard scenarios, forwarding paths, and pipeline flushes. SVA (SystemVerilog Assertions) were deployed on the AXI interface and internally to enforce critical pipeline invariants throughout the execution flow.</p>
+        </section>
+
+        <section class="gc">
+            <h2>Results</h2>
+            <p>The finalized design achieved 250 MHz post-synthesis on an UltraScale+ FPGA platform. It demonstrated full RISC-V ISA compliance against official test suites and maintained >95% functional coverage across all verification targets.</p>
+        </section>
+
+        <div class="badges">
+            <div class="badge">SystemVerilog</div>
+            <div class="badge">UVM</div>
+            <div class="badge">SVA</div>
+            <div class="badge">Vivado</div>
+            <div class="badge">ModelSim</div>
+            <div class="badge">UltraScale+</div>
+        </div>
+    </div>
+</body>
+</html>

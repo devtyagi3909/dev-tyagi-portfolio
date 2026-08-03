@@ -729,6 +729,7 @@ footer { border-top:2px solid var(--bd); padding:16px 32px; display:flex; align-
       <div><div class="eyebrow">Section 03 / 05</div><h2 class="sec-h glitch-text" data-text="Hardware that pushes limits">Hardware that<br>pushes limits</h2></div>
       <div class="sec-num">003</div>
     </div>
+    <p style="font-family:var(--mono); font-size:11px; letter-spacing:0.06em; color:rgba(255,255,255,0.5); line-height:1.8; max-width:680px; margin-bottom:40px; text-transform:uppercase;">Build the core. Accelerate the core. Secure the core. Each project below feeds the next — a single research trajectory from ISA-compliant processor design through neural inference acceleration to line-rate hardware security.</p>
     <div class="proj-list">
 
       <div class="proj-item gc t3d t3d-d2">
@@ -741,7 +742,7 @@ footer { border-top:2px solid var(--bd); padding:16px 32px; display:flex; align-
             <span class="pt">SystemVerilog</span><span class="pt">UVM</span><span class="pt">SVA</span>
             <span class="pt">Vivado</span><span class="pt">ModelSim</span><span class="pt">UltraScale+</span>
           </div>
-          <a class="proj-gh" href="https://github.com/devtyagi3909/riscv-ooo-core" target="_blank" rel="noopener">devtyagi3909/riscv-ooo-core ↗</a>
+          <a class="proj-gh" href="https://github.com/devtyagi3909/riscv-ooo-core" target="_blank" rel="noopener" style="margin-right:12px;">GitHub Repo ↗</a><a class="proj-gh" href="case-study/riscv-ooo-core.html" target="_blank" rel="noopener">Case Study ↗</a>
         </div>
         <div class="proj-right">
           <div><div class="proj-stn">250</div><div class="proj-stl">MHz post-synth</div></div>
@@ -761,6 +762,8 @@ footer { border-top:2px solid var(--bd); padding:16px 32px; display:flex; align-
             <span class="pt">SystemVerilog</span><span class="pt">AXI4-Stream</span>
             <span class="pt">Systolic Array</span><span class="pt">Zybo Z7-20</span>
           </div>
+          <canvas id="systolic-canvas" width="280" height="280" style="margin-top:16px; border:1px solid rgba(255,255,255,0.1); border-radius:8px; background:rgba(0,0,0,0.4);"></canvas>
+          <div style="font-family:var(--mono); font-size:7px; letter-spacing:0.15em; color:rgba(255,255,255,0.3); margin-top:6px; text-transform:uppercase;">Live systolic dataflow simulation</div>
         </div>
         <div class="proj-right">
           <div><div class="proj-stn">100</div><div class="proj-stl">MHz on Z7-20</div></div>
@@ -843,7 +846,8 @@ footer { border-top:2px solid var(--bd); padding:16px 32px; display:flex; align-
             <span class="pt">Tcl</span><span class="pt">Python</span>
             <span class="pt">XDC / SDC / LPF</span><span class="pt">GitHub Actions</span><span class="pt">CI/CD</span>
           </div>
-          <a class="proj-gh" href="https://github.com/devtyagi3909/constraintforge" target="_blank" rel="noopener" style="margin-right:12px;">GitHub Repo ↗</a><a class="proj-gh" href="https://devtyagi3909.github.io/constraintforge/" target="_blank" rel="noopener">Live Site ↗</a>
+          <a class="proj-gh" href="https://github.com/devtyagi3909/constraintforge" target="_blank" rel="noopener" style="margin-right:12px;">GitHub Repo ↗</a><a class="proj-gh" href="https://devtyagi3909.github.io/constraintforge/" target="_blank" rel="noopener" style="margin-right:12px;">Live Site ↗</a>
+          <img src="https://github.com/devtyagi3909/constraintforge/actions/workflows/validate.yml/badge.svg" alt="CI" style="height:18px; vertical-align:middle; margin-top:14px; border-radius:3px; opacity:0.9;">
         </div>
         <div class="proj-right">
           <div><div class="proj-stn">14+</div><div class="proj-stl">Interfaces</div></div>
@@ -2261,6 +2265,130 @@ window.addEventListener('load', function() {
 });
 
 runBoot();
+
+// ── SYSTOLIC ARRAY VISUALIZATION ──────────────────────────────────────
+(function() {
+  var sc = document.getElementById('systolic-canvas');
+  if(!sc) return;
+  var ctx = sc.getContext('2d');
+  var N = 8; // 8x8 grid
+  var pad = 12;
+  var cellW = (sc.width - pad*2) / N;
+  var cellH = (sc.height - pad*2) / N;
+  var gap = 2;
+  var tick = 0;
+
+  function draw() {
+    ctx.clearRect(0, 0, sc.width, sc.height);
+
+    // Draw grid lines (subtle)
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.lineWidth = 0.5;
+    for(var i = 0; i <= N; i++) {
+      ctx.beginPath();
+      ctx.moveTo(pad + i*cellW, pad);
+      ctx.lineTo(pad + i*cellW, sc.height - pad);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(pad, pad + i*cellH);
+      ctx.lineTo(sc.width - pad, pad + i*cellH);
+      ctx.stroke();
+    }
+
+    // Draw PEs with diagonal wavefront activation
+    for(var r = 0; r < N; r++) {
+      for(var c = 0; c < N; c++) {
+        var x = pad + c*cellW + gap;
+        var y = pad + r*cellH + gap;
+        var w = cellW - gap*2;
+        var h = cellH - gap*2;
+
+        // Diagonal wavefront: activation depends on (r+c) relative to tick
+        var phase = (tick - (r + c)) % (N*3);
+        if(phase < 0) phase += N*3;
+        var active = phase < N;
+        var intensity = active ? Math.max(0, 1 - phase/N) : 0;
+
+        // PE background
+        if(intensity > 0) {
+          var alpha = intensity * 0.85;
+          ctx.fillStyle = 'rgba(204,61,16,' + alpha + ')';
+          ctx.shadowColor = 'rgba(204,61,16,' + (alpha*0.6) + ')';
+          ctx.shadowBlur = 8;
+        } else {
+          ctx.fillStyle = 'rgba(255,255,255,0.04)';
+          ctx.shadowBlur = 0;
+        }
+
+        // Rounded rect
+        var radius = 3;
+        ctx.beginPath();
+        ctx.moveTo(x+radius, y);
+        ctx.lineTo(x+w-radius, y);
+        ctx.quadraticCurveTo(x+w, y, x+w, y+radius);
+        ctx.lineTo(x+w, y+h-radius);
+        ctx.quadraticCurveTo(x+w, y+h, x+w-radius, y+h);
+        ctx.lineTo(x+radius, y+h);
+        ctx.quadraticCurveTo(x, y+h, x, y+h-radius);
+        ctx.lineTo(x, y+radius);
+        ctx.quadraticCurveTo(x, y, x+radius, y);
+        ctx.closePath();
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        // PE label
+        if(intensity > 0.3) {
+          ctx.fillStyle = 'rgba(255,255,255,' + (intensity*0.9) + ')';
+          ctx.font = '7px "Space Mono", monospace';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('PE', x+w/2, y+h/2 - 3);
+          ctx.font = '6px "Space Mono", monospace';
+          ctx.fillText(r + ',' + c, x+w/2, y+h/2 + 5);
+        }
+
+        // Data flow arrows (horizontal and vertical)
+        if(intensity > 0.5 && c < N-1) {
+          ctx.strokeStyle = 'rgba(204,61,16,' + (intensity*0.5) + ')';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(x+w+gap, y+h/2);
+          ctx.lineTo(x+w+gap+gap*2, y+h/2);
+          ctx.stroke();
+        }
+        if(intensity > 0.5 && r < N-1) {
+          ctx.strokeStyle = 'rgba(204,61,16,' + (intensity*0.4) + ')';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(x+w/2, y+h+gap);
+          ctx.lineTo(x+w/2, y+h+gap+gap*2);
+          ctx.stroke();
+        }
+      }
+    }
+
+    // Header text
+    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+    ctx.font = '8px "Space Mono", monospace';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText('SYSTOLIC ARRAY // 8x8 INT8 // WEIGHT-STATIONARY', pad, 2);
+
+    tick += 0.15;
+    requestAnimationFrame(draw);
+  }
+
+  // Only start when canvas is visible (IntersectionObserver)
+  if(window.IntersectionObserver) {
+    var obs = new IntersectionObserver(function(entries) {
+      if(entries[0].isIntersecting) { draw(); obs.disconnect(); }
+    }, {threshold: 0.1});
+    obs.observe(sc);
+  } else {
+    draw();
+  }
+})();
+
 </script>
 
 <!-- HUD & TERMINAL -->
