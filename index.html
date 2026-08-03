@@ -553,6 +553,18 @@ footer { border-top:2px solid var(--bd); padding:16px 32px; display:flex; align-
   box-shadow: 0 0 20px rgba(255,255,255,0.1), 0 8px 24px rgba(0,0,0,0.8) !important;
   transform: translateY(-2px);
 }
+
+.proj-item-hero { grid-template-columns: 1fr; padding: 48px; border-color: rgba(204, 61, 16, 0.4) !important; background: linear-gradient(180deg, rgba(204, 61, 16, 0.05) 0%, rgba(0,0,0,0) 100%); }
+.proj-item-hero .proj-h { font-size: clamp(32px, 4vw, 48px); max-width: 800px; }
+.proj-item-hero .proj-desc { font-size: 16px; max-width: 800px; }
+.proj-item-hero .proj-right { flex-direction: row; align-items: center; justify-content: flex-start; gap: 40px; margin-top: 32px; padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.1); width: 100%; }
+
+@media (max-width: 768px) {
+  #term-open-btn, #thermal-btn, #voice-btn, #assembly-btn { display: none !important; }
+  .proj-item-hero { padding: 24px 16px; }
+  .proj-item-hero .proj-right { flex-direction: column; align-items: flex-start; gap: 16px; }
+}
+@keyframes pulse { 0% { opacity: 0.2; transform: scale(0.8); } 100% { opacity: 1; transform: scale(1.2); } }
 </style>
 
 <meta property="og:title" content="Dev Tyagi — FPGA/RTL Design Engineer">
@@ -610,7 +622,7 @@ footer { border-top:2px solid var(--bd); padding:16px 32px; display:flex; align-
   </div>
 
   <div class="hero-top">
-    <div class="hero-top-meta"><span class="lbl lbl-ink">Archive Folder [ Dev Tyagi ]</span><span class="lbl">FPGA / RTL Design / RISC-V Microarchitecture</span><span class="lbl">Civilizational Layer: Hardware / System 001</span></div>
+    <div class="hero-top-meta"><span class="lbl lbl-ink">Archive Folder [ Dev Tyagi ]</span><span class="lbl" style="font-weight:700; color:var(--acc);">I build the silicon that makes AI fast.</span></div>
     <div class="hero-acc-block">
       <svg viewBox="0 0 140 140" fill="none"><path d="M0 22L0 0L22 0" stroke="white" stroke-width="1.5"/><path d="M118 0L140 0L140 22" stroke="white" stroke-width="1.5"/><path d="M140 118L140 140L118 140" stroke="white" stroke-width="1.5"/><path d="M22 140L0 140L0 118" stroke="white" stroke-width="1.5"/><circle cx="70" cy="70" r="19" stroke="white" stroke-width="1.2"/><circle cx="70" cy="70" r="2.5" fill="white"/><line x1="70" y1="0" x2="70" y2="46" stroke="white" stroke-width="1.2"/><line x1="70" y1="94" x2="70" y2="140" stroke="white" stroke-width="1.2"/><line x1="0" y1="70" x2="46" y2="70" stroke="white" stroke-width="1.2"/><line x1="94" y1="70" x2="140" y2="70" stroke="white" stroke-width="1.2"/><line x1="57" y1="70" x2="53" y2="70" stroke="white" stroke-width=".8"/><line x1="87" y1="70" x2="83" y2="70" stroke="white" stroke-width=".8"/><line x1="70" y1="57" x2="70" y2="53" stroke="white" stroke-width=".8"/><line x1="70" y1="87" x2="70" y2="83" stroke="white" stroke-width=".8"/></svg>
       <div class="hero-acc-label"><span class="lbl">Protocol.01</span><span class="lbl">FPGA.RTL.System</span><span class="lbl lbl-ink" style="font-weight:700">System Active</span></div>
@@ -733,9 +745,19 @@ footer { border-top:2px solid var(--bd); padding:16px 32px; display:flex; align-
       <div class="sec-num">003</div>
     </div>
     <p style="font-family:var(--mono); font-size:11px; letter-spacing:0.06em; color:rgba(255,255,255,0.5); line-height:1.8; max-width:680px; margin-bottom:40px; text-transform:uppercase;">Build the core. Accelerate the core. Secure the core. Each project below feeds the next — a single research trajectory from ISA-compliant processor design through neural inference acceleration to line-rate hardware security.</p>
+    
+    <!-- Social Proof Quote -->
+    <div style="padding: 40px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; margin-bottom: 40px; position: relative; overflow: hidden; background: rgba(255,255,255,0.02);">
+      <div style="position: absolute; top: -20px; left: -10px; font-size: 120px; color: rgba(255,255,255,0.03); font-family: var(--dsp); font-weight: 800; line-height: 1;">"</div>
+      <p style="font-family: var(--dsp); font-size: 20px; font-style: italic; color: var(--ink); line-height: 1.6; max-width: 800px; position: relative; z-index: 2;">
+        "Dev is one of the most exceptional hardware engineers I've worked with. His ability to navigate from RTL design to post-synthesis timing closure is rare for someone at his stage."
+      </p>
+      <div style="margin-top: 24px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em; color: var(--acc); text-transform: uppercase;">— [ Your PI or Manager Name ], [ Title ], [ Institution ]</div>
+    </div>
+
     <div class="proj-list">
 
-      <div class="proj-item gc t3d t3d-d2">
+      <div class="proj-item proj-item-hero gc t3d t3d-d2">
         <div class="gc-glare"></div>
         <div>
           <div class="proj-award-b">1st Place + Special Jury Award — SanDisk Hardware Hackathon (100+ teams)</div>
@@ -837,7 +859,15 @@ footer { border-top:2px solid var(--bd); padding:16px 32px; display:flex; align-
           </div>
           <a class="proj-gh" href="https://github.com/devtyagi3909/pmdc-fpga-motor-control" target="_blank" rel="noopener">devtyagi3909/pmdc-fpga-motor-control ↗</a>
         </div>
-        <div class="proj-right"><div class="proj-arr">↗</div></div>
+        <div class="proj-right" style="flex-direction: column;">
+          <div style="width:100%; aspect-ratio:16/9; background:rgba(0,0,0,0.8); border:1px solid rgba(255,255,255,0.1); border-radius:4px; display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative;">
+            <!-- REPLACE THIS PLACEHOLDER WITH YOUR ACTUAL VIDEO FILE -->
+            <!-- <video src="demo.mp4" autoplay loop muted playsinline style="width:100%; height:100%; object-fit:cover;"></video> -->
+            <div style="font-family:var(--mono); font-size:9px; color:rgba(255,255,255,0.3); letter-spacing:0.1em;">[ INSERT DEMO VIDEO .MP4 HERE ]</div>
+            <div style="position:absolute; top:8px; right:8px; width:6px; height:6px; border-radius:50%; background:var(--acc); box-shadow:0 0 8px var(--acc); animation:pulse 1s infinite alternate;"></div>
+          </div>
+          <div class="proj-arr" style="margin-top:auto;">↗</div>
+        </div>
       </div>
 
       <div class="proj-item gc t3d t3d-d2">
