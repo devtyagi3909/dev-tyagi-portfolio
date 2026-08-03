@@ -7,21 +7,22 @@
 <meta name="description" content="Dev Tyagi. FPGA/RTL Design Engineer. RISC-V microarchitecture, AXI4, AI accelerator datapaths. 250 MHz timing closure.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap"></noscript>
 <!-- Lenis Smooth Scrolling -->
 
-<script src="https://unpkg.com/lenis@1.1.9/dist/lenis.min.js"></script>
+<script defer src="https://unpkg.com/lenis@1.1.9/dist/lenis.min.js"></script>
 <!-- Three.js for 3D Board -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/BokehShader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/BokehPass.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/RGBShiftShader.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/BokehShader.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/BokehPass.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/RGBShiftShader.js"></script>
 <style>
 /* ─── TOKENS ──────────────────────────────────────────── */
 :root {
@@ -518,6 +519,7 @@ footer { border-top:2px solid var(--bd); padding:16px 32px; display:flex; align-
 
 @media (prefers-reduced-motion: reduce) {
   #webgl-bg { display: none !important; }
+  .hero { background: url('hero_bg_compressed.jpg') center/cover; }
   .glitch-text, .sdot, .mq-trk { animation: none !important; }
   .gc { transition: none !important; transform: none !important; box-shadow: none !important; border: 1px solid rgba(255,255,255,0.4); }
   .hero-name-wrap h1 { text-shadow: none !important; }
@@ -555,9 +557,10 @@ footer { border-top:2px solid var(--bd); padding:16px 32px; display:flex; align-
 
 <meta property="og:title" content="Dev Tyagi — FPGA/RTL Design Engineer">
 <meta property="og:description" content="RISC-V microarchitecture, AXI4, AI accelerator datapaths. 250MHz timing closure.">
-<meta property="og:image" content="https://devtyagi3909.github.io/dev-tyagi-portfolio/hero_bg_1785586696202.jpg">
+<meta property="og:image" content="https://devtyagi3909.github.io/dev-tyagi-portfolio/social_card.jpg">
 <meta property="og:url" content="https://devtyagi3909.github.io/dev-tyagi-portfolio/">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://devtyagi3909.github.io/dev-tyagi-portfolio/social_card.jpg">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23050505'/><text y='50' x='50' font-family='monospace' font-size='60' fill='%23cc3d10' text-anchor='middle' dominant-baseline='central'>_</text></svg>">
 <script defer data-domain="devtyagi3909.github.io" src="https://plausible.io/js/script.js"></script>
 <script type="application/ld+json">
@@ -914,6 +917,7 @@ footer { border-top:2px solid var(--bd); padding:16px 32px; display:flex; align-
         <span class="edu-yr">2027</span>
       </div>
     </div>
+    <div id="assembly-btn" role="button" aria-label="Toggle System Assembly View" style="position:fixed; bottom:32px; left:32px; z-index:99; padding:12px 24px; border:1px solid rgba(255,255,255,0.2); border-radius:6px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); font-family:var(--mono); font-size:10px; letter-spacing:0.2em; text-transform:uppercase; color:var(--ink); background:rgba(255,255,255,0.05); backdrop-filter:blur(10px); cursor:none; transition:all 0.3s; pointer-events:auto;">[ SYSTEM ASSEMBLY ]</div>
   </div>
 </section>
 
@@ -2497,9 +2501,9 @@ runBoot();
 <div id="voice-status" style="position:fixed;bottom:92px;left:460px;z-index:200;padding:8px 16px;background:rgba(5,5,5,0.9);border:1px solid var(--acc);border-radius:20px;font-family:var(--mono);font-size:9px;letter-spacing:0.12em;color:var(--acc);opacity:0;transition:opacity 0.3s;pointer-events:none;">LISTENING...</div>
 
 <div style="position:fixed;bottom:32px;left:240px;z-index:200;display:flex;gap:10px;align-items:center;">
-  <div id="term-open-btn" style="padding:12px 20px;background:rgba(5,5,5,0.85);border:1px solid rgba(255,255,255,0.2);border-radius:6px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);font-family:var(--mono);font-size:9px;letter-spacing:0.18em;color:var(--ink);text-transform:uppercase;cursor:pointer;backdrop-filter:blur(10px);transition:all 0.3s;pointer-events:auto;">[ TERMINAL ]</div>
-  <div id="thermal-btn" style="padding:12px 20px;background:rgba(5,5,5,0.85);border:1px solid rgba(255,255,255,0.2);border-radius:6px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);font-family:var(--mono);font-size:9px;letter-spacing:0.18em;color:var(--ink);text-transform:uppercase;cursor:pointer;backdrop-filter:blur(10px);transition:all 0.3s;pointer-events:auto;">[ THERMAL ]</div>
-  <div id="voice-btn" title="Voice Commands" style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg, rgba(30,30,30,0.9), rgba(5,5,5,0.9));box-shadow: 0 4px 12px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(10px);transition:all 0.3s;pointer-events:auto;">
+  <div id="term-open-btn" role="button" aria-label="Open Terminal" style="padding:12px 20px;background:rgba(5,5,5,0.85);border:1px solid rgba(255,255,255,0.2);border-radius:6px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);font-family:var(--mono);font-size:9px;letter-spacing:0.18em;color:var(--ink);text-transform:uppercase;cursor:pointer;backdrop-filter:blur(10px);transition:all 0.3s;pointer-events:auto;">[ TERMINAL ]</div>
+  <div id="thermal-btn" role="button" aria-label="Toggle Thermal View" style="padding:12px 20px;background:rgba(5,5,5,0.85);border:1px solid rgba(255,255,255,0.2);border-radius:6px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);font-family:var(--mono);font-size:9px;letter-spacing:0.18em;color:var(--ink);text-transform:uppercase;cursor:pointer;backdrop-filter:blur(10px);transition:all 0.3s;pointer-events:auto;">[ THERMAL ]</div>
+  <div id="voice-btn" role="button" aria-label="Activate Voice Commands" title="Voice Commands" style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg, rgba(30,30,30,0.9), rgba(5,5,5,0.9));box-shadow: 0 4px 12px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(10px);transition:all 0.3s;pointer-events:auto;">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--ink)"><path d="M12 2a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
   </div>
 </div>

@@ -6,7 +6,8 @@
 <title>CASE STUDY // Out-of-Order Superscalar RISC-V Processor</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700;800&family=Space+Mono:wght@400;700&display=swap"></noscript>
 <style>
 :root {
   --bg: #050505; --ink: rgba(255,255,255,.88); --acc: #cc3d10;
@@ -197,6 +198,59 @@ canvas#waveform { width: 100%; height: 200px; display: block; }
 
     <p class="cs-p">The core implements a full out-of-order microarchitecture centered around <b>Tomasulo's Algorithm</b>. Instructions are fetched, decoded, and issued to reservation stations, bypassing register bottlenecks. The pipeline achieves deep execution without significant stalling through speculative execution backed by branch prediction.</p>
 
+    <!-- SVG Architecture Diagram -->
+    <svg viewBox="0 0 800 240" fill="none" style="width: 100%; max-width: 800px; margin: 40px auto; display: block;">
+      <style>
+        .ln { stroke: var(--bd); stroke-width: 1.5; }
+        .bx { stroke: var(--bd); stroke-width: 1.5; fill: rgba(255,255,255,0.02); }
+        .tx { fill: var(--ink); font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; }
+        .acc { stroke: var(--acc); }
+        .acc-fill { fill: var(--acc); }
+      </style>
+      
+      <!-- Reservation Stations -->
+      <rect x="40" y="40" width="140" height="160" rx="4" class="bx" />
+      <text x="110" y="70" class="tx" text-anchor="middle">Reservation</text>
+      <text x="110" y="90" class="tx" text-anchor="middle">Stations</text>
+      <line x1="60" y1="110" x2="160" y2="110" class="ln" />
+      <line x1="60" y1="130" x2="160" y2="130" class="ln" />
+      <line x1="60" y1="150" x2="160" y2="150" class="ln" />
+      <line x1="60" y1="170" x2="160" y2="170" class="ln" />
+
+      <!-- FUs -->
+      <line x1="180" y1="120" x2="240" y2="120" class="ln" />
+      <polygon points="230,115 240,120 230,125" fill="var(--ink)" />
+      
+      <rect x="250" y="70" width="100" height="100" rx="4" class="bx" />
+      <text x="300" y="115" class="tx" text-anchor="middle">Execution</text>
+      <text x="300" y="135" class="tx" text-anchor="middle">Units</text>
+
+      <!-- ROB -->
+      <line x1="350" y1="120" x2="410" y2="120" class="ln" />
+      <polygon points="400,115 410,120 400,125" fill="var(--ink)" />
+
+      <rect x="420" y="40" width="140" height="160" rx="4" class="bx" />
+      <text x="490" y="70" class="tx" text-anchor="middle">Reorder Buffer</text>
+      <text x="490" y="90" class="tx" text-anchor="middle">(ROB)</text>
+      <line x1="440" y1="110" x2="540" y2="110" class="ln" />
+      <line x1="440" y1="130" x2="540" y2="130" class="ln" />
+      <line x1="440" y1="150" x2="540" y2="150" class="ln" />
+      <line x1="440" y1="170" x2="540" y2="170" class="ln" />
+
+      <!-- Register File -->
+      <line x1="560" y1="120" x2="620" y2="120" class="ln" />
+      <polygon points="610,115 620,120 610,125" fill="var(--ink)" />
+
+      <rect x="630" y="70" width="100" height="100" rx="4" class="bx" />
+      <text x="680" y="115" class="tx" text-anchor="middle">Register</text>
+      <text x="680" y="135" class="tx" text-anchor="middle">File</text>
+
+      <!-- CDB (Common Data Bus) Broadcast Path -->
+      <path d="M 350 120 L 370 120 L 370 20 L 110 20 L 110 40" class="ln acc" stroke-dasharray="4" />
+      <polygon points="105,35 110,40 115,35" class="acc-fill" />
+      <text x="240" y="15" class="tx" fill="var(--acc)">Common Data Bus (CDB) Broadcast</text>
+    </svg>
+
     <div class="arch-grid">
       <div class="arch-block">
         <div class="arch-block-label">Scheduling</div>
@@ -227,6 +281,48 @@ canvas#waveform { width: 100%; height: 200px; display: block; }
     <div class="cs-h">A 1-cycle race condition<br>hidden under ROB pressure</div>
 
     <p class="cs-p">During verification, we hit a subtle failure that only appeared under very specific conditions. It took 3 days to isolate. Here is the exact sequence of events.</p>
+
+    <!-- SVG Timing Diagram -->
+    <svg viewBox="0 0 800 220" fill="none" style="width: 100%; max-width: 800px; margin: 40px auto; display: block; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; background: rgba(0,0,0,0.3);">
+      <style>
+        .ln2 { stroke: rgba(255,255,255,0.1); stroke-width: 1; }
+        .sig { stroke: var(--ink); stroke-width: 2; fill: none; }
+        .sig-acc { stroke: var(--acc); stroke-width: 2; fill: none; }
+        .tx2 { fill: var(--ink); font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; }
+        .tx-sm { fill: rgba(255,255,255,0.5); font-family: var(--mono); font-size: 9px; }
+      </style>
+      
+      <!-- Cycles -->
+      <line x1="150" y1="0" x2="150" y2="220" class="ln2" />
+      <line x1="300" y1="0" x2="300" y2="220" class="ln2" stroke-dasharray="2" />
+      <line x1="450" y1="0" x2="450" y2="220" class="ln2" stroke-dasharray="2" />
+      <line x1="600" y1="0" x2="600" y2="220" class="ln2" />
+      <line x1="750" y1="0" x2="750" y2="220" class="ln2" />
+      
+      <text x="225" y="20" class="tx-sm" text-anchor="middle">Cycle N-1</text>
+      <text x="375" y="20" class="tx-sm" text-anchor="middle" fill="var(--acc)">Cycle N (Race Window)</text>
+      <text x="525" y="20" class="tx-sm" text-anchor="middle">Cycle N+1</text>
+      <text x="675" y="20" class="tx-sm" text-anchor="middle">Cycle N+2</text>
+      
+      <!-- Clock -->
+      <text x="20" y="55" class="tx2">CLK</text>
+      <path d="M 150 60 L 225 60 L 225 40 L 300 40 L 300 60 L 375 60 L 375 40 L 450 40 L 450 60 L 525 60 L 525 40 L 600 40 L 600 60 L 675 60 L 675 40 L 750 40" class="sig" stroke-opacity="0.3" />
+
+      <!-- CDB_VALID -->
+      <text x="20" y="105" class="tx2">CDB_VALID</text>
+      <path d="M 150 110 L 300 110 L 300 90 L 450 90 L 450 110 L 750 110" class="sig-acc" />
+      
+      <!-- RS_ALLOC -->
+      <text x="20" y="155" class="tx2">RS_ALLOC (Dep)</text>
+      <path d="M 150 160 L 300 160 L 300 140 L 450 140 L 450 160 L 750 160" class="sig" />
+
+      <!-- RS_WAKEUP -->
+      <text x="20" y="205" class="tx2">RS_WAKEUP (Old)</text>
+      <path d="M 150 210 L 450 210 L 450 190 L 600 190 L 600 210 L 750 210" class="sig" stroke="rgba(255,255,255,0.4)" stroke-dasharray="4" />
+
+      <circle cx="375" cy="125" r="30" fill="var(--acc)" fill-opacity="0.1" stroke="var(--acc)" stroke-width="1" stroke-dasharray="2" />
+      <text x="375" y="128" class="tx-sm" fill="var(--acc)" text-anchor="middle">RACE</text>
+    </svg>
 
     <div class="bug-timeline">
       <div class="bug-step">
