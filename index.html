@@ -762,8 +762,8 @@ footer { border-top:2px solid var(--bd); padding:16px 32px; display:flex; align-
             <span class="pt">SystemVerilog</span><span class="pt">AXI4-Stream</span>
             <span class="pt">Systolic Array</span><span class="pt">Zybo Z7-20</span>
           </div>
-          <canvas id="systolic-canvas" width="280" height="280" style="margin-top:16px; border:1px solid rgba(255,255,255,0.1); border-radius:8px; background:rgba(0,0,0,0.4);"></canvas>
-          <div style="font-family:var(--mono); font-size:7px; letter-spacing:0.15em; color:rgba(255,255,255,0.3); margin-top:6px; text-transform:uppercase;">Live systolic dataflow simulation</div>
+          <canvas id="systolic-canvas" width="960" height="960" style="margin-top:16px; width:480px; height:480px; border:1px solid rgba(255,255,255,0.08); border-radius:8px; background:rgba(0,0,0,0.6);"></canvas>
+          <div style="font-family:var(--mono); font-size:7px; letter-spacing:0.15em; color:rgba(255,255,255,0.3); margin-top:6px; text-transform:uppercase;">Live systolic dataflow // weight-stationary // activations flow right, partial sums accumulate down</div>
         </div>
         <div class="proj-right">
           <div><div class="proj-stn">100</div><div class="proj-stl">MHz on Z7-20</div></div>
@@ -2271,122 +2271,207 @@ runBoot();
   var sc = document.getElementById('systolic-canvas');
   if(!sc) return;
   var ctx = sc.getContext('2d');
-  var N = 8; // 8x8 grid
-  var pad = 12;
-  var cellW = (sc.width - pad*2) / N;
-  var cellH = (sc.height - pad*2) / N;
-  var gap = 2;
+  var W = sc.width, H = sc.height; // 960x960 (2x for HiDPI)
+  var N = 8;
+  var margin = 80; // space for input labels
+  var gridW = W - margin*2;
+  var gridH = H - margin*2;
+  var cellW = gridW / N;
+  var cellH = gridH / N;
   var tick = 0;
 
-  function draw() {
-    ctx.clearRect(0, 0, sc.width, sc.height);
+  // Pre-generate random "weights" for each PE (stationary)
+  var weights = [];
+  for(var r=0; r<N; r++) { weights[r]=[]; for(var c=0; c<N; c++) weights[r][c] = Math.floor(Math.random()*127)-64; }
+  // Input activations (scroll left to right)
+  var activations = [];
+  for(var i=0; i<N; i++) activations[i] = Math.floor(Math.random()*127);
 
-    // Draw grid lines (subtle)
-    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
-    ctx.lineWidth = 0.5;
-    for(var i = 0; i <= N; i++) {
-      ctx.beginPath();
-      ctx.moveTo(pad + i*cellW, pad);
-      ctx.lineTo(pad + i*cellW, sc.height - pad);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(pad, pad + i*cellH);
-      ctx.lineTo(sc.width - pad, pad + i*cellH);
-      ctx.stroke();
+  function roundRect(x,y,w,h,rad) {
+    ctx.beginPath();
+    ctx.moveTo(x+rad,y); ctx.lineTo(x+w-rad,y);
+    ctx.quadraticCurveTo(x+w,y,x+w,y+rad); ctx.lineTo(x+w,y+h-rad);
+    ctx.quadraticCurveTo(x+w,y+h,x+w-rad,y+h); ctx.lineTo(x+rad,y+h);
+    ctx.quadraticCurveTo(x,y+h,x,y+h-rad); ctx.lineTo(x,y+rad);
+    ctx.quadraticCurveTo(x,y,x+rad,y); ctx.closePath();
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    // ── Input labels on top (activations)
+    ctx.font = '16px "Space Mono", monospace';
+    ctx.textAlign = 'center';
+    for(var c=0; c<N; c++) {
+      var cx = margin + c*cellW + cellW/2;
+      var aIdx = (Math.floor(tick*0.5) + c) % 32;
+      var aVal = ((aIdx * 17 + 3) % 255) - 128;
+      // Animated: pulse when data enters
+      var entering = ((tick*0.5) % N) < 1 ? 0.8 : 0.3;
+      ctx.fillStyle = 'rgba(74,158,255,' + entering + ')';
+      ctx.fillText('A' + c, cx, margin - 40);
+      ctx.font = '13px "Space Mono", monospace';
+      ctx.fillStyle = 'rgba(74,158,255,0.5)';
+      ctx.fillText(aVal, cx, margin - 18);
+      ctx.font = '16px "Space Mono", monospace';
+      // Arrow down
+      ctx.strokeStyle = 'rgba(74,158,255,0.2)';
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(cx, margin - 10); ctx.lineTo(cx, margin); ctx.stroke();
     }
 
-    // Draw PEs with diagonal wavefront activation
-    for(var r = 0; r < N; r++) {
-      for(var c = 0; c < N; c++) {
-        var x = pad + c*cellW + gap;
-        var y = pad + r*cellH + gap;
+    // ── Input labels on left (partial sums / weights)
+    for(var r=0; r<N; r++) {
+      var ry = margin + r*cellH + cellH/2;
+      ctx.font = '16px "Space Mono", monospace';
+      ctx.textAlign = 'right';
+      ctx.fillStyle = 'rgba(204,61,16,0.5)';
+      ctx.fillText('W' + r, margin - 24, ry + 5);
+      // Arrow right
+      ctx.strokeStyle = 'rgba(204,61,16,0.15)';
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(margin - 12, ry); ctx.lineTo(margin, ry); ctx.stroke();
+    }
+
+    // ── Grid lines
+    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+    ctx.lineWidth = 1;
+    for(var i=0; i<=N; i++) {
+      ctx.beginPath(); ctx.moveTo(margin+i*cellW, margin); ctx.lineTo(margin+i*cellW, margin+gridH); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(margin, margin+i*cellH); ctx.lineTo(margin+gridW, margin+i*cellH); ctx.stroke();
+    }
+
+    // ── Processing Elements
+    var gap = 4;
+    for(var r=0; r<N; r++) {
+      for(var c=0; c<N; c++) {
+        var x = margin + c*cellW + gap;
+        var y = margin + r*cellH + gap;
         var w = cellW - gap*2;
         var h = cellH - gap*2;
 
-        // Diagonal wavefront: activation depends on (r+c) relative to tick
-        var phase = (tick - (r + c)) % (N*3);
-        if(phase < 0) phase += N*3;
+        // Diagonal wavefront
+        var phase = (tick*0.5 - (r + c)) % (N*2.5);
+        if(phase < 0) phase += N*2.5;
         var active = phase < N;
         var intensity = active ? Math.max(0, 1 - phase/N) : 0;
+        // Secondary pulse for MAC operation
+        var macPulse = active ? Math.sin(phase * 0.8) * 0.3 : 0;
+        var totalIntensity = Math.min(1, intensity + Math.max(0, macPulse));
 
-        // PE background
-        if(intensity > 0) {
-          var alpha = intensity * 0.85;
-          ctx.fillStyle = 'rgba(204,61,16,' + alpha + ')';
-          ctx.shadowColor = 'rgba(204,61,16,' + (alpha*0.6) + ')';
-          ctx.shadowBlur = 8;
-        } else {
-          ctx.fillStyle = 'rgba(255,255,255,0.04)';
+        // PE fill
+        roundRect(x, y, w, h, 6);
+        if(totalIntensity > 0) {
+          var a = totalIntensity * 0.7;
+          ctx.fillStyle = 'rgba(204,61,16,' + a + ')';
+          ctx.shadowColor = 'rgba(204,61,16,' + (a*0.8) + ')';
+          ctx.shadowBlur = totalIntensity * 20;
+          ctx.fill();
           ctx.shadowBlur = 0;
-        }
-
-        // Rounded rect
-        var radius = 3;
-        ctx.beginPath();
-        ctx.moveTo(x+radius, y);
-        ctx.lineTo(x+w-radius, y);
-        ctx.quadraticCurveTo(x+w, y, x+w, y+radius);
-        ctx.lineTo(x+w, y+h-radius);
-        ctx.quadraticCurveTo(x+w, y+h, x+w-radius, y+h);
-        ctx.lineTo(x+radius, y+h);
-        ctx.quadraticCurveTo(x, y+h, x, y+h-radius);
-        ctx.lineTo(x, y+radius);
-        ctx.quadraticCurveTo(x, y, x+radius, y);
-        ctx.closePath();
-        ctx.fill();
-        ctx.shadowBlur = 0;
-
-        // PE label
-        if(intensity > 0.3) {
-          ctx.fillStyle = 'rgba(255,255,255,' + (intensity*0.9) + ')';
-          ctx.font = '7px "Space Mono", monospace';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText('PE', x+w/2, y+h/2 - 3);
-          ctx.font = '6px "Space Mono", monospace';
-          ctx.fillText(r + ',' + c, x+w/2, y+h/2 + 5);
-        }
-
-        // Data flow arrows (horizontal and vertical)
-        if(intensity > 0.5 && c < N-1) {
-          ctx.strokeStyle = 'rgba(204,61,16,' + (intensity*0.5) + ')';
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(x+w+gap, y+h/2);
-          ctx.lineTo(x+w+gap+gap*2, y+h/2);
+          // Bright border on active
+          ctx.strokeStyle = 'rgba(204,61,16,' + (totalIntensity*0.6) + ')';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        } else {
+          ctx.fillStyle = 'rgba(255,255,255,0.025)';
+          ctx.fill();
+          ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+          ctx.lineWidth = 0.5;
           ctx.stroke();
         }
-        if(intensity > 0.5 && r < N-1) {
-          ctx.strokeStyle = 'rgba(204,61,16,' + (intensity*0.4) + ')';
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(x+w/2, y+h+gap);
-          ctx.lineTo(x+w/2, y+h+gap+gap*2);
-          ctx.stroke();
+
+        // PE text
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        if(totalIntensity > 0.15) {
+          // Weight value
+          ctx.fillStyle = 'rgba(255,255,255,' + Math.min(0.9, totalIntensity*1.2) + ')';
+          ctx.font = '600 18px "Space Mono", monospace';
+          ctx.fillText(weights[r][c], x+w/2, y+h/2 - 8);
+          // Label
+          ctx.font = '10px "Space Mono", monospace';
+          ctx.fillStyle = 'rgba(255,255,255,' + (totalIntensity*0.5) + ')';
+          ctx.fillText('PE['+r+','+c+']', x+w/2, y+h/2 + 14);
+          // MAC indicator
+          if(totalIntensity > 0.4) {
+            ctx.font = '9px "Space Mono", monospace';
+            ctx.fillStyle = 'rgba(74,158,255,' + (totalIntensity*0.6) + ')';
+            ctx.fillText('MAC', x+w/2, y+h/2 + 28);
+          }
+        } else {
+          // Idle state - dim weight
+          ctx.font = '14px "Space Mono", monospace';
+          ctx.fillStyle = 'rgba(255,255,255,0.08)';
+          ctx.fillText(weights[r][c], x+w/2, y+h/2);
+        }
+
+        // ── Data flow lines
+        // Horizontal (activations flowing right)
+        if(c < N-1) {
+          var lineAlpha = totalIntensity * 0.5;
+          if(lineAlpha > 0.05) {
+            ctx.strokeStyle = 'rgba(74,158,255,' + lineAlpha + ')';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(x+w, y+h/2);
+            ctx.lineTo(x+w+gap*2, y+h/2);
+            ctx.stroke();
+            // Arrow head
+            ctx.fillStyle = 'rgba(74,158,255,' + lineAlpha + ')';
+            ctx.beginPath();
+            ctx.moveTo(x+w+gap*2, y+h/2-3);
+            ctx.lineTo(x+w+gap*2+4, y+h/2);
+            ctx.lineTo(x+w+gap*2, y+h/2+3);
+            ctx.fill();
+          }
+        }
+        // Vertical (partial sums flowing down)
+        if(r < N-1) {
+          var vAlpha = totalIntensity * 0.4;
+          if(vAlpha > 0.05) {
+            ctx.strokeStyle = 'rgba(204,61,16,' + vAlpha + ')';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(x+w/2, y+h);
+            ctx.lineTo(x+w/2, y+h+gap*2);
+            ctx.stroke();
+            // Arrow head
+            ctx.fillStyle = 'rgba(204,61,16,' + vAlpha + ')';
+            ctx.beginPath();
+            ctx.moveTo(x+w/2-3, y+h+gap*2);
+            ctx.lineTo(x+w/2, y+h+gap*2+4);
+            ctx.lineTo(x+w/2+3, y+h+gap*2);
+            ctx.fill();
+          }
         }
       }
     }
 
-    // Header text
-    ctx.fillStyle = 'rgba(255,255,255,0.25)';
-    ctx.font = '8px "Space Mono", monospace';
+    // ── Header
+    ctx.fillStyle = 'rgba(255,255,255,0.2)';
+    ctx.font = '14px "Space Mono", monospace';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
-    ctx.fillText('SYSTOLIC ARRAY // 8x8 INT8 // WEIGHT-STATIONARY', pad, 2);
+    ctx.fillText('SYSTOLIC ARRAY // 8x8 INT8 // WEIGHT-STATIONARY', margin, 16);
 
-    tick += 0.15;
+    // ── Legend
+    ctx.font = '11px "Space Mono", monospace';
+    var legY = H - 24;
+    ctx.fillStyle = 'rgba(74,158,255,0.5)';
+    ctx.fillText('BLUE: ACTIVATIONS (RIGHT)', margin, legY);
+    ctx.fillStyle = 'rgba(204,61,16,0.5)';
+    ctx.fillText('ORANGE: PARTIAL SUMS (DOWN)', margin + 340, legY);
+
+    tick += 0.08;
     requestAnimationFrame(draw);
   }
 
-  // Only start when canvas is visible (IntersectionObserver)
   if(window.IntersectionObserver) {
     var obs = new IntersectionObserver(function(entries) {
       if(entries[0].isIntersecting) { draw(); obs.disconnect(); }
-    }, {threshold: 0.1});
+    }, {threshold: 0.05});
     obs.observe(sc);
-  } else {
-    draw();
-  }
+  } else { draw(); }
 })();
 
 </script>
