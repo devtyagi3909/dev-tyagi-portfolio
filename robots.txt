@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://devtyagi3909.github.io/dev-tyagi-portfolio/sitemap.xml
