@@ -8,4 +8,3 @@ fpga (custom LO etc etc)
 Arduino 
 motors(vldc etc etc)
 - --   --   --  -- - -- - - - - -- -- - - - - - - - - - -- - - - - - - -- - - - - - - - --  - -  - - - - - - - - - - - - - -  - - - - - -   -  - --  - - - -
-YOU CAN CONTACT ME THROUGHT "CONTACT ME" SECTION ON MY PORTFOLIO SITE
